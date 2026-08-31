@@ -8,12 +8,6 @@ on:
     types: ["opened", "synchronize"]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  packages: write
-  id-token: write
-  actions: read
-
 env:
   ASSIMP_VERSION: '6.0.5'
 
@@ -27,16 +21,12 @@ jobs:
         include:
           - abi: armeabi-v7a
             arch_name: arm
-            generate_bindings: false
           - abi: arm64-v8a
             arch_name: arm64
-            generate_bindings: true
           - abi: x86
             arch_name: x86
-            generate_bindings: false
           - abi: x86_64
             arch_name: x64
-            generate_bindings: false
 
     steps:
       - name: Checkout Repository with Submodules
@@ -87,7 +77,6 @@ jobs:
           cmake --build build/android-${{ matrix.abi }} --config Release -j $(nproc)
 
       - name: Generate SWIG C# Bindings for Android
-        if: matrix.generate_bindings == true
         run: |
           mkdir -p swig_output/android
           swig -c++ -csharp \
@@ -110,10 +99,9 @@ jobs:
             -o build/android-${{ matrix.abi }}/bin/libassimp_maui.so
 
       - name: Compress Generated C# Classes
-        if: matrix.generate_bindings == true
         run: |
           cd swig_output/android
-          zip -r ../../assimp-csharp-android-bindings.zip . -x "assimp_maui.cxx"
+          zip -r ../../assimp-csharp-android-${{ matrix.abi }}-bindings.zip . -x "assimp_maui.cxx"
 
       - name: Prepare Android Artifacts
         run: |
@@ -128,11 +116,10 @@ jobs:
           path: artifacts/android/${{ matrix.abi }}/*
 
       - name: Upload C# Bindings Artifact (ZIP)
-        if: matrix.generate_bindings == true
         uses: actions/upload-artifact@v4
         with:
-          name: assimp-csharp-android-bindings
-          path: assimp-csharp-android-bindings.zip
+          name: assimp-csharp-android-${{ matrix.abi }}-bindings
+          path: assimp-csharp-android-${{ matrix.abi }}-bindings.zip
 
   ios:
     name: iOS
@@ -144,15 +131,12 @@ jobs:
           - target: device
             sdk: iphoneos
             arch: arm64
-            generate_bindings: true
           - target: simulator
             sdk: iphonesimulator
             arch: arm64
-            generate_bindings: false
           - target: simulator
             sdk: iphonesimulator
             arch: x86_64
-            generate_bindings: false
 
     steps:
       - name: Checkout Repository with Submodules
@@ -224,10 +208,9 @@ jobs:
             build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/assimp_maui.o
 
       - name: Compress Generated C# Classes
-        if: matrix.generate_bindings == true
         run: |
           cd swig_output/ios
-          zip -r ../../assimp-csharp-ios-bindings.zip . -x "assimp_maui.cxx" "assimp_maui.o"
+          zip -r ../../assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip . -x "assimp_maui.cxx" "assimp_maui.o"
 
       - name: Prepare iOS Artifacts
         run: |
@@ -242,11 +225,10 @@ jobs:
           path: artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/*
 
       - name: Upload C# Bindings Artifact (ZIP)
-        if: matrix.generate_bindings == true
         uses: actions/upload-artifact@v4
         with:
-          name: assimp-csharp-ios-bindings
-          path: assimp-csharp-ios-bindings.zip
+          name: assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings
+          path: assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip
 
   maccatalyst:
     name: MacCatalyst
@@ -256,9 +238,7 @@ jobs:
       matrix:
         include:
           - arch: arm64
-            generate_bindings: true
           - arch: x86_64
-            generate_bindings: false
 
     steps:
       - name: Checkout Repository with Submodules
@@ -330,10 +310,9 @@ jobs:
             build/maccatalyst-${{ matrix.arch }}/lib/assimp_maui.o
 
       - name: Compress Generated C# Classes
-        if: matrix.generate_bindings == true
         run: |
           cd swig_output/maccatalyst
-          zip -r ../../assimp-csharp-maccatalyst-bindings.zip . -x "assimp_maui.cxx" "assimp_maui.o"
+          zip -r ../../assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings.zip . -x "assimp_maui.cxx" "assimp_maui.o"
 
       - name: Prepare Mac Catalyst Artifacts
         run: |
@@ -348,11 +327,10 @@ jobs:
           path: artifacts/maccatalyst/${{ matrix.arch }}/*
 
       - name: Upload C# Bindings Artifact (ZIP)
-        if: matrix.generate_bindings == true
         uses: actions/upload-artifact@v4
         with:
-          name: assimp-csharp-maccatalyst-bindings
-          path: assimp-csharp-maccatalyst-bindings.zip
+          name: assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings
+          path: assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings.zip
 
   windows:
     name: Windows
@@ -363,10 +341,8 @@ jobs:
         include:
           - arch: x64
             generator_arch: x64
-            generate_bindings: true
           - arch: arm64
             generator_arch: ARM64
-            generate_bindings: false
 
     steps:
       - name: Checkout Repository with Submodules
@@ -427,9 +403,8 @@ jobs:
             /OUT:build\windows-${{ matrix.arch }}\bin\Release\assimp_maui.dll
 
       - name: Compress Generated C# Classes
-        if: matrix.generate_bindings == true
         run: |
-          Compress-Archive -Path swig_output/windows/*.cs -DestinationPath assimp-csharp-windows-bindings.zip
+          Compress-Archive -Path swig_output/windows/*.cs -DestinationPath assimp-csharp-windows-${{ matrix.arch }}-bindings.zip
 
       - name: Prepare Windows Artifacts
         run: |
@@ -443,8 +418,7 @@ jobs:
           path: artifacts/windows/${{ matrix.arch }}/*.dll
 
       - name: Upload C# Bindings Artifact (ZIP)
-        if: matrix.generate_bindings == true
         uses: actions/upload-artifact@v4
         with:
-          name: assimp-csharp-windows-bindings
-          path: assimp-csharp-windows-bindings.zip
+          name: assimp-csharp-windows-${{ matrix.arch }}-bindings
+          path: assimp-csharp-windows-${{ matrix.arch }}-bindings.zip
