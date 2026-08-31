@@ -88,7 +88,24 @@ jobs:
 
       - name: Build Native SWIG Wrapper (.so)
         run: |
-          export NDK_CLANG=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++
+          # Define o prefixo correto do Clang do NDK com base na arquitetura da matrix
+          case "${{ matrix.abi }}" in
+            "armeabi-v7a")
+              HOST_TRIPLET="armv7a-linux-androideabi24"
+              ;;
+            "arm64-v8a")
+              HOST_TRIPLET="aarch64-linux-android24"
+              ;;
+            "x86")
+              HOST_TRIPLET="i686-linux-android24"
+              ;;
+            "x86_64")
+              HOST_TRIPLET="x86_64-linux-android24"
+              ;;
+          esac
+
+          NDK_CLANG="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${HOST_TRIPLET}-clang++"
+
           $NDK_CLANG -shared -fPIC -O3 \
             swig_output/android/assimp_maui.cxx \
             -Iexternal/assimp/include \
@@ -97,7 +114,7 @@ jobs:
             -Lbuild/android-${{ matrix.abi }}/lib \
             -lassimp \
             -o build/android-${{ matrix.abi }}/bin/libassimp_maui.so
-
+            
       - name: Compress Generated C# Classes
         run: |
           cd swig_output/android
