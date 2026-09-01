@@ -29,33 +29,38 @@ jobs:
             arch_name: x64
 
     steps:
+        
+      - name: Cache Assimp Submodule
+        uses: actions/cache@v5
+        id: cache
+        with:
+          path: |
+            artifacts/android/${{ matrix.abi }}/
+            assimp-csharp-android-${{ matrix.abi }}-bindings.zip
+          key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
+                  
       - name: Checkout Repository with Submodules
         uses: actions/checkout@v4
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Cache Assimp Submodule
-        uses: actions/cache@v4
-        with:
-          path: external/assimp
-          key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-assimp-${{ github.ref_name }}-
-            ${{ runner.os }}-assimp-
-
       - name: Install System Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y swig cmake build-essential zip
 
       - name: Set up Android NDK
         uses: nttld/setup-ndk@v1
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           ndk-version: r26b
           link-to-sdk: true
 
       - name: Configure CMake for Android (${{ matrix.abi }})
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cmake -S external/assimp -B build/android-${{ matrix.abi }} \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
@@ -73,10 +78,12 @@ jobs:
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
 
       - name: Build Assimp Shared Library
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cmake --build build/android-${{ matrix.abi }} --config Release -j $(nproc)
 
       - name: Generate SWIG C# Bindings for Android
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p swig_output/android
           swig -c++ -csharp \
@@ -87,6 +94,7 @@ jobs:
             swig/assimp.i
 
       - name: Build Native SWIG Wrapper (.so)
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           # Define o prefixo correto do Clang do NDK com base na arquitetura da matrix
           case "${{ matrix.abi }}" in
@@ -116,11 +124,13 @@ jobs:
             -o build/android-${{ matrix.abi }}/bin/libassimp_maui.so
 
       - name: Compress Generated C# Classes
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd swig_output/android
           zip -r ../../assimp-csharp-android-${{ matrix.abi }}-bindings.zip . -x "assimp_maui.cxx"
 
       - name: Prepare Android Artifacts
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p artifacts/android/${{ matrix.abi }}
           cp build/android-${{ matrix.abi }}/bin/libassimp.so artifacts/android/${{ matrix.abi }}/
@@ -166,24 +176,28 @@ jobs:
           fetch-depth: 0
 
       - name: Cache Assimp Submodule
-        uses: actions/cache@v4
+        id: cache
+        uses: actions/cache@v5
         with:
-          path: external/assimp
+          path: |
+            assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip
+            artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
           key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-assimp-${{ github.ref_name }}-
-            ${{ runner.os }}-assimp-
-
+        
       - name: Setup Xcode 26.3
         uses: maxim-lobanov/setup-xcode@v1
+        if: steps.cache.outputs.cache-hit != 'true'
+      
         with:
           xcode-version: '26.3'
 
       - name: Install SWIG and Tools
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           brew install swig cmake
 
       - name: Configure CMake for iOS (${{ matrix.sdk }} - ${{ matrix.arch }})
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p build/ios-${{ matrix.sdk }}-${{ matrix.arch }}
           cmake -S external/assimp -B build/ios-${{ matrix.sdk }}-${{ matrix.arch }} \
@@ -201,10 +215,12 @@ jobs:
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
 
       - name: Build Assimp Static Library
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cmake --build build/ios-${{ matrix.sdk }}-${{ matrix.arch }} --config Release -j $(sysctl -n hw.ncpu)
 
       - name: Generate SWIG C# Bindings for iOS
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p swig_output/ios
           swig -c++ -csharp \
@@ -215,6 +231,7 @@ jobs:
             swig/assimp.i
 
       - name: Build Native SWIG Static Wrapper (.a)
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           if [ "${{ matrix.sdk }}" = "iphoneos" ]; then
             SDK_FLAG="-miphoneos-version-min=${{ matrix.min_version }}"
@@ -234,11 +251,13 @@ jobs:
             build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/assimp_maui.o
 
       - name: Compress Generated C# Classes
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd swig_output/ios
           zip -r ../../assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip . -x "assimp_maui.cxx" "assimp_maui.o"
 
       - name: Prepare iOS Artifacts
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}
           cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
@@ -270,7 +289,8 @@ jobs:
 
     steps:
       - name: Cache Assimp Submodule
-        uses: actions/cache@v4
+        uses: actions/cache@v5
+        id: cache
         with:
           path: |
             artifacts/maccatalyst/${{ matrix.arch }}/
@@ -278,6 +298,7 @@ jobs:
           key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
 
       - name: Checkout Repository with Submodules
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -286,14 +307,17 @@ jobs:
      
       - name: Setup Xcode 26.3
         uses: maxim-lobanov/setup-xcode@v1
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           xcode-version: '26.3'
 
       - name: Install SWIG and Tools
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           brew install swig cmake
 
       - name: Configure CMake for Mac Catalyst (${{ matrix.arch }})
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p build/maccatalyst-${{ matrix.arch }}
           cmake -S external/assimp -B build/maccatalyst-${{ matrix.arch }} \
@@ -312,10 +336,12 @@ jobs:
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
 
       - name: Build Assimp Static Library (.a)
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cmake --build build/maccatalyst-${{ matrix.arch }} --config Release -j $(sysctl -n hw.ncpu)
 
       - name: Generate SWIG C# Bindings for Mac Catalyst
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p swig_output/maccatalyst
           swig -c++ -csharp \
@@ -326,6 +352,7 @@ jobs:
             swig/assimp.i
 
       - name: Build Native SWIG Static Wrapper (.a)
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           xcrun -sdk macosx clang++ -c -O3 \
             -target ${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi \
@@ -338,11 +365,13 @@ jobs:
             build/maccatalyst-${{ matrix.arch }}/lib/assimp_maui.o
 
       - name: Compress Generated C# Classes
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd swig_output/maccatalyst
           zip -r ../../assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings.zip . -x "assimp_maui.cxx" "assimp_maui.o"
 
       - name: Prepare Mac Catalyst Artifacts
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p artifacts/maccatalyst/${{ matrix.arch }}
           cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/
@@ -373,26 +402,29 @@ jobs:
             generator_arch: ARM64
 
     steps:
+      - name: Cache Assimp Built lib
+        uses: actions/cache@v5
+        id: cache
+        with:
+          path: |
+            assimp-csharp-windows-${{ matrix.arch }}-bindings.zip
+            artifacts/windows/${{ matrix.arch }}/
+          key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
+      
       - name: Checkout Repository with Submodules
         uses: actions/checkout@v4
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Cache Assimp Submodule
-        uses: actions/cache@v4
-        with:
-          path: external/assimp
-          key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-assimp-${{ github.ref_name }}-
-            ${{ runner.os }}-assimp-
-
       - name: Install SWIG via Chocolatey
+        if: steps.cache.outputs.cache-hit != 'true'      
         run: |
           choco install swig -y
 
       - name: Configure CMake for Windows (${{ matrix.arch }})
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cmake -S external/assimp -B build/windows-${{ matrix.arch }} `
             -G "Visual Studio 17 2022" `
@@ -406,10 +438,12 @@ jobs:
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
 
       - name: Build Assimp DLL
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cmake --build build/windows-${{ matrix.arch }} --config Release -j $env:NUMBER_OF_PROCESSORS
 
       - name: Generate SWIG C# Bindings for Windows
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           New-Item -ItemType Directory -Force -Path swig_output/windows
           swig -c++ -csharp `
@@ -420,6 +454,7 @@ jobs:
             swig/assimp.i
 
       - name: Build Native SWIG Wrapper DLL
+        if: steps.cache.outputs.cache-hit != 'true'
         shell: cmd
         run: |
           :: Define a arquitetura do toolchain cruzado (x64_arm64 para buildar ARM64 a partir do runner x64)
@@ -434,12 +469,14 @@ jobs:
             /Ibuild\windows-${{ matrix.arch }}\include ^
             /link /LIBPATH:build\windows-${{ matrix.arch }}\lib\Release assimp-vc143-mt.lib ^
             /OUT:build\windows-${{ matrix.arch }}\bin\Release\assimp_maui.dll
-            
+
       - name: Compress Generated C# Classes
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           Compress-Archive -Path swig_output/windows/*.cs -DestinationPath assimp-csharp-windows-${{ matrix.arch }}-bindings.zip
 
       - name: Prepare Windows Artifacts
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           New-Item -ItemType Directory -Force -Path artifacts/windows/${{ matrix.arch }}
           Copy-Item build/windows-${{ matrix.arch }}/bin/Release/*.dll artifacts/windows/${{ matrix.arch }}/
