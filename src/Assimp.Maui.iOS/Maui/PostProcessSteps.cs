@@ -10,7 +10,7 @@
 
 namespace Assimp.Maui {
 
-public enum PostProcessSteps {
+public enum PostProcessSteps : uint {
   Process_CalcTangentSpace = 1,
   Process_JoinIdenticalVertices = 2,
   Process_MakeLeftHanded = 4,
