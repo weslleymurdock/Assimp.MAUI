@@ -269,21 +269,21 @@ jobs:
             min_version: "14.0"
 
     steps:
+      - name: Cache Assimp Submodule
+        uses: actions/cache@v4
+        with:
+          path: |
+            artifacts/maccatalyst/${{ matrix.arch }}/
+            assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings.zip
+          key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
+
       - name: Checkout Repository with Submodules
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Cache Assimp Submodule
-        uses: actions/cache@v4
-        with:
-          path: external/assimp
-          key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-assimp-${{ github.ref_name }}-
-            ${{ runner.os }}-assimp-
-
+     
       - name: Setup Xcode 26.3
         uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -422,14 +422,19 @@ jobs:
       - name: Build Native SWIG Wrapper DLL
         shell: cmd
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.generator_arch }}
-          cl /LD /EHsc /O2 ^
+          :: Define a arquitetura do toolchain cruzado (x64_arm64 para buildar ARM64 a partir do runner x64)
+          if "${{ matrix.arch }}" == "arm64" ( set VCVARS_ARCH=x64_arm64 ) else ( set VCVARS_ARCH=x64 )
+          
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %VCVARS_ARCH%
+          
+          :: A flag /std:c++17 resolve o erro C7525 do defs.h do Assimp
+          cl /LD /EHsc /O2 /std:c++17 ^
             swig_output\windows\assimp_maui.cxx ^
             /Iexternal\assimp\include ^
             /Ibuild\windows-${{ matrix.arch }}\include ^
             /link /LIBPATH:build\windows-${{ matrix.arch }}\lib\Release assimp-vc143-mt.lib ^
             /OUT:build\windows-${{ matrix.arch }}\bin\Release\assimp_maui.dll
-
+            
       - name: Compress Generated C# Classes
         run: |
           Compress-Archive -Path swig_output/windows/*.cs -DestinationPath assimp-csharp-windows-${{ matrix.arch }}-bindings.zip
