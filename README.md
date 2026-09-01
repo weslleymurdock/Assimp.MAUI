@@ -29,26 +29,18 @@ Or add it directly to your project's .csproj file:
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="Assimp.MAUI" Version="1.0.0"/>
+  <PackageReference Include="Assimp.MAUI" Version="6.0.5.0-rc1"/>
 </ItemGroup>
 ```
 
 ## 💻 Usage Example
 
+TBD.
 
 ## 🛠️ Build Automation (GitHub Actions)
 
 This repository utilizes GitHub Actions to natively compile Assimp C++ source code across host runners for each target platform, packaging the final .nupkg artifact automatically.
 
-To build locally:
-
-Clone the repository along with the Assimp submodules:
-
-```bash
-git clone --recursive https://github.com/weslleymurdock/Assimp.MAUI.git
-```
-
-Open the solution in Visual Studio 2022 (with .NET MAUI and C++ Cross-Platform Development workloads installed) or execute the build scripts using the .NET CLI.
 
 ## 📜 License and Attribution
 

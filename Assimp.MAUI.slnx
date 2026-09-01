@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Assimp.Maui.Android/Assimp.Maui.Android.csproj" />
+    <Project Path="src/Assimp.Maui.iOS/Assimp.Maui.iOS.csproj" />
+    <Project Path="src/Assimp.Maui.MacCatalyst/Assimp.Maui.MacCatalyst.csproj" />
+    <Project Path="src/Assimp.Maui.Windows/Assimp.Maui.Windows.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<package>
+    <metadata>
+        <id>Assimp.Maui</id>
+        <title>Assimp.Maui</title>
+        <version>6.0.5.0-rc1</version>
+        <authors>Weslley Luiz</authors>
+        <owners>Remote Code Hub</owners>
+        <projectUrl>http://github.com/weslleymurdock/Assimp.MAUI</projectUrl>
+        <description>**Assimp.MAUI** is a .NET MAUI wrapper and cross-platform binary distribution for the [Open Asset Import Library (Assimp)](https://github.com/assimp/assimp). This package bundles pre-compiled native Assimp binaries targeting all .NET MAUI supported platforms and Runtime Identifiers (RIDs), enabling seamless loading and processing of over 40 3D model formats (such as OBJ, FBX, GLTF, COLLADA, and STL) in cross-platform applications.</description>
+        <releaseNotes>- 🚀 First release.</releaseNotes>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <license type="expression">BSD 3-Clause</license>
+        <copyright>Copyright ©2026 Remote Code Hub</copyright>
+        <tags>assimp net maui native assimp-net android ios windows maccatalyst scene game game-dev engine assets asset 3d</tags>
+        <readme>../README.md</readme>
+        <iconUrl>https://raw.githubusercontent.com/weslleymurdock/Assimp.MAUI/main/src/icon.png</iconUrl>
+        <icon>icon.png</icon>
+        <repository type="git" url="https://github.com/weslleymurdock/Assimp.MAUI" />
+        <references>
+            <group targetFramework="net10.0-android36.0">
+                <reference file="Assimp.Maui.Android.dll" />
+            </group>
+            <group targetFramework="net10.0-maccatalyst26.2">
+                <reference file="Assimp.Maui.MacCatalyst.dll" />
+            </group>
+            <group targetFramework="net10.0-ios26.2">
+                <reference file="Assimp.Maui.iOS.dll" />
+            </group> 
+            <group targetFramework="net10.0-windows10.0.19041.0">
+                <reference file="Assimp.Maui.Windows.dll" />
+            </group> 
+        </references>
+
+        <dependencies>
+            <group targetFramework="net10.0-android36.0" />
+            <group targetFramework="net10.0-ios26.2" />
+            <group targetFramework="net10.0-maccatalyst26.2" />
+            <group targetFramework="net10.0-windows10.0.19041.0" />
+        </dependencies>
+    </metadata>
+
+    <files>
+        <file src="Assimp.Maui.targets" target="build\Assimp.Maui.targets" />
+        <file src="..\artifacts\assimp-android-arm64-v8a\*" target="runtimes\android-arm64\native\" />
+        <file src="..\artifacts\assimp-android-armeabi-v7a\*" target="runtimes\android-arm\native\" />
+        <file src="..\artifacts\assimp-android-x86\*" target="runtimes\android-x86\native\" />
+        <file src="..\artifacts\assimp-android-x86_64\*" target="runtimes\android-x86_64\native\" />
+
+        <file src="..\artifacts\assimp-ios-iphoneos-arm64\*"
+            target="runtimes\ios-arm64\native\" />
+        <file src="..\artifacts\assimp-ios-iphonesimulator-arm64\*"
+            target="runtimes\iossimulator-arm64\native\" />
+        <file src="..\artifacts\assimp-ios-iphonesimulator-x86_64\*"
+            target="runtimes\iossimulator-x64\native\" />
+        
+        <file src="..\artifacts\assimp-maccatalyst-x86_64\*"
+            target="runtimes\maccatalyst-x64\native\" />
+        <file src="..\artifacts\assimp-maccatalyst-arm64\*"
+            target="runtimes\maccatalyst-arm64\native\" />
+
+        <file src="..\artifacts\assimp-windows-x64\*"
+            target="runtimes\win-x64\native\" />
+        <file src="..\artifacts\assimp-windows-arm64\*"
+            target="runtimes\win-arm64\native\" />
+
+        <file src="Assimp.Maui.Android\bin\Release\net10.0-android\Assimp.Maui.Android.*"
+            target="lib\net10.0-android36.0\" />
+        <file src="Assimp.Maui.Android\bin\Release\net10.0-android\Assimp.Maui.Android.*"
+            target="ref\net10.0-android36.0\" />
+        
+        <file src="Assimp.Maui.iOS\bin\Release\net10.0-ios\Assimp.Maui.iOS.*"
+            target="lib\net10.0-ios26.2\" />
+        <file src="Assimp.Maui.iOS\bin\Release\net10.0-ios\Assimp.Maui.iOS.*"
+            target="ref\net10.0-ios26.2\" />
+
+        <file src="Assimp.Maui.MacCatalyst\bin\Release\net10.0-maccatalyst\Assimp.Maui.MacCatalyst.*"
+            target="lib\net10.0-maccatalyst26.2\" />
+        <file src="Assimp.Maui.MacCatalyst\bin\Release\net10.0-maccatalyst\Assimp.Maui.MacCatalyst.*"
+            target="ref\net10.0-maccatalyst26.2\" />
+         
+        <file src="Assimp.Maui.Windows\bin\Release\net10.0-windows10.0.19041.0\publish\Assimp.Maui.Windows.*"
+            target="lib\net10.0-windows10.0.19041\" />
+        <file src="Assimp.Maui.Windows\bin\Release\net10.0-windows10.0.19041.0\publish\Assimp.Maui.Windows.*"
+            target="ref\net10.0-windows10.0.19041\" />
+            
+        <file src="..\LICENSE.md" target="." />
+        <file src="..\README.md" target="." />
+        <file src="icon.png" target="." />
+    </files>
+</package>
