@@ -1,7 +1,7 @@
 %module(directors="1") Assimp
 
 %{
-/* 1. NATIVE HEADERS AND MACRO FIXES */
+/* NATIVE HEADERS AND MACRO FIXES */
 #define PACK_STRUCT
 #include <assimp/cimport.h>
 #include <assimp/cfileio.h>
@@ -9,7 +9,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/types.h>
 
-/* 2. C++ DIRECTORS FOR CALLBACKS */
+/* C++ DIRECTORS FOR CALLBACKS */
 class LogStream {
 public:
     virtual ~LogStream() {}
@@ -88,7 +88,7 @@ public:
 };
 %}
 
-/*  .NET & SWIG base types */
+/* .NET & SWIG base types */
 %include "stdint.i"
 %include "typemaps.i"
 %include "enums.swg"
@@ -123,7 +123,18 @@ public:
     aiFileIO GetNative();
 };
 
-/* C# CONVENTIONS (PascalCase) */
+/* C# CONVENTIONS (PascalCase) & TYPE MAPPINGS */
+
+/* flag enums thats exceeds Int32 nativamente to uint */
+%typemap(csbase) aiPostProcessSteps "uint";
+%typemap(csbase) aiImporterFlags "uint";
+
+/* Resolves enums formatting. 
+ * E.g: aiProcess_CalcTangentSpace -> CalcTangentSpace
+ * aiShadingMode_NoShading -> NoShading */
+%rename("%(regex:/^ai[a-zA-Z0-9]+_([a-zA-Z0-9]+)/\\1/)s", %$isenumitem) "";
+
+/* General proprs and structs rules */
 %rename("%(regex:/^ai(.*)/\\1/)s") "";
 %rename("%(regex:/^m([A-Z].*)/\\1/)s", %$isvariable) "";
 %rename("%(regex:/^m_([a-zA-Z].*)/\\1/)s", %$isvariable) "";
