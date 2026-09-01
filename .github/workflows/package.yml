@@ -623,7 +623,12 @@ jobs:
         if: steps.cache-libs.outputs.cache-hit != 'true'
         with:
           name: assimp-csharp-android-arm64-v8a-bindings
-          path: ${{ github.workspace }}/artifacts/android-bindings
+          path: ${{ github.workspace }}/artifacts/
+
+      - name: Extract Android Bindings
+        if: steps.cache-libs.outputs.cache-hit != 'true'
+        run: |
+          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-android-arm64-v8a-bindings.zip -d ${{ github.workspace }}/artifacts/android-bindings
 
       - name: Download native Android x86
         uses: actions/download-artifact@v8
@@ -658,8 +663,12 @@ jobs:
         if: steps.cache-libs.outputs.cache-hit != 'true'
         with:
           name: assimp-csharp-ios-iphonesimulator-arm64-bindings
-          path: ${{ github.workspace }}/artifacts/ios-bindings
+          path: ${{ github.workspace }}/artifacts/
 
+      - name: Extract iOS Bindings
+        if: steps.cache-libs.outputs.cache-hit != 'true'
+        run: |
+          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-ios-iphonesimulator-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/ios-bindings
       - name: Download native iOS arm64 iphoneos
         uses: actions/download-artifact@v8
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -686,8 +695,13 @@ jobs:
         if: steps.cache-libs.outputs.cache-hit != 'true'
         with:
           name: assimp-csharp-maccatalyst-arm64-bindings
-          path: ${{ github.workspace }}/artifacts/mac-bindings
+          path: ${{ github.workspace }}/artifacts/
      
+      - name: Extract iOS Bindings
+        if: steps.cache-libs.outputs.cache-hit != 'true'
+        run: |
+          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-maccatalyst-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/mac-bindings
+
       - name: Download native Mac arm64
         uses: actions/download-artifact@v8
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -707,8 +721,12 @@ jobs:
         if: steps.cache-libs.outputs.cache-hit != 'true'
         with:
           name: assimp-csharp-windows-arm64-bindings
-          path: ${{ github.workspace }}/artifacts/win-bindings
+          path: ${{ github.workspace }}/artifacts/
 
+      - name: Extract iOS Bindings
+        if: steps.cache-libs.outputs.cache-hit != 'true'
+        run: |
+          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-windows-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/win-bindings          
       - name: Download native Windows arm64
         uses: actions/download-artifact@v8
         if: steps.cache-libs.outputs.cache-hit != 'true'
