@@ -89,7 +89,7 @@
     </NativeReference>
   </ItemGroup>
 
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('maccatalyst-x86_64'))">
+  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('maccatalyst-x64'))">
     <NativeReference
       Include="$(NuGetPathUnix)Assimp.Maui/$(LibVersion)/runtimes/maccatalyst-x64/native/libassimp.a">
       <Kind>Static</Kind>
