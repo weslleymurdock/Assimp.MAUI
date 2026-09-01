@@ -6,7 +6,7 @@ param(
 )
 
 function IsValidVersion($v) {
-    return $v -match '^v\d+\.\d+\.\d+(\.\d+)?(-[a-zA-Z0-9\-\.]+)?$'
+    return $v -match '^\d+\.\d+\.\d+(\.\d+)?(-[a-zA-Z0-9\-\.]+)?$'
 }
 
 function TagExistsLocal($tagName) {
