@@ -264,7 +264,9 @@ jobs:
       matrix:
         include:
           - arch: arm64
+            min_version: "14.0"
           - arch: x86_64
+            min_version: "14.0"
 
     steps:
       - name: Checkout Repository with Submodules
@@ -299,13 +301,13 @@ jobs:
             -DCMAKE_SYSTEM_NAME=Darwin \
             -DCMAKE_OSX_SYSROOT=macosx \
             -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
-            -DCMAKE_C_FLAGS="-target ${{ matrix.arch }}-apple-ios14.0-macabi -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
-            -DCMAKE_CXX_FLAGS="-target ${{ matrix.arch }}-apple-ios14.0-macabi -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
+            -DCMAKE_C_FLAGS="-target ${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi" \
+            -DCMAKE_CXX_FLAGS="-target ${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi" \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=OFF \
             -DASSIMP_BUILD_TESTS=OFF \
             -DASSIMP_BUILD_ASSIMP_TOOLS=OFF \
-            -DASSIMP_BUILD_ZLIB=ON \
+            -DASSIMP_BUILD_ZLIB=OFF \
             -DASSIMP_INSTALL_PDB=OFF \
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
 
@@ -326,7 +328,7 @@ jobs:
       - name: Build Native SWIG Static Wrapper (.a)
         run: |
           xcrun -sdk macosx clang++ -c -O3 \
-            -target ${{ matrix.arch }}-apple-ios14.0-macabi \
+            -target ${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi \
             swig_output/maccatalyst/assimp_maui.cxx \
             -Iexternal/assimp/include \
             -Ibuild/maccatalyst-${{ matrix.arch }}/include \
