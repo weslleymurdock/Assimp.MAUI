@@ -114,7 +114,7 @@ jobs:
             -Lbuild/android-${{ matrix.abi }}/lib \
             -lassimp \
             -o build/android-${{ matrix.abi }}/bin/libassimp_maui.so
-            
+
       - name: Compress Generated C# Classes
         run: |
           cd swig_output/android
@@ -148,12 +148,15 @@ jobs:
           - target: device
             sdk: iphoneos
             arch: arm64
+            min_version: "14.0"
           - target: simulator
             sdk: iphonesimulator
             arch: arm64
+            min_version: "14.0"
           - target: simulator
             sdk: iphonesimulator
             arch: x86_64
+            min_version: "14.0"
 
     steps:
       - name: Checkout Repository with Submodules
@@ -188,13 +191,12 @@ jobs:
             -DCMAKE_SYSTEM_NAME=iOS \
             -DCMAKE_OSX_SYSROOT=${{ matrix.sdk }} \
             -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min_version }} \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=OFF \
-            -DCMAKE_C_FLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
-            -DCMAKE_CXX_FLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
             -DASSIMP_BUILD_TESTS=OFF \
             -DASSIMP_BUILD_ASSIMP_TOOLS=OFF \
-            -DASSIMP_BUILD_ZLIB=ON \
+            -DASSIMP_BUILD_ZLIB=OFF \
             -DASSIMP_INSTALL_PDB=OFF \
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
 
@@ -214,8 +216,15 @@ jobs:
 
       - name: Build Native SWIG Static Wrapper (.a)
         run: |
+          if [ "${{ matrix.sdk }}" = "iphoneos" ]; then
+            SDK_FLAG="-miphoneos-version-min=${{ matrix.min_version }}"
+          else
+            SDK_FLAG="-mios-simulator-version-min=${{ matrix.min_version }}"
+          fi
+
           xcrun -sdk ${{ matrix.sdk }} clang++ -c -O3 \
             -arch ${{ matrix.arch }} \
+            $SDK_FLAG \
             swig_output/ios/assimp_maui.cxx \
             -Iexternal/assimp/include \
             -Ibuild/ios-${{ matrix.sdk }}-${{ matrix.arch }}/include \
