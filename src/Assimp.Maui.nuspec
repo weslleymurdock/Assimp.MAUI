@@ -84,7 +84,7 @@
         <file src="Assimp.Maui.Windows\bin\Release\net10.0-windows10.0.19041.0\publish\Assimp.Maui.Windows.*"
             target="ref\net10.0-windows10.0.19041\" />
             
-        <file src="..\LICENSE.md" target="." />
+        <file src="LICENSE.md" target="." />
         <file src="README.md" target="." />
         <file src="icon.png" target="." />
     </files>
