@@ -879,7 +879,7 @@ jobs:
         run: |
           dotnet nuget push ${{ github.workspace }}/src/Assimp.Maui.${{ env.VERSION }}.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key "${{ secrets.GH_TOKEN }}" \
+            --api-key "${{ secrets.GITHUB_TOKEN }}" \
             --skip-duplicate
         env: 
           VERSION: ${{ env.VERSION }}
