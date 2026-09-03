@@ -8,21 +8,23 @@
 // the SWIG interface file instead.
 //------------------------------------------------------------------------------
 
-namespace Assimp.Maui {
+namespace Assimp.Maui
+{
 
-public enum ShadingMode {
-  ShadingMode_Flat = 1,
-  ShadingMode_Gouraud = 2,
-  ShadingMode_Phong = 3,
-  ShadingMode_Blinn = 4,
-  ShadingMode_Toon = 5,
-  ShadingMode_OrenNayar = 6,
-  ShadingMode_Minnaert = 7,
-  ShadingMode_CookTorrance = 8,
-  ShadingMode_NoShading = 9,
-  ShadingMode_Unlit = aiShadingMode_NoShading,
-  ShadingMode_Fresnel = 10,
-  ShadingMode_PBR_BRDF = 11
-}
+  public enum ShadingMode
+  {
+    ShadingMode_Flat = 0x1,
+    ShadingMode_Gouraud = 0x2,
+    ShadingMode_Phong = 0x3,
+    ShadingMode_Blinn = 0x4,
+    ShadingMode_Toon = 0x5,
+    ShadingMode_OrenNayar = 0x6,
+    ShadingMode_Minnaert = 0x7,
+    ShadingMode_CookTorrance = 0x8,
+    ShadingMode_NoShading = 0x9,
+    ShadingMode_Unlit = ShadingMode_NoShading,
+    ShadingMode_Fresnel = 0xa,
+    ShadingMode_PBR_BRDF = 0xb
+  }
 
 }

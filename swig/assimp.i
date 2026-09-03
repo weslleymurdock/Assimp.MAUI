@@ -123,18 +123,18 @@ public:
     aiFileIO GetNative();
 };
 
-/* C# CONVENTIONS (PascalCase) & TYPE MAPPINGS */
+/* --- C# CONVENTIONS & ENUM FIXES --- */
 
-/* flag enums thats exceeds Int32 nativamente to uint */
-%typemap(csbase) aiPostProcessSteps "uint";
-%typemap(csbase) aiImporterFlags "uint";
+%typemap(csbase) enum aiPostProcessSteps "uint";
+%typemap(csbase) enum aiImporterFlags "uint";
 
-/* Resolves enums formatting. 
- * E.g: aiProcess_CalcTangentSpace -> CalcTangentSpace
- * aiShadingMode_NoShading -> NoShading */
+/* Ignore internal C/C++ bounds and aliases that break C# generation */
+%csconstvalue("ShadingMode_NoShading") aiShadingMode_Unlit;
+
+/* C# PascalCase Renaming for Enum items (removes aiPrefix_) */
 %rename("%(regex:/^ai[a-zA-Z0-9]+_([a-zA-Z0-9]+)/\\1/)s", %$isenumitem) "";
 
-/* General proprs and structs rules */
+/* General renaming rules */
 %rename("%(regex:/^ai(.*)/\\1/)s") "";
 %rename("%(regex:/^m([A-Z].*)/\\1/)s", %$isvariable) "";
 %rename("%(regex:/^m_([a-zA-Z].*)/\\1/)s", %$isvariable) "";
@@ -159,7 +159,7 @@ typedef unsigned int ai_uint;
 %ignore aiMaterial::Clear;
 %ignore aiMaterial::CopyPropertyList;
 
-/* Ignores GetAiType conflicting functions at  metadata avoiding ambiguity of GCC/Clang */
+/* Ignores GetAiType conflicting functions at metadata avoiding ambiguity of GCC/Clang */
 %ignore GetAiType;
 
 /* Assimp C API Headers Includes  */

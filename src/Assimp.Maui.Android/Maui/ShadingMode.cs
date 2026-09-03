@@ -20,7 +20,7 @@ public enum ShadingMode {
   ShadingMode_Minnaert = 0x7,
   ShadingMode_CookTorrance = 0x8,
   ShadingMode_NoShading = 0x9,
-  ShadingMode_Unlit = aiShadingMode_NoShading,
+  ShadingMode_Unlit = ShadingMode_NoShading,
   ShadingMode_Fresnel = 0xa,
   ShadingMode_PBR_BRDF = 0xb
 }

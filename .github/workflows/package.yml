@@ -88,9 +88,9 @@ jobs:
           mkdir -p swig_output/android
           swig -c++ -csharp \
             -namespace Assimp.Maui \
-            -dllimport assimp_maui \
+            -dllimport assimpmaui \
             -outdir swig_output/android \
-            -o swig_output/android/assimp_maui.cxx \
+            -o swig_output/android/assimpmaui.cxx \
             swig/assimp.i
 
       - name: Build Native SWIG Wrapper (.so)
@@ -114,26 +114,26 @@ jobs:
           NDK_CLANG="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${HOST_TRIPLET}-clang++"
 
           $NDK_CLANG -shared -fPIC -O3 \
-            swig_output/android/assimp_maui.cxx \
+            swig_output/android/assimpmaui.cxx \
             -Iexternal/assimp/include \
             -Ibuild/android-${{ matrix.abi }}/include \
             -Lbuild/android-${{ matrix.abi }}/bin \
             -Lbuild/android-${{ matrix.abi }}/lib \
             -lassimp \
-            -o build/android-${{ matrix.abi }}/bin/libassimp_maui.so
+            -o build/android-${{ matrix.abi }}/bin/libassimpmaui.so
 
       - name: Compress Generated C# Classes
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd swig_output/android
-          zip -r ../../assimp-csharp-android-${{ matrix.abi }}-bindings.zip . -x "assimp_maui.cxx"
+          zip -r ../../assimp-csharp-android-${{ matrix.abi }}-bindings.zip . -x "assimpmaui.cxx"
 
       - name: Prepare Android Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p artifacts/android/${{ matrix.abi }}
           cp build/android-${{ matrix.abi }}/bin/libassimp.so artifacts/android/${{ matrix.abi }}/
-          cp build/android-${{ matrix.abi }}/bin/libassimp_maui.so artifacts/android/${{ matrix.abi }}/
+          cp build/android-${{ matrix.abi }}/bin/libassimpmaui.so artifacts/android/${{ matrix.abi }}/
 
       - name: Upload Native Binaries (.so)
         uses: actions/upload-artifact@v4
@@ -226,7 +226,7 @@ jobs:
             -namespace Assimp.Maui \
             -dllimport __Internal \
             -outdir swig_output/ios \
-            -o swig_output/ios/assimp_maui.cxx \
+            -o swig_output/ios/assimpmaui.cxx \
             swig/assimp.i
 
       - name: Build Native SWIG Static Wrapper (.a)
@@ -241,26 +241,26 @@ jobs:
           xcrun -sdk ${{ matrix.sdk }} clang++ -c -O3 \
             -arch ${{ matrix.arch }} \
             $SDK_FLAG \
-            swig_output/ios/assimp_maui.cxx \
+            swig_output/ios/assimpmaui.cxx \
             -Iexternal/assimp/include \
             -Ibuild/ios-${{ matrix.sdk }}-${{ matrix.arch }}/include \
-            -o build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/assimp_maui.o
+            -o build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/assimpmaui.o
           
-          ar rcs build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp_maui.a \
-            build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/assimp_maui.o
+          ar rcs build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a \
+            build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/assimpmaui.o
 
       - name: Compress Generated C# Classes
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd swig_output/ios
-          zip -r ../../assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip . -x "assimp_maui.cxx" "assimp_maui.o"
+          zip -r ../../assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip . -x "assimpmaui.cxx" "assimpmaui.o"
 
       - name: Prepare iOS Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}
           cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
-          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp_maui.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
+          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
 
       - name: Upload Native Binaries (.a)
         uses: actions/upload-artifact@v4
@@ -347,7 +347,7 @@ jobs:
             -namespace Assimp.Maui \
             -dllimport __Internal \
             -outdir swig_output/maccatalyst \
-            -o swig_output/maccatalyst/assimp_maui.cxx \
+            -o swig_output/maccatalyst/assimpmaui.cxx \
             swig/assimp.i
 
       - name: Build Native SWIG Static Wrapper (.a)
@@ -355,26 +355,26 @@ jobs:
         run: |
           xcrun -sdk macosx clang++ -c -O3 \
             -target ${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi \
-            swig_output/maccatalyst/assimp_maui.cxx \
+            swig_output/maccatalyst/assimpmaui.cxx \
             -Iexternal/assimp/include \
             -Ibuild/maccatalyst-${{ matrix.arch }}/include \
-            -o build/maccatalyst-${{ matrix.arch }}/lib/assimp_maui.o
+            -o build/maccatalyst-${{ matrix.arch }}/lib/assimpmaui.o
           
-          ar rcs build/maccatalyst-${{ matrix.arch }}/lib/libassimp_maui.a \
-            build/maccatalyst-${{ matrix.arch }}/lib/assimp_maui.o
+          ar rcs build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a \
+            build/maccatalyst-${{ matrix.arch }}/lib/assimpmaui.o
 
       - name: Compress Generated C# Classes
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           cd swig_output/maccatalyst
-          zip -r ../../assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings.zip . -x "assimp_maui.cxx" "assimp_maui.o"
+          zip -r ../../assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings.zip . -x "assimpmaui.cxx" "assimpmaui.o"
 
       - name: Prepare Mac Catalyst Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p artifacts/maccatalyst/${{ matrix.arch }}
           cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/
-          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp_maui.a artifacts/maccatalyst/${{ matrix.arch }}/
+          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/maccatalyst/${{ matrix.arch }}/
 
       - name: Upload Native Binaries (.a)
         uses: actions/upload-artifact@v4
@@ -447,9 +447,9 @@ jobs:
           New-Item -ItemType Directory -Force -Path swig_output/windows
           swig -c++ -csharp `
             -namespace Assimp.Maui `
-            -dllimport assimp_maui `
+            -dllimport assimpmaui `
             -outdir swig_output/windows `
-            -o swig_output/windows/assimp_maui.cxx `
+            -o swig_output/windows/assimpmaui.cxx `
             swig/assimp.i
 
       - name: Build Native SWIG Wrapper DLL
@@ -463,11 +463,11 @@ jobs:
           
           :: A flag /std:c++17 resolve o erro C7525 do defs.h do Assimp
           cl /LD /EHsc /O2 /std:c++17 ^
-            swig_output\windows\assimp_maui.cxx ^
+            swig_output\windows\assimpmaui.cxx ^
             /Iexternal\assimp\include ^
             /Ibuild\windows-${{ matrix.arch }}\include ^
             /link /LIBPATH:build\windows-${{ matrix.arch }}\lib\Release assimp-vc143-mt.lib ^
-            /OUT:build\windows-${{ matrix.arch }}\bin\Release\assimp_maui.dll
+            /OUT:build\windows-${{ matrix.arch }}\bin\Release\assimpmaui.dll
 
       - name: Compress Generated C# Classes
         if: steps.cache.outputs.cache-hit != 'true'
@@ -762,24 +762,24 @@ jobs:
         if: steps.cache-libs.outputs.cache-hit != 'true'
         run: |
           cd ${{ github.workspace }}/artifacts/assimp-ios-iphoneos-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimp_maui.a
-          rm -rf libassimp.a libassimp_maui.a
+          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
+          rm -rf libassimp.a libassimpmaui.a
           mv ../libassimp.a .
           cd ${{ github.workspace }}/artifacts/assimp-ios-iphonesimulator-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimp_maui.a
-          rm -rf libassimp.a libassimp_maui.a
+          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
+          rm -rf libassimp.a libassimpmaui.a
           mv ../libassimp.a .
           cd ${{ github.workspace }}/artifacts/assimp-ios-iphonesimulator-x86_64
-          libtool -static -o ../libassimp.a libassimp.a libassimp_maui.a
-          rm -rf libassimp.a libassimp_maui.a
+          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
+          rm -rf libassimp.a libassimpmaui.a
           mv ../libassimp.a .
           cd ${{ github.workspace }}/artifacts/assimp-maccatalyst-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimp_maui.a
-          rm -rf libassimp.a libassimp_maui.a
+          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
+          rm -rf libassimp.a libassimpmaui.a
           mv ../libassimp.a .
           cd ${{ github.workspace }}/artifacts/assimp-maccatalyst-x86_64
-          libtool -static -o ../libassimp.a libassimp.a libassimp_maui.a
-          rm -rf libassimp.a libassimp_maui.a
+          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
+          rm -rf libassimp.a libassimpmaui.a
           mv ../libassimp.a .
           
       - name: Restore Dependencies
