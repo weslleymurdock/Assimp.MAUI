@@ -13,7 +13,7 @@
         <license type="expression">BSD-3-Clause</license>
         <copyright>Copyright ©2026 Remote Code Hub</copyright>
         <tags>assimp net maui native assimp-net android ios windows maccatalyst scene game game-dev engine assets asset 3d</tags>
-        <readme>../README.md</readme>
+        <readme>..\README.md</readme>
         <iconUrl>https://raw.githubusercontent.com/weslleymurdock/Assimp.MAUI/main/src/icon.png</iconUrl>
         <icon>icon.png</icon>
         <repository type="git" url="https://github.com/weslleymurdock/Assimp.MAUI" />
