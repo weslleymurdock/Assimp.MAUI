@@ -29,7 +29,7 @@ Or add it directly to your project's .csproj file:
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="Assimp.MAUI" Version="6.0.5.0-rc1"/>
+  <PackageReference Include="Assimp.MAUI" Version="6.0.5-rc1"/>
 </ItemGroup>
 ```
 
