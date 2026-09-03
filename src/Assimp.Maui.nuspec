@@ -10,7 +10,7 @@
         <description>**Assimp.MAUI** is a .NET MAUI wrapper and cross-platform binary distribution for the [Open Asset Import Library (Assimp)](https://github.com/assimp/assimp). This package bundles pre-compiled native Assimp binaries targeting all .NET MAUI supported platforms and Runtime Identifiers (RIDs), enabling seamless loading and processing of over 40 3D model formats (such as OBJ, FBX, GLTF, COLLADA, and STL) in cross-platform applications.</description>
         <releaseNotes>- 🚀 First release.</releaseNotes>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
-        <license type="expression">BSD 3-Clause</license>
+        <license type="expression">BSD-3-Clause</license>
         <copyright>Copyright ©2026 Remote Code Hub</copyright>
         <tags>assimp net maui native assimp-net android ios windows maccatalyst scene game game-dev engine assets asset 3d</tags>
         <readme>../README.md</readme>
