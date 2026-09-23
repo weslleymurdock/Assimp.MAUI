@@ -136,10 +136,9 @@ internal sealed class SceneRenderer : IDrawable
         for (var i = 0; i < vertexCount; i++)
         {
             var address = IntPtr.Add(vertices, i * 12);
-            verticesData[i] = new Point3D(
-                Marshal.ReadInt32(address) / 1000f,
-                Marshal.ReadInt32(IntPtr.Add(address, 4)) / 1000f,
-                Marshal.ReadInt32(IntPtr.Add(address, 8)) / 1000f);
+            var values = new float[3];
+            Marshal.Copy(address, values, 0, 3);
+            verticesData[i] = new Point3D(values[0], values[1], values[2]);
         }
 
         var faceStride = IntPtr.Size == 8 ? 16 : 8;
