@@ -931,7 +931,7 @@ jobs:
         include:
           - target: net10.0-android
             os: windows-latest
-            runtime: win-x64
+            runtime: android-arm64
           - target: net10.0-ios
             os: macos-26
             runtime: iossimulator-arm64
@@ -942,7 +942,7 @@ jobs:
 
           - target: net10.0-windows10.0.19041.0
             os: windows-latest
-            runtime: android-arm64
+            runtime: win-x64
 
     steps:
       - name: Checkout
