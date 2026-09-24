@@ -1,7 +1,4 @@
-<Solution>
-  <Folder Name="/sample/">
-    <Project Path="sample/Assimp.MAUI.Sample/Assimp.MAUI.Sample.csproj" />
-  </Folder>
+<Solution>>
   <Folder Name="/src/">
     <Project Path="src/Assimp.Maui.Android/Assimp.Maui.Android.csproj" />
     <Project Path="src/Assimp.Maui.iOS/Assimp.Maui.iOS.csproj" />

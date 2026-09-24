@@ -1,10 +1,11 @@
+#if!IOS && !MACCATALYST
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Assimp.Maui;
 
 namespace Assimp.MAUI.Sample;
 
-internal sealed class SceneRenderer : IDrawable
+public sealed class SceneRenderer : IDrawable
 {
     private readonly List<Triangle> _triangles = [];
     private float _rotationX = -0.35f;
@@ -247,3 +248,4 @@ internal sealed class SceneRenderer : IDrawable
     private readonly record struct Triangle(Point3D A, Point3D B, Point3D C);
     private readonly record struct ProjectedTriangle(Point3D A, Point3D B, Point3D C, float Depth);
 }
+#endif

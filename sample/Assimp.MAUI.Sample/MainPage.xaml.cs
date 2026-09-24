@@ -1,3 +1,4 @@
+#if !IOS && !MACCATALYST
 using Assimp.Maui;
 
 namespace Assimp.MAUI.Sample;
@@ -51,17 +52,17 @@ public partial class MainPage : ContentPage
 
     private async Task LoadSceneAsync(FileResult file)
     {
-        var localPath = Path.Combine(FileSystem.CacheDirectory, $"{Guid.NewGuid():N}_{file.FileName}");
+        var localPath = Path.Combine(Microsoft.Maui.Storage.FileSystem.CacheDirectory, $"{Guid.CreateVersion7():N}_{file.FileName}");
 
         await using (var source = await file.OpenReadAsync())
-        await using (var destination = File.Create(localPath))
+        await using (var destination = System.IO.File.Create(localPath))
             await source.CopyToAsync(destination);
 
         Scene? scene = null;
 
         try
         {
-            scene = Assimp.ImportFile(
+            scene = Maui.Assimp.ImportFile(
                 localPath,
                 (uint)(PostProcessSteps.Process_Triangulate |
                        PostProcessSteps.Process_JoinIdenticalVertices |
@@ -69,7 +70,7 @@ public partial class MainPage : ContentPage
 
             if (scene is null || !scene.HasMeshes())
             {
-                var error = Assimp.GetErrorString();
+                var error = Maui.Assimp.GetErrorString();
                 throw new InvalidOperationException(
                     string.IsNullOrWhiteSpace(error)
                         ? "Assimp did not return a scene containing meshes."
@@ -91,7 +92,7 @@ public partial class MainPage : ContentPage
         finally
         {
             scene?.Dispose();
-            try { File.Delete(localPath); } catch { }
+            try { System.IO.File.Delete(localPath); } catch { }
         }
     }
 
@@ -139,3 +140,4 @@ public partial class MainPage : ContentPage
         base.OnDisappearing();
     }
 }
+#endif
