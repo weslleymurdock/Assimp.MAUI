@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Assimp.MAUI.Sample.MainPage"
+             Title="Assimp.MAUI Sample">
+    <Grid RowDefinitions="Auto,*,Auto"
+          Padding="16"
+          RowSpacing="12">
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="Assimp.MAUI"
+                   FontSize="28"
+                   FontAttributes="Bold" />
+            <Label Text="Load and inspect an Assimp scene on .NET MAUI."
+                   Opacity="0.7" />
+        </VerticalStackLayout>
+        <Border Grid.Row="1" StrokeThickness="1" Padding="0" StrokeShape="RoundRectangle 12">
+            <GraphicsView x:Name="SceneView"
+                          Drawable="{Binding Renderer}"
+                          StartInteraction="OnStartInteraction"
+                          DragInteraction="OnDragInteraction"
+                          EndInteraction="OnEndInteraction" />
+        </Border>
+        <VerticalStackLayout Grid.Row="2" Spacing="8">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                <Button Grid.Column="0" Text="Open 3D file" Clicked="OnOpenFileClicked" />
+                <Button Grid.Column="1" Text="Reset" Clicked="OnResetClicked" />
+                <Button Grid.Column="2" x:Name="AutoRotateButton" Text="Auto rotate" Clicked="OnAutoRotateClicked" />
+            </Grid>
+            <Label x:Name="FileLabel" Text="No scene loaded" LineBreakMode="TailTruncation" />
+            <Label x:Name="StatsLabel" Text="Assimp scene: —" />
+            <Label Text="Tip: drag the preview to rotate the scene." FontSize="12" Opacity="0.6" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>
