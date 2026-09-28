@@ -567,6 +567,7 @@ jobs:
     
       - name: Inspect artifacts
         run: ls -R ${{ github.workspace }}/artifacts
+        
       - name: Prepare Dirs
         run: |
           mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/Maui
@@ -832,6 +833,9 @@ jobs:
           mv -v ${{ github.workspace }}/artifacts/assimp-windows-arm64/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
           mv -v ${{ github.workspace }}/artifacts/assimp-windows-x64/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
 
+      - name: Inspect artifacts
+        run: ls -R ${{ github.workspace }}/src/Assimp.Maui/Platorms/
+          
       - name: Restore Dependencies
         working-directory: src
         if: steps.cache-libs.outputs.cache-hit != 'true'
