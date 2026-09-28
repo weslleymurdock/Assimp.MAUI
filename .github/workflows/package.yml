@@ -565,6 +565,8 @@ jobs:
           name: assimp-csharp-windows-arm64-bindings
           path: ${{ github.workspace }}/artifacts/win-bindings
     
+      - name: Inspect artifacts
+        run: ls -R ${{ github.workspace }}/artifacts
       - name: Prepare Dirs
         run: |
           mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/Maui
