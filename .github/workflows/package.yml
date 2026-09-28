@@ -848,7 +848,7 @@ jobs:
           mv -v ${{ github.workspace }}/artifacts/assimp-windows-x64/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
 
       - name: Inspect artifacts
-        run: ls -R ${{ github.workspace }}/src/Assimp.Maui/Platorms/
+        run: ls -R ${{ github.workspace }}/src/Assimp.Maui/Platforms/
           
       - name: Restore Dependencies
         working-directory: src
