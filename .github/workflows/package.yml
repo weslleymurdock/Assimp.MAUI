@@ -546,24 +546,37 @@ jobs:
         with:
           name: assimp-csharp-android-arm64-v8a-bindings
           path: ${{ github.workspace }}/artifacts/android-bindings
+
+      - name: Extract Android c# bindings
+        run: unzip -o ${{ github.workspace }}/artifacts/android-bindings/assimp-csharp-android-arm64-v8a-bindings.zip -d ${{ github.workspace }}/artifacts/android-bindings
       
       - name: Download iOS c# bindings
         uses: actions/download-artifact@v8
         with:
           name: assimp-csharp-ios-iphonesimulator-arm64-bindings
-          path: ${{ github.workspace }}/artifacts/ios-bindings
-    
+          path: ${{ github.workspace }}/artifacts/
+
+      - name: Extract iOS Bindings
+        run: unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-ios-iphonesimulator-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/ios-bindings
+
       - name: Download Mac c# bindings
         uses: actions/download-artifact@v8
         with:
           name: assimp-csharp-maccatalyst-arm64-bindings
-          path: ${{ github.workspace }}/artifacts/mac-bindings
+          path: ${{ github.workspace }}/artifacts/
      
+      - name: Extract Mac c# Bindings
+        run: unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-maccatalyst-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/mac-bindings
+
+
       - name: Download Windows c# bindings
         uses: actions/download-artifact@v8
         with:
           name: assimp-csharp-windows-arm64-bindings
-          path: ${{ github.workspace }}/artifacts/win-bindings
+          path: ${{ github.workspace }}/artifacts/
+
+      - name: Extract Windows c# Bindings
+        run: unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-windows-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/win-bindings          
     
       - name: Inspect artifacts
         run: ls -R ${{ github.workspace }}/artifacts
@@ -733,7 +746,7 @@ jobs:
           name: assimp-csharp-maccatalyst-arm64-bindings
           path: ${{ github.workspace }}/artifacts/
      
-      - name: Extract iOS Bindings
+      - name: Extract Mac c# Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
         run: |
           unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-maccatalyst-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/mac-bindings
@@ -759,7 +772,7 @@ jobs:
           name: assimp-csharp-windows-arm64-bindings
           path: ${{ github.workspace }}/artifacts/
 
-      - name: Extract iOS Bindings
+      - name: Extract Windows c# Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
         run: |
           unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-windows-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/win-bindings          
