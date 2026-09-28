@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LibVersion>6.0.5-rc1</LibVersion> 
+    <LibVersion>6.0.5-rc2</LibVersion> 
     <NuGetPathUnix Condition="'$(MSBuildRuntimeType)' == 'Core' AND '$(OS)' != 'Windows_NT'">$(NuGetPackageRoot.Replace('\',
       '/'))</NuGetPathUnix>
     <NuGetPathUnix Condition="'$(NuGetPathUnix)' == ''">$(NuGetPackageRoot)</NuGetPathUnix>
@@ -101,7 +101,7 @@
   <!-- Windows Native Linking -->
   <ItemGroup Condition="'$(IsWin)' == 'true'">
     <None Condition="$(RuntimeIdentifier.Contains('x64')) Or '$(Platform)' == 'x64'"
-        Include="$(NuGetPackageRoot)Assimp.Maui\$(LibVersion)\runtimes\win-x64\native\assimp_maui.dll">
+        Include="$(NuGetPackageRoot)Assimp.Maui\$(LibVersion)\runtimes\win-x64\native\assimpmaui.dll">
       <Link>Platforms\Windows\Native\x64\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>False</Visible>
@@ -117,7 +117,7 @@
     </None>
 
     <None Condition="$(RuntimeIdentifier.Contains('arm64')) Or '$(Platform)' == 'ARM64' Or '$(Platform)' == 'arm64'"
-        Include="$(NuGetPackageRoot)Assimp.Maui\$(LibVersion)\runtimes\win-arm64\native\assimp_maui.dll">
+        Include="$(NuGetPackageRoot)Assimp.Maui\$(LibVersion)\runtimes\win-arm64\native\assimpmaui.dll">
       <Link>Platforms\Windows\Native\ARM64\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Visible>False</Visible>
