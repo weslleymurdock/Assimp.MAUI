@@ -481,3 +481,9 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 **/external/build
+
+# Native libs
+**/*.dll
+**/*.lib
+**/*.so
+**/*.a

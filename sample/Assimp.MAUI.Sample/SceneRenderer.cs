@@ -1,4 +1,3 @@
-#if!IOS && !MACCATALYST
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Assimp.Maui;
@@ -248,4 +247,3 @@ public sealed class SceneRenderer : IDrawable
     private readonly record struct Triangle(Point3D A, Point3D B, Point3D C);
     private readonly record struct ProjectedTriangle(Point3D A, Point3D B, Point3D C, float Depth);
 }
-#endif

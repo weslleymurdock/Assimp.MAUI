@@ -1,4 +1,3 @@
-#if !IOS && !MACCATALYST
 using Assimp.Maui;
 
 namespace Assimp.MAUI.Sample;
@@ -140,4 +139,3 @@ public partial class MainPage : ContentPage
         base.OnDisappearing();
     }
 }
-#endif
