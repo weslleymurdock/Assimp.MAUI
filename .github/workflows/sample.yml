@@ -1,4 +1,4 @@
-name: Package Assimp
+name: BUild  Assimp Sample
 
 on:
   push:
@@ -22,7 +22,6 @@ jobs:
     name: Detect changed areas
     runs-on: ubuntu-latest
     outputs:
-      native: ${{ steps.filter.outputs.native }}
       sample: ${{ steps.filter.outputs.sample }}
     steps:
       - name: Checkout
@@ -84,4 +83,19 @@ jobs:
           
       - name: Build 
         working-directory: ${{ github.workspace }}/sample/Assimp.MAUI.Sample/
-        run: dotnet build -c Release -f ${{  matrix.target }} -r ${{ matrix.runtime }}
+        shell: pwsh
+        run: |
+          $package = "assimp.maui"
+          $version = "6.0.5-rc2"
+          $url = "https://api.nuget.org/v3-flatcontainer/$package/$version/$package.nuspec"
+
+          try {
+              # -Method Head verifica a existência remotamente sem baixar o conteúdo
+              $response = Invoke-WebRequest -Uri $url -Method Head -UseBasicParsing -ErrorAction Stop
+              
+              if ($response.StatusCode -eq 200) {
+                  dotnet build -c Release -f ${{  matrix.target }} -r ${{ matrix.runtime }}
+              }
+          } catch {
+              Write-Host "A versão $version do pacote $package ainda não está disponível no NuGet." -ForegroundColor Red
+          }
