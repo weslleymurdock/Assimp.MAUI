@@ -629,16 +629,17 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set VERSION variable
+        shell: bash
         run: |
-          NUSPEC_PATH="${{ github.workspace }}/src/Assimp.Maui.nuspec"
+          CSPROJ_PATH="${{ github.workspace }}/src/Assimp.Maui/build/Assimp.Maui.targets"
           
-          VERSION=$(xmllint --xpath "//*[local-name()='version']/text()" "$NUSPEC_PATH" 2>/dev/null | xargs)
+          VERSION=$(xmllint --xpath "//*[local-name()='LibVersion']/text()" "$CSPROJ_PATH" 2>/dev/null | xargs)
           
           if [ -n "$VERSION" ]; then
             echo "Found version: $VERSION"
             echo "VERSION=$VERSION" >> $GITHUB_ENV
           else
-            echo "Error: Tag <version> not found at .nuspec file"
+            echo "Error: Tag <Version> not found at .csproj file"
             exit 1
           fi
 
