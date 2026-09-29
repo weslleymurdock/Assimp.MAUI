@@ -173,6 +173,43 @@ public class Node : global::System.IDisposable {
     AssimpPINVOKE.Node_addChildren(swigCPtr, numChildren, SWIGTYPE_p_p_aiNode.getCPtr(children));
   }
 
+  public string GetName() {
+    string ret = AssimpPINVOKE.Node_GetName(swigCPtr);
+    return ret;
+  }
+
+  public Node GetParent() {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Node_GetParent(swigCPtr);
+    Node ret = (cPtr == global::System.IntPtr.Zero) ? null : new Node(cPtr, false);
+    return ret;
+  }
+
+  public Node GetChild(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Node_GetChild(swigCPtr, index);
+    Node ret = (cPtr == global::System.IntPtr.Zero) ? null : new Node(cPtr, false);
+    return ret;
+  }
+
+  public uint GetChildCount() {
+    uint ret = AssimpPINVOKE.Node_GetChildCount(swigCPtr);
+    return ret;
+  }
+
+  public uint GetMeshCount() {
+    uint ret = AssimpPINVOKE.Node_GetMeshCount(swigCPtr);
+    return ret;
+  }
+
+  public uint GetMeshIndex(uint index) {
+    uint ret = AssimpPINVOKE.Node_GetMeshIndex(swigCPtr, index);
+    return ret;
+  }
+
+  public float GetTransformationElement(uint row, uint column) {
+    float ret = AssimpPINVOKE.Node_GetTransformationElement(swigCPtr, row, column);
+    return ret;
+  }
+
 }
 
 }

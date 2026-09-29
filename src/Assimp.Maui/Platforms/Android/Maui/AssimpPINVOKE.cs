@@ -685,6 +685,21 @@ class AssimpPINVOKE {
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_delete_Bone___")]
   public static extern void delete_Bone(global::System.Runtime.InteropServices.HandleRef jarg1);
 
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Bone_GetName___")]
+  public static extern string Bone_GetName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Bone_GetWeightCount___")]
+  public static extern uint Bone_GetWeightCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Bone_GetWeightVertexId___")]
+  public static extern uint Bone_GetWeightVertexId(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Bone_GetWeight___")]
+  public static extern float Bone_GetWeight(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Bone_GetOffsetMatrixElement___")]
+  public static extern float Bone_GetOffsetMatrixElement(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_AnimMesh_Name_set___")]
   public static extern void AnimMesh_Name_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
@@ -759,6 +774,18 @@ class AssimpPINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_AnimMesh_HasTextureCoords___")]
   public static extern bool AnimMesh_HasTextureCoords(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_AnimMesh_GetName___")]
+  public static extern string AnimMesh_GetName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_AnimMesh_GetVertexComponent___")]
+  public static extern float AnimMesh_GetVertexComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_AnimMesh_GetNormalComponent___")]
+  public static extern float AnimMesh_GetNormalComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_AnimMesh_GetWeight___")]
+  public static extern float AnimMesh_GetWeight(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_PrimitiveTypes_set___")]
   public static extern void Mesh_PrimitiveTypes_set(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
@@ -921,6 +948,48 @@ class AssimpPINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetTextureCoordsName___")]
   public static extern global::System.IntPtr Mesh_GetTextureCoordsName(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetName___")]
+  public static extern string Mesh_GetName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetPrimitiveTypes___")]
+  public static extern uint Mesh_GetPrimitiveTypes(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetMaterialIndex___")]
+  public static extern uint Mesh_GetMaterialIndex(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetVertexComponent___")]
+  public static extern float Mesh_GetVertexComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetNormalComponent___")]
+  public static extern float Mesh_GetNormalComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetTangentComponent___")]
+  public static extern float Mesh_GetTangentComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetBitangentComponent___")]
+  public static extern float Mesh_GetBitangentComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetTextureCoordinateComponent___")]
+  public static extern float Mesh_GetTextureCoordinateComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3, uint jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetTextureCoordinateComponentCount___")]
+  public static extern uint Mesh_GetTextureCoordinateComponentCount(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetVertexColorComponent___")]
+  public static extern float Mesh_GetVertexColorComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3, uint jarg4);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetFaceIndexCount___")]
+  public static extern uint Mesh_GetFaceIndexCount(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetFaceIndex___")]
+  public static extern uint Mesh_GetFaceIndex(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetBone___")]
+  public static extern global::System.IntPtr Mesh_GetBone(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Mesh_GetAnimMesh___")]
+  public static extern global::System.IntPtr Mesh_GetAnimMesh(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_SkeletonBone_Parent_set___")]
   public static extern void SkeletonBone_Parent_set(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
@@ -1483,6 +1552,51 @@ class AssimpPINVOKE {
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_delete_NodeAnim___")]
   public static extern void delete_NodeAnim(global::System.Runtime.InteropServices.HandleRef jarg1);
 
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetNodeName___")]
+  public static extern string NodeAnim_GetNodeName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetPositionKeyCount___")]
+  public static extern uint NodeAnim_GetPositionKeyCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetRotationKeyCount___")]
+  public static extern uint NodeAnim_GetRotationKeyCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetScalingKeyCount___")]
+  public static extern uint NodeAnim_GetScalingKeyCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetPositionKeyTime___")]
+  public static extern double NodeAnim_GetPositionKeyTime(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetPositionKeyComponent___")]
+  public static extern float NodeAnim_GetPositionKeyComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetRotationKeyTime___")]
+  public static extern double NodeAnim_GetRotationKeyTime(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetRotationKeyComponent___")]
+  public static extern float NodeAnim_GetRotationKeyComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetScalingKeyTime___")]
+  public static extern double NodeAnim_GetScalingKeyTime(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetScalingKeyComponent___")]
+  public static extern float NodeAnim_GetScalingKeyComponent(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetPreState___")]
+  public static extern int NodeAnim_GetPreState(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetPostState___")]
+  public static extern int NodeAnim_GetPostState(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetPositionKeyInterpolation___")]
+  public static extern int NodeAnim_GetPositionKeyInterpolation(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetRotationKeyInterpolation___")]
+  public static extern int NodeAnim_GetRotationKeyInterpolation(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_NodeAnim_GetScalingKeyInterpolation___")]
+  public static extern int NodeAnim_GetScalingKeyInterpolation(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshAnim_Name_set___")]
   public static extern void MeshAnim_Name_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
@@ -1507,6 +1621,18 @@ class AssimpPINVOKE {
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_delete_MeshAnim___")]
   public static extern void delete_MeshAnim(global::System.Runtime.InteropServices.HandleRef jarg1);
 
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshAnim_GetName___")]
+  public static extern string MeshAnim_GetName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshAnim_GetKeyCount___")]
+  public static extern uint MeshAnim_GetKeyCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshAnim_GetKeyTime___")]
+  public static extern double MeshAnim_GetKeyTime(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshAnim_GetKeyValue___")]
+  public static extern uint MeshAnim_GetKeyValue(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshMorphAnim_Name_set___")]
   public static extern void MeshMorphAnim_Name_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
@@ -1530,6 +1656,24 @@ class AssimpPINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_delete_MeshMorphAnim___")]
   public static extern void delete_MeshMorphAnim(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshMorphAnim_GetName___")]
+  public static extern string MeshMorphAnim_GetName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshMorphAnim_GetKeyCount___")]
+  public static extern uint MeshMorphAnim_GetKeyCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshMorphAnim_GetKeyTime___")]
+  public static extern double MeshMorphAnim_GetKeyTime(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshMorphAnim_GetKeyValueCount___")]
+  public static extern uint MeshMorphAnim_GetKeyValueCount(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshMorphAnim_GetKeyValue___")]
+  public static extern uint MeshMorphAnim_GetKeyValue(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MeshMorphAnim_GetKeyWeight___")]
+  public static extern double MeshMorphAnim_GetKeyWeight(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_Name_set___")]
   public static extern void Animation_Name_set(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
@@ -1590,6 +1734,30 @@ class AssimpPINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_delete_Animation___")]
   public static extern void delete_Animation(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_GetName___")]
+  public static extern string Animation_GetName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_GetDuration___")]
+  public static extern double Animation_GetDuration(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_GetTicksPerSecond___")]
+  public static extern double Animation_GetTicksPerSecond(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_GetDurationInSeconds___")]
+  public static extern double Animation_GetDurationInSeconds(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_GetTimeInTicks___")]
+  public static extern double Animation_GetTimeInTicks(global::System.Runtime.InteropServices.HandleRef jarg1, double jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_GetChannel___")]
+  public static extern global::System.IntPtr Animation_GetChannel(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_GetMeshChannel___")]
+  public static extern global::System.IntPtr Animation_GetMeshChannel(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Animation_GetMorphMeshChannel___")]
+  public static extern global::System.IntPtr Animation_GetMorphMeshChannel(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_MetadataEntry_Type_set___")]
   public static extern void MetadataEntry_Type_set(global::System.Runtime.InteropServices.HandleRef jarg1, int jarg2);
@@ -1746,6 +1914,27 @@ class AssimpPINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Node_addChildren___")]
   public static extern void Node_addChildren(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, global::System.Runtime.InteropServices.HandleRef jarg3);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Node_GetName___")]
+  public static extern string Node_GetName(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Node_GetParent___")]
+  public static extern global::System.IntPtr Node_GetParent(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Node_GetChild___")]
+  public static extern global::System.IntPtr Node_GetChild(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Node_GetChildCount___")]
+  public static extern uint Node_GetChildCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Node_GetMeshCount___")]
+  public static extern uint Node_GetMeshCount(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Node_GetMeshIndex___")]
+  public static extern uint Node_GetMeshIndex(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Node_GetTransformationElement___")]
+  public static extern float Node_GetTransformationElement(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2, uint jarg3);
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_AI_SCENE_FLAGS_INCOMPLETE_get___")]
   public static extern int AI_SCENE_FLAGS_INCOMPLETE_get();
@@ -1917,6 +2106,27 @@ class AssimpPINVOKE {
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Scene_Private_get___")]
   public static extern global::System.IntPtr Scene_Private_get(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Scene_GetRootNode___")]
+  public static extern global::System.IntPtr Scene_GetRootNode(global::System.Runtime.InteropServices.HandleRef jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Scene_GetMesh___")]
+  public static extern global::System.IntPtr Scene_GetMesh(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Scene_GetMaterial___")]
+  public static extern global::System.IntPtr Scene_GetMaterial(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Scene_GetAnimation___")]
+  public static extern global::System.IntPtr Scene_GetAnimation(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Scene_GetTexture___")]
+  public static extern global::System.IntPtr Scene_GetTexture(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Scene_GetLight___")]
+  public static extern global::System.IntPtr Scene_GetLight(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
+
+  [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_Scene_GetCamera___")]
+  public static extern global::System.IntPtr Scene_GetCamera(global::System.Runtime.InteropServices.HandleRef jarg1, uint jarg2);
 
   [global::System.Runtime.InteropServices.DllImport("assimpmaui", EntryPoint="CSharp_AssimpfMaui_PropertyStore_sentinel_set___")]
   public static extern void PropertyStore_sentinel_set(global::System.Runtime.InteropServices.HandleRef jarg1, char jarg2);
