@@ -615,7 +615,7 @@ jobs:
             fi
   
   nupkg:
-    runs-on: macos-26
+    runs-on: windows-latest
     name: Assimp.Maui.nupkg
     needs: [android, ios, maccatalyst, windows]
     permissions:
@@ -647,7 +647,7 @@ jobs:
         uses: actions/cache@v5
         id: cache-libs
         with:
-          path: ${{ github.workspace }}/src/*.nupkg
+          path: ${{ github.workspace }}/nupkg/*.nupkg
           key: Assimp.Maui.${{ env.VERSION }}.nupkg-${{ env.ASSIMP_VERSION }}
         env: 
           VERSION: ${{ env.VERSION }}
@@ -658,10 +658,6 @@ jobs:
         with:
           dotnet-version: '10.0.x'
           
-      - name: Setup nuget 
-        run: brew install nuget
-        if: steps.cache-libs.outputs.cache-hit != 'true'
-        
       - uses: actions/setup-java@v5
         with:
           distribution: 'microsoft'
@@ -677,6 +673,7 @@ jobs:
 
       - name: Extract Android Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-android-arm64-v8a-bindings.zip -d ${{ github.workspace }}/artifacts/android-bindings
 
@@ -717,6 +714,7 @@ jobs:
 
       - name: Extract iOS Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-ios-iphonesimulator-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/ios-bindings
       - name: Download native iOS arm64 iphoneos
@@ -749,6 +747,7 @@ jobs:
      
       - name: Extract Mac c# Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-maccatalyst-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/mac-bindings
 
@@ -775,6 +774,7 @@ jobs:
 
       - name: Extract Windows c# Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-windows-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/win-bindings          
       - name: Download native Windows arm64
@@ -792,11 +792,13 @@ jobs:
           path: ${{ github.workspace }}/artifacts/assimp-windows-x64
       - name: Validate artifacts
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           ls -R ${{ github.workspace }}/artifacts/
     
       - name: Prepare Dirs
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/Maui
           mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/Maui
@@ -848,11 +850,13 @@ jobs:
           mv -v ${{ github.workspace }}/artifacts/assimp-windows-x64/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
 
       - name: Inspect artifacts
+        shell: bash
         run: ls -R ${{ github.workspace }}/src/Assimp.Maui/Platforms/
           
       - name: Restore Dependencies
         working-directory: src
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: | 
           echo "⏳ Installing required workloads for .NET 10..."
           dotnet workload install android ios maccatalyst --source https://api.nuget.org/v3/index.json --skip-manifest-update
@@ -870,6 +874,7 @@ jobs:
 
       - name: Pack NuGet Package
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         working-directory: ${{ github.workspace }}/src/Assimp.Maui
         run: dotnet pack Assimp.Maui.csproj -c Release  -o ${{ github.workspace }}/nupkg "-p:IsOfficialBuild=true"
       
@@ -917,13 +922,14 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
 
-      - name: Push to GitHub Packages
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          dotnet nuget push ${{ github.workspace }}/nupkg/Assimp.Maui.${{ env.VERSION }}.nupkg \
-            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key "${{ secrets.GITHUB_TOKEN }}" \
-            --skip-duplicate
-        env: 
-          VERSION: ${{ env.VERSION }}
+      # - name: Push to GitHub Packages
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   shell: bash
+      #   run: |
+      #     dotnet nuget push ${{ github.workspace }}/nupkg/Assimp.Maui.${{ env.VERSION }}.nupkg \
+      #       --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+      #       --api-key "${{ secrets.GITHUB_TOKEN }}" \
+      #       --skip-duplicate
+      #   env: 
+      #     VERSION: ${{ env.VERSION }}
  
