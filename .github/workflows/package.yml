@@ -287,9 +287,11 @@ jobs:
       - name: Prepare iOS Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}
-          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
-          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
+          mkdir -p artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
+          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
+          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
+          libtool -static -o artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a
+          rm -rf artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/
 
       - name: Upload Native Binaries (.a)
         uses: actions/upload-artifact@v4
@@ -403,10 +405,12 @@ jobs:
       - name: Prepare Mac Catalyst Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p artifacts/maccatalyst/${{ matrix.arch }}
-          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/
-          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/maccatalyst/${{ matrix.arch }}/
-
+          mkdir -p artifacts/maccatalyst/${{ matrix.arch }}/lib
+          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib
+          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/maccatalyst/${{ matrix.arch }}/lib
+          libtool -static -o artifacts/maccatalyst/${{ matrix.arch }}/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib/libassimpmaui.a
+          rm -rf artifacts/maccatalyst/${{ matrix.arch }}/lib
+          
       - name: Upload Native Binaries (.a)
         uses: actions/upload-artifact@v4
         with:
