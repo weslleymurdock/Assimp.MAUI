@@ -8,6 +8,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/types.h>
+#include <cstring>
 
 /* C++ DIRECTORS FOR CALLBACKS */
 class LogStream {
