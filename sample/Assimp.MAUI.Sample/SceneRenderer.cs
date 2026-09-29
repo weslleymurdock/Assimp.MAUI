@@ -96,10 +96,10 @@ public sealed class SceneRenderer : IDrawable
             .GroupBy(t => t.MeshIndex)
             .Select(group => new ShaderMesh(
                 group.Key,
-                group.SelectMany(t => new[] { t.A, t.B, t.C })
+                group.SelectMany(t => new[] { t.A.Position, t.B.Position, t.C.Position })
                     .SelectMany(p => new[] { p.X, p.Y, p.Z })
                     .ToArray(),
-                group.SelectMany(t => new[] { t.UV_A, t.UV_B, t.UV_C })
+                group.SelectMany(t => new[] { t.A.UV, t.B.UV, t.C.UV })
                     .SelectMany(p => new[] { p.X, p.Y })
                     .ToArray()))
             .ToArray();
@@ -122,9 +122,9 @@ public sealed class SceneRenderer : IDrawable
         var projected = _triangles
             .Select(triangle =>
             {
-                var a = Project(triangle.A, dirtyRect);
-                var b = Project(triangle.B, dirtyRect);
-                var c = Project(triangle.C, dirtyRect);
+                var a = Project(triangle.A.Position, dirtyRect);
+                var b = Project(triangle.B.Position, dirtyRect);
+                var c = Project(triangle.C.Position, dirtyRect);
                 return new ProjectedTriangle(triangle, a, b, c, (a.Z + b.Z + c.Z) / 3f);
             })
             .OrderBy(t => t.Depth);
@@ -216,7 +216,7 @@ public sealed class SceneRenderer : IDrawable
         if (_triangles.Count == 0)
             return;
 
-        var points = _triangles.SelectMany(t => new[] { t.A, t.B, t.C }).ToArray();
+        var points = _triangles.SelectMany(t => new[] { t.A.Position, t.B.Position, t.C.Position }).ToArray();
         var minX = points.Min(p => p.X);
         var maxX = points.Max(p => p.X);
         var minY = points.Min(p => p.Y);
@@ -236,9 +236,9 @@ public sealed class SceneRenderer : IDrawable
             var t = _triangles[i];
             _triangles[i] = t with
             {
-                A = Center(t.A, center, factor),
-                B = Center(t.B, center, factor),
-                C = Center(t.C, center, factor)
+                A = t.A with { Position = Center(t.A.Position, center, factor) },
+                B = t.B with { Position = Center(t.B.Position, center, factor) },
+                C = t.C with { Position = Center(t.C.Position, center, factor) }
             };
         }
     }
@@ -264,8 +264,8 @@ public sealed class SceneRenderer : IDrawable
 
     private static Color ApplyLighting(Color color, Triangle triangle)
     {
-        var ab = Subtract(triangle.B, triangle.A);
-        var ac = Subtract(triangle.C, triangle.A);
+        var ab = Subtract(triangle.B.Position, triangle.A.Position);
+        var ac = Subtract(triangle.C.Position, triangle.A.Position);
         var normal = Normalize(Cross(ab, ac));
         var light = Normalize(new Point3D(-0.45f, 0.75f, 0.65f));
         var diffuse = 0.35f + Math.Max(0f, Dot(normal, light)) * 0.65f;
