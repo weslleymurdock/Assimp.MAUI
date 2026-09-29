@@ -182,6 +182,26 @@ public class AnimMesh : global::System.IDisposable {
     return ret;
   }
 
+  public string GetName() {
+    string ret = AssimpPINVOKE.AnimMesh_GetName(swigCPtr);
+    return ret;
+  }
+
+  public float GetVertexComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.AnimMesh_GetVertexComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public float GetNormalComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.AnimMesh_GetNormalComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public float GetWeight() {
+    float ret = AssimpPINVOKE.AnimMesh_GetWeight(swigCPtr);
+    return ret;
+  }
+
 }
 
 }

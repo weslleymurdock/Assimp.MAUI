@@ -154,6 +154,81 @@ public class NodeAnim : global::System.IDisposable {
   public NodeAnim() : this(AssimpPINVOKE.new_NodeAnim(), true) {
   }
 
+  public string GetNodeName() {
+    string ret = AssimpPINVOKE.NodeAnim_GetNodeName(swigCPtr);
+    return ret;
+  }
+
+  public uint GetPositionKeyCount() {
+    uint ret = AssimpPINVOKE.NodeAnim_GetPositionKeyCount(swigCPtr);
+    return ret;
+  }
+
+  public uint GetRotationKeyCount() {
+    uint ret = AssimpPINVOKE.NodeAnim_GetRotationKeyCount(swigCPtr);
+    return ret;
+  }
+
+  public uint GetScalingKeyCount() {
+    uint ret = AssimpPINVOKE.NodeAnim_GetScalingKeyCount(swigCPtr);
+    return ret;
+  }
+
+  public double GetPositionKeyTime(uint index) {
+    double ret = AssimpPINVOKE.NodeAnim_GetPositionKeyTime(swigCPtr, index);
+    return ret;
+  }
+
+  public float GetPositionKeyComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.NodeAnim_GetPositionKeyComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public double GetRotationKeyTime(uint index) {
+    double ret = AssimpPINVOKE.NodeAnim_GetRotationKeyTime(swigCPtr, index);
+    return ret;
+  }
+
+  public float GetRotationKeyComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.NodeAnim_GetRotationKeyComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public double GetScalingKeyTime(uint index) {
+    double ret = AssimpPINVOKE.NodeAnim_GetScalingKeyTime(swigCPtr, index);
+    return ret;
+  }
+
+  public float GetScalingKeyComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.NodeAnim_GetScalingKeyComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public AnimBehaviour GetPreState() {
+    AnimBehaviour ret = (AnimBehaviour)AssimpPINVOKE.NodeAnim_GetPreState(swigCPtr);
+    return ret;
+  }
+
+  public AnimBehaviour GetPostState() {
+    AnimBehaviour ret = (AnimBehaviour)AssimpPINVOKE.NodeAnim_GetPostState(swigCPtr);
+    return ret;
+  }
+
+  public AnimInterpolation GetPositionKeyInterpolation(uint index) {
+    AnimInterpolation ret = (AnimInterpolation)AssimpPINVOKE.NodeAnim_GetPositionKeyInterpolation(swigCPtr, index);
+    return ret;
+  }
+
+  public AnimInterpolation GetRotationKeyInterpolation(uint index) {
+    AnimInterpolation ret = (AnimInterpolation)AssimpPINVOKE.NodeAnim_GetRotationKeyInterpolation(swigCPtr, index);
+    return ret;
+  }
+
+  public AnimInterpolation GetScalingKeyInterpolation(uint index) {
+    AnimInterpolation ret = (AnimInterpolation)AssimpPINVOKE.NodeAnim_GetScalingKeyInterpolation(swigCPtr, index);
+    return ret;
+  }
+
 }
 
 }

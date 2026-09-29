@@ -4,8 +4,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ASSIMP_TAG = "v6.0.5"
-$BUILD_DIR = "build/windows-$Arch"
-$SWIG_OUT = "src/Assimp.Maui.Windows/Maui"
+$BUILD_DIR = "$PSScriptRoot/../build/windows-$Arch"
+$SWIG_OUT = "$PSScriptRoot/../src/Assimp.Maui/Platforms/Windows/Maui"
 
 if ($Arch -ne "x64" -and $Arch -ne "arm64") {
     Write-Error "Invalid architecture. Use 'x64' or 'arm64'."
@@ -75,6 +75,8 @@ if (!$VcvarsPath -or !(Test-Path $VcvarsPath)) {
 
 Write-Host "Using MSVC toolchain located at: $VcvarsPath" -ForegroundColor Green
 
+Set-Location $PSScriptRoot/..
+
 Write-Host "=== 1. Cleaning previous builds ===" -ForegroundColor Cyan
 if (Test-Path $BUILD_DIR) { Remove-Item -Recurse -Force $BUILD_DIR }
 if (Test-Path $SWIG_OUT) { Remove-Item -Recurse -Force $SWIG_OUT }
@@ -129,7 +131,7 @@ New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
 $CmdScript = @"
 call "$VcvarsPath" $VcvarsArch
 cl /LD /EHsc /O2 /std:c++17 `
-    src\Assimp.Maui.Windows\Maui\assimpmaui.cxx `
+    src\Assimp.Maui\Platforms\Windows\Maui\assimpmaui.cxx `
     /Iexternal\assimp\include `
     /Ibuild\windows-$Arch\include `
     /link /LIBPATH:build\windows-$Arch\lib\Release assimp-vc143-mt.lib `

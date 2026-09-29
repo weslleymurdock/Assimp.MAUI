@@ -334,6 +334,78 @@ public class Mesh : global::System.IDisposable {
     return ret;
   }
 
+  public string GetName() {
+    string ret = AssimpPINVOKE.Mesh_GetName(swigCPtr);
+    return ret;
+  }
+
+  public uint GetPrimitiveTypes() {
+    uint ret = AssimpPINVOKE.Mesh_GetPrimitiveTypes(swigCPtr);
+    return ret;
+  }
+
+  public uint GetMaterialIndex() {
+    uint ret = AssimpPINVOKE.Mesh_GetMaterialIndex(swigCPtr);
+    return ret;
+  }
+
+  public float GetVertexComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.Mesh_GetVertexComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public float GetNormalComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.Mesh_GetNormalComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public float GetTangentComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.Mesh_GetTangentComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public float GetBitangentComponent(uint index, uint component) {
+    float ret = AssimpPINVOKE.Mesh_GetBitangentComponent(swigCPtr, index, component);
+    return ret;
+  }
+
+  public float GetTextureCoordinateComponent(uint channel, uint index, uint component) {
+    float ret = AssimpPINVOKE.Mesh_GetTextureCoordinateComponent(swigCPtr, channel, index, component);
+    return ret;
+  }
+
+  public uint GetTextureCoordinateComponentCount(uint channel) {
+    uint ret = AssimpPINVOKE.Mesh_GetTextureCoordinateComponentCount(swigCPtr, channel);
+    return ret;
+  }
+
+  public float GetVertexColorComponent(uint channel, uint index, uint component) {
+    float ret = AssimpPINVOKE.Mesh_GetVertexColorComponent(swigCPtr, channel, index, component);
+    return ret;
+  }
+
+  public uint GetFaceIndexCount(uint faceIndex) {
+    uint ret = AssimpPINVOKE.Mesh_GetFaceIndexCount(swigCPtr, faceIndex);
+    return ret;
+  }
+
+  public uint GetFaceIndex(uint faceIndex, uint index) {
+    uint ret = AssimpPINVOKE.Mesh_GetFaceIndex(swigCPtr, faceIndex, index);
+    return ret;
+  }
+
+  public Bone GetBone(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Mesh_GetBone(swigCPtr, index);
+    Bone ret = (cPtr == global::System.IntPtr.Zero) ? null : new Bone(cPtr, false);
+    return ret;
+  }
+
+  public AnimMesh GetAnimMesh(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Mesh_GetAnimMesh(swigCPtr, index);
+    AnimMesh ret = (cPtr == global::System.IntPtr.Zero) ? null : new AnimMesh(cPtr, false);
+    return ret;
+  }
+
 }
 
 }

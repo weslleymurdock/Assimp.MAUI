@@ -134,6 +134,31 @@ public class Bone : global::System.IDisposable {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  public string GetName() {
+    string ret = AssimpPINVOKE.Bone_GetName(swigCPtr);
+    return ret;
+  }
+
+  public uint GetWeightCount() {
+    uint ret = AssimpPINVOKE.Bone_GetWeightCount(swigCPtr);
+    return ret;
+  }
+
+  public uint GetWeightVertexId(uint index) {
+    uint ret = AssimpPINVOKE.Bone_GetWeightVertexId(swigCPtr, index);
+    return ret;
+  }
+
+  public float GetWeight(uint index) {
+    float ret = AssimpPINVOKE.Bone_GetWeight(swigCPtr, index);
+    return ret;
+  }
+
+  public float GetOffsetMatrixElement(uint row, uint column) {
+    float ret = AssimpPINVOKE.Bone_GetOffsetMatrixElement(swigCPtr, row, column);
+    return ret;
+  }
+
 }
 
 }
