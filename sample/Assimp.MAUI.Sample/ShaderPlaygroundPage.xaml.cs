@@ -46,11 +46,10 @@ public partial class ShaderPlaygroundPage : ContentPage
 
         ShaderPicker.ItemsSource = _shaders.Keys.ToList();
         await SendSceneAsync();
+        _ready = true;
 
         if (ShaderPicker.Items.Count > 0)
             ShaderPicker.SelectedIndex = 0;
-
-        _ready = true;
     }
 
     private async void OnShaderSelected(object? sender, EventArgs e)
