@@ -15,31 +15,23 @@ public partial class ShaderPlaygroundPage : ContentPage
         ShaderView.Navigated += OnNavigated;
     }
 
-    private async void OnNavigated(object? sender, WebNavigatedEventArgs e)
+    protected override async void OnAppearing()
     {
-        if (e.Result != WebNavigationResult.Success)
-        {
-            ConsoleLabel.Text = $"Console: WebView navigation failed ({e.Result}).";
+        base.OnAppearing();
+
+        if (_ready)
             return;
-        }
 
-        ShaderView.Navigated -= OnNavigated;
-        await LoadPlaygroundAsync();
-    }
-
-    private async Task LoadPlaygroundAsync()
-    {
         var html = await LoadAssetAsync("shader-playground.html");
         ShaderView.Source = new HtmlWebViewSource { Html = html };
-        ShaderView.Navigated += OnPlaygroundReady;
     }
 
-    private async void OnPlaygroundReady(object? sender, WebNavigatedEventArgs e)
+    private async void OnNavigated(object? sender, WebNavigatedEventArgs e)
     {
-        if (e.Result != WebNavigationResult.Success)
+        if (e.Result != WebNavigationResult.Success || _ready)
             return;
 
-        ShaderView.Navigated -= OnPlaygroundReady;
+        ShaderView.Navigated -= OnNavigated;
         _shaders.Clear();
 
         foreach (var name in new[]
@@ -49,15 +41,15 @@ public partial class ShaderPlaygroundPage : ContentPage
             "Shaders/RimLight.frag.glsl"
         })
         {
-            var key = Path.GetFileName(name);
-            _shaders[key] = await LoadAssetAsync(name);
+            _shaders[Path.GetFileName(name)] = await LoadAssetAsync(name);
         }
 
         ShaderPicker.ItemsSource = _shaders.Keys.ToList();
+        await SendSceneAsync();
+
         if (ShaderPicker.Items.Count > 0)
             ShaderPicker.SelectedIndex = 0;
 
-        await SendSceneAsync();
         _ready = true;
     }
 
@@ -71,11 +63,7 @@ public partial class ShaderPlaygroundPage : ContentPage
 
     private async void OnCompileClicked(object? sender, EventArgs e)
     {
-        if (!_ready)
-            return;
-
-        var result = await ShaderView.EvaluateJavaScriptAsync("compileCurrentShader()");
-        ConsoleLabel.Text = $"Console: {result}";
+        await CompileAndReportAsync();
     }
 
     private async void OnResetShaderClicked(object? sender, EventArgs e)
@@ -90,20 +78,31 @@ public partial class ShaderPlaygroundPage : ContentPage
     {
         var geometry = _renderer.ExportShaderMeshes();
         var json = JsonSerializer.Serialize(geometry);
-        await ShaderView.EvaluateJavaScriptAsync($"setMeshData({JsonSerializer.Serialize(json)})");
+        await ShaderView.EvaluateJavaScriptAsync(
+            $"setMeshData({JsonSerializer.Serialize(json)})");
     }
 
     private async Task SendShaderAsync(string name)
     {
-        var shader = _shaders[name];
-        await ShaderView.EvaluateJavaScriptAsync($"setFragmentShader({JsonSerializer.Serialize(shader)})");
+        await ShaderView.EvaluateJavaScriptAsync(
+            $"setFragmentShader({JsonSerializer.Serialize(_shaders[name])})");
         await CompileAndReportAsync();
     }
 
     private async Task CompileAndReportAsync()
     {
-        var result = await ShaderView.EvaluateJavaScriptAsync("compileCurrentShader()");
-        ConsoleLabel.Text = $"Console: {result}";
+        if (!_ready && ShaderView.Source is null)
+            return;
+
+        try
+        {
+            var result = await ShaderView.EvaluateJavaScriptAsync("compileCurrentShader()");
+            ConsoleLabel.Text = $"Console: {result}";
+        }
+        catch (Exception ex)
+        {
+            ConsoleLabel.Text = $"Console: {ex.Message}";
+        }
     }
 
     private static async Task<string> LoadAssetAsync(string name)
