@@ -87,6 +87,27 @@ public:
         return io;
     }
 };
+
+static aiNode* AssimpFindNodeRecursive(aiNode* node, const char* name) {
+    if (node == nullptr || name == nullptr) {
+        return nullptr;
+    }
+
+    if (std::strcmp(node->mName.C_Str(), name) == 0) {
+        return node;
+    }
+
+    for (unsigned int i = 0; i < node->mNumChildren; ++i) {
+        aiNode* child = node->mChildren[i];
+        aiNode* result = AssimpFindNodeRecursive(child, name);
+        if (result != nullptr) {
+            return result;
+        }
+    }
+
+    return nullptr;
+}
+
 %}
 
 /* .NET & SWIG base types */
@@ -186,3 +207,495 @@ typedef unsigned int ai_uint;
 %include "external/assimp/include/assimp/cfileio.h"
 %include "external/assimp/include/assimp/scene.h"
 %include "external/assimp/include/assimp/cimport.h"
+/* ------------------------------------------------------------------------- */
+/* Engine-oriented accessors                                                 */
+/* ------------------------------------------------------------------------- */
+/*
+ * These extensions expose existing Assimp scene relationships and data
+ * through typed accessors. They do not transfer ownership or introduce
+ * engine state. Returned pointers remain owned by aiScene.
+ *
+ * Accessor names are explicitly PascalCase for the generated C# API.
+ */
+
+%extend aiScene {
+    aiNode* GetRootNode() {
+        return self->mRootNode;
+    }
+
+    aiMesh* GetMesh(unsigned int index) {
+        return index < self->mNumMeshes ? self->mMeshes[index] : nullptr;
+    }
+
+    aiMaterial* GetMaterial(unsigned int index) {
+        return index < self->mNumMaterials ? self->mMaterials[index] : nullptr;
+    }
+
+    aiAnimation* GetAnimation(unsigned int index) {
+        return index < self->mNumAnimations ? self->mAnimations[index] : nullptr;
+    }
+
+    aiTexture* GetTexture(unsigned int index) {
+        return index < self->mNumTextures ? self->mTextures[index] : nullptr;
+    }
+
+    aiLight* GetLight(unsigned int index) {
+        return index < self->mNumLights ? self->mLights[index] : nullptr;
+    }
+
+    aiCamera* GetCamera(unsigned int index) {
+        return index < self->mNumCameras ? self->mCameras[index] : nullptr;
+    }
+}
+
+%extend aiNode {
+    const char* GetName() const {
+        return self->mName.C_Str();
+    }
+
+    aiNode* GetParent() const {
+        return self->mParent;
+    }
+
+    aiNode* GetChild(unsigned int index) const {
+        return index < self->mNumChildren ? self->mChildren[index] : nullptr;
+    }
+
+    unsigned int GetChildCount() const {
+        return self->mNumChildren;
+    }
+
+    unsigned int GetMeshCount() const {
+        return self->mNumMeshes;
+    }
+
+    unsigned int GetMeshIndex(unsigned int index) const {
+        return index < self->mNumMeshes ? self->mMeshes[index] : static_cast<unsigned int>(-1);
+    }
+
+    aiNode* FindNode(const char* name) const {
+        return AssimpFindNodeRecursive(self, name);
+    }
+
+    float GetTransformationElement(unsigned int row, unsigned int column) const {
+        if (row >= 4 || column >= 4) {
+            return 0.0f;
+        }
+
+        const unsigned int index = row * 4 + column;
+        switch (index) {
+            case 0: return self->mTransformation.a1;
+            case 1: return self->mTransformation.a2;
+            case 2: return self->mTransformation.a3;
+            case 3: return self->mTransformation.a4;
+            case 4: return self->mTransformation.b1;
+            case 5: return self->mTransformation.b2;
+            case 6: return self->mTransformation.b3;
+            case 7: return self->mTransformation.b4;
+            case 8: return self->mTransformation.c1;
+            case 9: return self->mTransformation.c2;
+            case 10: return self->mTransformation.c3;
+            case 11: return self->mTransformation.c4;
+            case 12: return self->mTransformation.d1;
+            case 13: return self->mTransformation.d2;
+            case 14: return self->mTransformation.d3;
+            default: return self->mTransformation.d4;
+        }
+    }
+}
+
+%extend aiMesh {
+    const char* GetName() const {
+        return self->mName.C_Str();
+    }
+
+    unsigned int GetPrimitiveTypes() const {
+        return self->mPrimitiveTypes;
+    }
+
+    unsigned int GetMaterialIndex() const {
+        return self->mMaterialIndex;
+    }
+
+    float GetVertexComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumVertices || self->mVertices == nullptr || component >= 3) {
+            return 0.0f;
+        }
+
+        return self->mVertices[index][component];
+    }
+
+    float GetNormalComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumVertices || self->mNormals == nullptr || component >= 3) {
+            return 0.0f;
+        }
+
+        return self->mNormals[index][component];
+    }
+
+    float GetTangentComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumVertices || self->mTangents == nullptr || component >= 3) {
+            return 0.0f;
+        }
+
+        return self->mTangents[index][component];
+    }
+
+    float GetBitangentComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumVertices || self->mBitangents == nullptr || component >= 3) {
+            return 0.0f;
+        }
+
+        return self->mBitangents[index][component];
+    }
+
+    float GetTextureCoordinateComponent(
+        unsigned int channel,
+        unsigned int index,
+        unsigned int component) const {
+        if (channel >= AI_MAX_NUMBER_OF_TEXTURECOORDS ||
+            index >= self->mNumVertices ||
+            component >= 3 ||
+            self->mTextureCoords[channel] == nullptr) {
+            return 0.0f;
+        }
+
+        return self->mTextureCoords[channel][index][component];
+    }
+
+    unsigned int GetTextureCoordinateComponentCount(unsigned int channel) const {
+        if (channel >= AI_MAX_NUMBER_OF_TEXTURECOORDS) {
+            return 0;
+        }
+
+        return self->mTextureCoords[channel] == nullptr
+            ? 0
+            : self->mNumUVComponents[channel];
+    }
+
+    float GetVertexColorComponent(
+        unsigned int channel,
+        unsigned int index,
+        unsigned int component) const {
+        if (channel >= AI_MAX_NUMBER_OF_COLOR_SETS ||
+            index >= self->mNumVertices ||
+            component >= 4 ||
+            self->mColors[channel] == nullptr) {
+            return 0.0f;
+        }
+
+        return self->mColors[channel][index][component];
+    }
+
+    unsigned int GetFaceIndexCount(unsigned int faceIndex) const {
+        if (faceIndex >= self->mNumFaces || self->mFaces == nullptr) {
+            return 0;
+        }
+
+        return self->mFaces[faceIndex].mNumIndices;
+    }
+
+    unsigned int GetFaceIndex(unsigned int faceIndex, unsigned int index) const {
+        if (faceIndex >= self->mNumFaces || self->mFaces == nullptr) {
+            return static_cast<unsigned int>(-1);
+        }
+
+        const aiFace& face = self->mFaces[faceIndex];
+        return index < face.mNumIndices ? face.mIndices[index] : static_cast<unsigned int>(-1);
+    }
+
+    aiBone* GetBone(unsigned int index) const {
+        return index < self->mNumBones && self->mBones != nullptr
+            ? self->mBones[index]
+            : nullptr;
+    }
+
+    aiAnimMesh* GetAnimMesh(unsigned int index) const {
+        return index < self->mNumAnimMeshes && self->mAnimMeshes != nullptr
+            ? self->mAnimMeshes[index]
+            : nullptr;
+    }
+}
+
+%extend aiBone {
+    const char* GetName() const {
+        return self->mName.C_Str();
+    }
+
+    unsigned int GetWeightCount() const {
+        return self->mNumWeights;
+    }
+
+    unsigned int GetWeightVertexId(unsigned int index) const {
+        return index < self->mNumWeights && self->mWeights != nullptr
+            ? self->mWeights[index].mVertexId
+            : static_cast<unsigned int>(-1);
+    }
+
+    float GetWeight(unsigned int index) const {
+        return index < self->mNumWeights && self->mWeights != nullptr
+            ? self->mWeights[index].mWeight
+            : 0.0f;
+    }
+
+    float GetOffsetMatrixElement(unsigned int row, unsigned int column) const {
+        if (row >= 4 || column >= 4) {
+            return 0.0f;
+        }
+
+        const unsigned int index = row * 4 + column;
+        switch (index) {
+            case 0: return self->mOffsetMatrix.a1;
+            case 1: return self->mOffsetMatrix.a2;
+            case 2: return self->mOffsetMatrix.a3;
+            case 3: return self->mOffsetMatrix.a4;
+            case 4: return self->mOffsetMatrix.b1;
+            case 5: return self->mOffsetMatrix.b2;
+            case 6: return self->mOffsetMatrix.b3;
+            case 7: return self->mOffsetMatrix.b4;
+            case 8: return self->mOffsetMatrix.c1;
+            case 9: return self->mOffsetMatrix.c2;
+            case 10: return self->mOffsetMatrix.c3;
+            case 11: return self->mOffsetMatrix.c4;
+            case 12: return self->mOffsetMatrix.d1;
+            case 13: return self->mOffsetMatrix.d2;
+            case 14: return self->mOffsetMatrix.d3;
+            default: return self->mOffsetMatrix.d4;
+        }
+    }
+}
+
+%extend aiAnimMesh {
+    const char* GetName() const {
+        return self->mName.C_Str();
+    }
+
+    float GetVertexComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumVertices || self->mVertices == nullptr || component >= 3) {
+            return 0.0f;
+        }
+
+        return self->mVertices[index][component];
+    }
+
+    float GetNormalComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumVertices || self->mNormals == nullptr || component >= 3) {
+            return 0.0f;
+        }
+
+        return self->mNormals[index][component];
+    }
+
+    float GetWeight() const {
+        return self->mWeight;
+    }
+}
+
+%extend aiAnimation {
+    const char* GetName() const {
+        return self->mName.C_Str();
+    }
+
+    double GetDuration() const {
+        return self->mDuration;
+    }
+
+    double GetTicksPerSecond() const {
+        return self->mTicksPerSecond;
+    }
+
+    double GetDurationInSeconds() const {
+        return self->mTicksPerSecond > 0.0
+            ? self->mDuration / self->mTicksPerSecond
+            : 0.0;
+    }
+
+    double GetTimeInTicks(double timeInSeconds) const {
+        return self->mTicksPerSecond > 0.0
+            ? timeInSeconds * self->mTicksPerSecond
+            : 0.0;
+    }
+
+    aiNodeAnim* GetChannel(unsigned int index) const {
+        return index < self->mNumChannels && self->mChannels != nullptr
+            ? self->mChannels[index]
+            : nullptr;
+    }
+
+    aiMeshAnim* GetMeshChannel(unsigned int index) const {
+        return index < self->mNumMeshChannels && self->mMeshChannels != nullptr
+            ? self->mMeshChannels[index]
+            : nullptr;
+    }
+
+    aiMeshMorphAnim* GetMorphMeshChannel(unsigned int index) const {
+        return index < self->mNumMorphMeshChannels && self->mMorphMeshChannels != nullptr
+            ? self->mMorphMeshChannels[index]
+            : nullptr;
+    }
+}
+
+%extend aiNodeAnim {
+    const char* GetNodeName() const {
+        return self->mNodeName.C_Str();
+    }
+
+    unsigned int GetPositionKeyCount() const {
+        return self->mNumPositionKeys;
+    }
+
+    unsigned int GetRotationKeyCount() const {
+        return self->mNumRotationKeys;
+    }
+
+    unsigned int GetScalingKeyCount() const {
+        return self->mNumScalingKeys;
+    }
+
+    double GetPositionKeyTime(unsigned int index) const {
+        return index < self->mNumPositionKeys && self->mPositionKeys != nullptr
+            ? self->mPositionKeys[index].mTime
+            : 0.0;
+    }
+
+    float GetPositionKeyComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumPositionKeys ||
+            self->mPositionKeys == nullptr ||
+            component >= 3) {
+            return 0.0f;
+        }
+
+        return self->mPositionKeys[index].mValue[component];
+    }
+
+    double GetRotationKeyTime(unsigned int index) const {
+        return index < self->mNumRotationKeys && self->mRotationKeys != nullptr
+            ? self->mRotationKeys[index].mTime
+            : 0.0;
+    }
+
+    float GetRotationKeyComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumRotationKeys ||
+            self->mRotationKeys == nullptr ||
+            component >= 4) {
+            return 0.0f;
+        }
+
+        switch (component) {
+            case 0: return self->mRotationKeys[index].mValue.w;
+            case 1: return self->mRotationKeys[index].mValue.x;
+            case 2: return self->mRotationKeys[index].mValue.y;
+            default: return self->mRotationKeys[index].mValue.z;
+        }
+    }
+
+    double GetScalingKeyTime(unsigned int index) const {
+        return index < self->mNumScalingKeys && self->mScalingKeys != nullptr
+            ? self->mScalingKeys[index].mTime
+            : 0.0;
+    }
+
+    float GetScalingKeyComponent(unsigned int index, unsigned int component) const {
+        if (index >= self->mNumScalingKeys ||
+            self->mScalingKeys == nullptr ||
+            component >= 3) {
+            return 0.0f;
+        }
+
+        return self->mScalingKeys[index].mValue[component];
+    }
+
+    aiAnimBehaviour GetPreState() const {
+        return self->mPreState;
+    }
+
+    aiAnimBehaviour GetPostState() const {
+        return self->mPostState;
+    }
+
+    aiAnimInterpolation GetPositionKeyInterpolation(unsigned int index) const {
+        return index < self->mNumPositionKeys && self->mPositionKeys != nullptr
+            ? self->mPositionKeys[index].mInterpolation
+            : aiAnimInterpolation_Linear;
+    }
+
+    aiAnimInterpolation GetRotationKeyInterpolation(unsigned int index) const {
+        return index < self->mNumRotationKeys && self->mRotationKeys != nullptr
+            ? self->mRotationKeys[index].mInterpolation
+            : aiAnimInterpolation_Linear;
+    }
+
+    aiAnimInterpolation GetScalingKeyInterpolation(unsigned int index) const {
+        return index < self->mNumScalingKeys && self->mScalingKeys != nullptr
+            ? self->mScalingKeys[index].mInterpolation
+            : aiAnimInterpolation_Linear;
+    }
+}
+
+%extend aiMeshAnim {
+    const char* GetName() const {
+        return self->mName.C_Str();
+    }
+
+    unsigned int GetKeyCount() const {
+        return self->mNumKeys;
+    }
+
+    double GetKeyTime(unsigned int index) const {
+        return index < self->mNumKeys && self->mKeys != nullptr
+            ? self->mKeys[index].mTime
+            : 0.0;
+    }
+
+    unsigned int GetKeyValue(unsigned int index) const {
+        return index < self->mNumKeys && self->mKeys != nullptr
+            ? self->mKeys[index].mValue
+            : static_cast<unsigned int>(-1);
+    }
+}
+
+%extend aiMeshMorphAnim {
+    const char* GetName() const {
+        return self->mName.C_Str();
+    }
+
+    unsigned int GetKeyCount() const {
+        return self->mNumKeys;
+    }
+
+    double GetKeyTime(unsigned int index) const {
+        return index < self->mNumKeys && self->mKeys != nullptr
+            ? self->mKeys[index].mTime
+            : 0.0;
+    }
+
+    unsigned int GetKeyValueCount(unsigned int index) const {
+        return index < self->mNumKeys && self->mKeys != nullptr
+            ? self->mKeys[index].mNumValuesAndWeights
+            : 0;
+    }
+
+    unsigned int GetKeyValue(unsigned int keyIndex, unsigned int valueIndex) const {
+        if (keyIndex >= self->mNumKeys ||
+            self->mKeys == nullptr ||
+            valueIndex >= self->mKeys[keyIndex].mNumValuesAndWeights) {
+            return static_cast<unsigned int>(-1);
+        }
+
+        return self->mKeys[keyIndex].mValues[valueIndex];
+    }
+
+    double GetKeyWeight(unsigned int keyIndex, unsigned int valueIndex) const {
+        if (keyIndex >= self->mNumKeys ||
+            self->mKeys == nullptr ||
+            valueIndex >= self->mKeys[keyIndex].mNumValuesAndWeights) {
+            return 0.0;
+        }
+
+        return self->mKeys[keyIndex].mWeights[valueIndex];
+    }
+}
+
+/* Existing native methods whose names are not C#-idiomatic. */
+%rename("AddChildren") aiNode::addChildren;
+%rename("FindBoneNode") aiNode::findBoneNode;
