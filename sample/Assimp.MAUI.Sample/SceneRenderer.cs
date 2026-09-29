@@ -303,16 +303,13 @@ public sealed class SceneRenderer : IDrawable
     private readonly record struct Vertex(Point3D Position, Point2D UV);
     private readonly record struct Point2D(float X, float Y);
     private readonly record struct Point3D(float X, float Y, float Z);
-    private readonly record struct Triangle(Point3D A, Point3D B, Point3D C, uint MaterialIndex, int MeshIndex)
+    private readonly record struct Triangle(Vertex A, Vertex B, Vertex C, uint MaterialIndex, int MeshIndex)
     {
-        public Point2D UV_A => default;
-        public Point2D UV_B => default;
-        public Point2D UV_C => default;
         public RectF Bounds => new(
-            Math.Min(Math.Min(A.X, B.X), C.X),
-            Math.Min(Math.Min(A.Y, B.Y), C.Y),
-            Math.Max(Math.Max(A.X, B.X), C.X),
-            Math.Max(Math.Max(A.Y, B.Y), C.Y));
+            Math.Min(Math.Min(A.Position.X, B.Position.X), C.Position.X),
+            Math.Min(Math.Min(A.Position.Y, B.Position.Y), C.Position.Y),
+            Math.Max(Math.Max(A.Position.X, B.Position.X), C.Position.X),
+            Math.Max(Math.Max(A.Position.Y, B.Position.Y), C.Position.Y));
     }
 
     private readonly record struct ProjectedTriangle(Triangle Source, Point3D A, Point3D B, Point3D C, float Depth);
