@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Assimp.Maui;
 
-namespace Assimp.MAUI.Sample;
+namespace Assimp.MAUI.Sample.Renderers;
 
 public sealed class SceneRenderer : IDrawable
 {

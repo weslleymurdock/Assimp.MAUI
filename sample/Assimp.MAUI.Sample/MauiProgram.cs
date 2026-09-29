@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Logging; 
 
 namespace Assimp.MAUI.Sample;
 
@@ -9,12 +10,15 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-			.ConfigureFonts(fonts =>
+            .UseMauiCommunityToolkit()
+            .ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
-
+		builder.Services.AddScoped<Renderers.SceneRenderer>();
+		builder.Services.AddSingleton<ViewModels.ViewModelBase>();
+		builder.Services.AddTransientWithShellRoute<Views.MainPage, ViewModels.MainViewModel>(nameof(Views.MainPage));
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif

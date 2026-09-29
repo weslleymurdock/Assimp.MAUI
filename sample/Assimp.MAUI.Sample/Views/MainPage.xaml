@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Assimp.MAUI.Sample.MainPage"
+             xmlns:vm="clr-namespace:Assimp.MAUI.Sample.ViewModels"
+             x:Class="Assimp.MAUI.Sample.Views.MainPage"
+             x:DataType="vm:MainViewModel"
              Title="Assimp.MAUI Sample">
     <Grid RowDefinitions="Auto,*,Auto"
           Padding="16"
           RowSpacing="12">
         <VerticalStackLayout Grid.Row="0" Spacing="4">
-            <Label Text="Assimp.MAUI"
+            <Label Text="Assimp.MAUI Sample"
                    FontSize="28"
                    FontAttributes="Bold" />
             <Label Text="Load and inspect an Assimp scene on .NET MAUI."
@@ -21,13 +23,14 @@
                           EndInteraction="OnEndInteraction" />
         </Border>
         <VerticalStackLayout Grid.Row="2" Spacing="8">
-            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-                <Button Grid.Column="0" Text="Open 3D file" Clicked="OnOpenFileClicked" />
-                <Button Grid.Column="1" Text="Reset" Clicked="OnResetClicked" />
-                <Button Grid.Column="2" x:Name="AutoRotateButton" Text="Auto rotate" Clicked="OnAutoRotateClicked" />
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="Open 3D file" Command="{Binding OpenFileCommand}" />
+                <Button Grid.Column="1" Text="Add Textures" Command="{Binding AddTextureCommand}" />
+                <Button Grid.Column="2" Text="Reset" Command="{Binding ResetCommand}" />
+                <Button Grid.Column="3" Text="{Binding AutoRotateButtonLabel}" Command="{Binding AutoRotateCommand}" />
             </Grid>
-            <Label x:Name="FileLabel" Text="No scene loaded" LineBreakMode="TailTruncation" />
-            <Label x:Name="StatsLabel" Text="Assimp scene: —" />
+            <Label x:Name="FileLabel" Text="{Binding FileLabel}" LineBreakMode="TailTruncation" />
+            <Label x:Name="StatsLabel" Text="{Binding StatsLabel}" />
             <Label Text="Tip: drag the preview to rotate the scene." FontSize="12" Opacity="0.6" />
         </VerticalStackLayout>
     </Grid>
