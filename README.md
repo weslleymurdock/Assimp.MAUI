@@ -2,6 +2,7 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/Assimp.MAUI.svg)](https://www.nuget.org/packages/Assimp.MAUI)
 [![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE.md)
+[![Package Assimp](https://github.com/weslleymurdock/Assimp.MAUI/actions/workflows/package.yml/badge.svg?branch=main&event=push)](https://github.com/weslleymurdock/Assimp.MAUI/actions/workflows/package.yml)
 
 **Assimp.MAUI** is a .NET MAUI wrapper and cross-platform binary distribution for the [Open Asset Import Library (Assimp)](https://github.com/assimp/assimp). This package bundles pre-compiled native Assimp binaries targeting all .NET MAUI supported platforms and Runtime Identifiers (RIDs), enabling seamless loading and processing of over 40 3D model formats (such as OBJ, FBX, GLTF, COLLADA, and STL) in cross-platform applications.
 
