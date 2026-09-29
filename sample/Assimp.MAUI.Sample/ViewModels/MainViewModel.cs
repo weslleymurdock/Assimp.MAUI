@@ -263,11 +263,11 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
     private async Task LoadSceneAsync(FileResult file)
     {
         var localPath = Path.Combine(
-            FileSystem.CacheDirectory,
+            Microsoft.Maui.Storage.FileSystem.CacheDirectory,
             $"{Guid.CreateVersion7():N}_{file.FileName}");
 
         await using (var source = await file.OpenReadAsync())
-        await using (var destination = File.Create(localPath))
+        await using (var destination = System.IO.File.Create(localPath))
             await source.CopyToAsync(destination);
 
         Scene? scene = null;
@@ -314,7 +314,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
             scene?.Dispose();
             try
             {
-                File.Delete(localPath);
+                System.IO.File.Delete(localPath);
             }
             catch
             {
@@ -336,7 +336,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
             byte.TryParse(hex[2..4], System.Globalization.NumberStyles.HexNumber, null, out var g) &&
             byte.TryParse(hex[4..6], System.Globalization.NumberStyles.HexNumber, null, out var b))
         {
-            color = Color.FromRgba(r, g, b, 255);
+            color = Color.FromRgba(r, g, b, byte.Parse("255", System.Globalization.NumberStyles.Integer));
             return true;
         }
 
