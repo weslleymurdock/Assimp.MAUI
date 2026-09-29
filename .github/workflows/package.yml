@@ -67,7 +67,7 @@ jobs:
           key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
                   
       - name: Checkout Repository with Submodules
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           submodules: recursive
@@ -198,7 +198,7 @@ jobs:
 
     steps:
       - name: Checkout Repository with Submodules
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
@@ -331,7 +331,7 @@ jobs:
 
       - name: Checkout Repository with Submodules
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
           fetch-depth: 0
@@ -448,7 +448,7 @@ jobs:
           key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
       
       - name: Checkout Repository with Submodules
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           submodules: recursive
@@ -529,7 +529,6 @@ jobs:
           name: assimp-csharp-windows-${{ matrix.arch }}-bindings
           path: assimp-csharp-windows-${{ matrix.arch }}-bindings.zip
 
-
   synchronize-swig-sources:
     name: Synchronize generated SWIG sources
     runs-on: ubuntu-latest
@@ -541,7 +540,7 @@ jobs:
 
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.head_ref }}
       
@@ -630,7 +629,7 @@ jobs:
 
     steps: 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set VERSION variable
         shell: bash
