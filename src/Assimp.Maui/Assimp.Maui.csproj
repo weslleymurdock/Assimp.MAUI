@@ -28,7 +28,7 @@
 
 	<PropertyGroup>
 		<PackageId>Assimp.Maui</PackageId>
-		<Version>6.0.5.0-rc2</Version>
+		<Version>6.0.5.0-rc3</Version>
 		<AssemblyVersion>6.0.5.0</AssemblyVersion>
 		<FileVersion>6.0.5.0</FileVersion>
 		<Title>Assimp.Maui</Title>
