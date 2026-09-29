@@ -312,6 +312,13 @@ public sealed class SceneRenderer : IDrawable
             Math.Max(Math.Max(A.Position.Y, B.Position.Y), C.Position.Y));
     }
 
-    private readonly record struct ProjectedTriangle(Triangle Source, Point3D A, Point3D B, Point3D C, float Depth);
+    private readonly record struct ProjectedTriangle(Triangle Source, Point3D A, Point3D B, Point3D C, float Depth)
+    {
+        public RectF Bounds => new(
+            Math.Min(Math.Min(A.X, B.X), C.X),
+            Math.Min(Math.Min(A.Y, B.Y), C.Y),
+            Math.Max(Math.Max(A.X, B.X), C.X),
+            Math.Max(Math.Max(A.Y, B.Y), C.Y));
+    }
     public sealed record ShaderMesh(int MeshIndex, float[] Positions, float[] UVs);
 }
