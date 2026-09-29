@@ -153,8 +153,15 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
                 return;
 
             await using var stream = await file.OpenReadAsync();
-            var image = await Task.Run(() => PlatformImage.FromStream(stream));
-            await Task.Run(() => _renderer.SetTexture(image, file.FileName));
+            await using var memory = new MemoryStream();
+            await stream.CopyToAsync(memory);
+            var imageData = memory.ToArray();
+            await Task.Run(() =>
+            {
+                using var textureStream = new MemoryStream(imageData, writable: false);
+                var image = PlatformImage.FromStream(textureStream);
+                _renderer.SetTexture(image, file.FileName);
+            });
             TextureLabel = _renderer.TextureDescription;
             SceneView?.Invalidate();
         }
@@ -315,11 +322,15 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
                         : error);
             }
 
-            _renderer.SetScene(scene);
-            _renderer.ResetCamera();
+            var importedScene = scene;
+            await Task.Run(() =>
+            {
+                _renderer.SetScene(importedScene);
+                _renderer.ResetCamera();
+            });
 
             _scene?.Dispose();
-            _scene = scene;
+            _scene = importedScene;
             scene = null;
 
             FileLabel = file.FileName;
