@@ -670,7 +670,13 @@ jobs:
         with:
           name: assimp-csharp-android-arm64-v8a-bindings
           path: ${{ github.workspace }}/artifacts/
-
+ 
+      - name: Validate artifacts
+        if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          ls -R ${{ github.workspace }}/artifacts/
+    
       - name: Extract Android Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
         shell: bash
