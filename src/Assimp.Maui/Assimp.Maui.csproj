@@ -35,8 +35,7 @@
 		<Authors>Weslley Murdock</Authors>
 		<Company>Remote Code Hub</Company>
 		<PackageReleaseNotes>
-		- 🐞 BugFix: apple namespaces werent working
-		- 🧩 Improvement: Unified projects into a new Assimp.Maui.csproj for packaging
+		- 🐞 BugFix: windows namespaces werent working
 		</PackageReleaseNotes>
 		<Copyright>Copyright ©2026 Remote Code Hub</Copyright>
 		<PackageTags>assimp;net;maui;native;assimp-net;android;ios;windows;maccatalyst;scene;game;game-dev;engine;assets;asset;3d</PackageTags>
