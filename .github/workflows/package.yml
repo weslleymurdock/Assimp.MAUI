@@ -827,28 +827,13 @@ jobs:
           mv -v ./artifacts/assimp-android-arm64-v8a/*.* ./src/Assimp.Maui/Platforms/Android/runtimes/android-arm64/native
           mv -v ./artifacts/assimp-android-x86/*.* ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86/native
           mv -v ./artifacts/assimp-android-x86_64/*.* ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86_64/native
-          cd ./artifacts/assimp-ios-iphoneos-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ./src/Assimp.Maui/Platforms/iOS/runtimes/ios-arm64/native
-          cd ./artifacts/assimp-ios-iphonesimulator-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ./../../src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native
-          cd ./../../artifacts/assimp-ios-iphonesimulator-x86_64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ./../../src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-x64/native
-          cd ./../../artifacts/assimp-maccatalyst-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ./../../src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native
-          cd ./../../artifacts/assimp-maccatalyst-x86_64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ./../../src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-x64/native
-          mv -v ./../../artifacts/assimp-windows-arm64/*.* ./../../src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
-          mv -v ./../../artifacts/assimp-windows-x64/*.* ./../../src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
+          mv -v ./artifacts/assimp-ios-iphoneos-arm64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/ios-arm64/native
+          mv -v ./artifacts/assimp-ios-iphonesimulator-arm64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native
+          mv -v ./artifacts/assimp-ios-iphonesimulator-x86_64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-x64/native
+          mv -v ./artifacts/assimp-maccatalyst-arm64/*.* ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native 
+          mv -v ./artifacts/assimp-maccatalyst-x86_64/*.* ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-x64/native
+          mv -v ./artifacts/assimp-windows-arm64/*.* ./src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
+          mv -v ./artifacts/assimp-windows-x64/*.* ./src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
 
       - name: Inspect artifacts
         shell: bash
