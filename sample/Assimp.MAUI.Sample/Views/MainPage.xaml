@@ -31,7 +31,16 @@
       </GraphicsView>
     </Border>
 
-    <ScrollView Grid.Row="2">
+    <ActivityIndicator Grid.Row="1"
+                       IsRunning="{Binding IsBusy}"
+                       IsVisible="{Binding IsBusy}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       WidthRequest="56"
+                       HeightRequest="56"
+                       ZIndex="10" />
+
+    <ScrollView Grid.Row="2" IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}, FallbackValue=True}">
       <VerticalStackLayout Spacing="8">
         <Grid ColumnDefinitions="*,*,*,*"
               ColumnSpacing="6">
