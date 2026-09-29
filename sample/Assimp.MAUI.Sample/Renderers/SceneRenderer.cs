@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.Runtime.InteropServices;
 using Assimp.Maui;
 
 namespace Assimp.MAUI.Sample.Renderers;
@@ -7,62 +5,74 @@ namespace Assimp.MAUI.Sample.Renderers;
 public sealed class SceneRenderer : IDrawable
 {
     private readonly List<Triangle> _triangles = [];
+    private readonly Dictionary<uint, MaterialStyle> _materials = [];
     private float _rotationX = -0.35f;
     private float _rotationY = 0.55f;
     private float _scale = 1f;
+    private IImage? _texture;
+    private string? _textureName;
+    private bool _wireframe;
+    private bool _lighting = true;
+    private bool _useTexture = true;
 
     public int MeshCount { get; private set; }
     public int VertexCount { get; private set; }
     public int FaceCount { get; private set; }
+    public int MaterialCount { get; private set; }
+    public int TextureCount { get; private set; }
 
     public void SetScene(Scene? scene)
     {
         _triangles.Clear();
+        _materials.Clear();
         MeshCount = 0;
         VertexCount = 0;
         FaceCount = 0;
+        MaterialCount = scene is null ? 0 : checked((int)scene.NumMaterials);
+        TextureCount = scene is null ? 0 : checked((int)scene.NumTextures);
 
         if (scene is null || !scene.HasMeshes())
             return;
 
         MeshCount = checked((int)scene.NumMeshes);
 
-        try
+        for (uint meshIndex = 0; meshIndex < scene.NumMeshes; meshIndex++)
         {
-            var meshes = GetHandle(scene.Meshes);
-            var meshType = typeof(Mesh);
-            var constructor = meshType.GetConstructor(
-                BindingFlags.Instance | BindingFlags.NonPublic,
-                binder: null,
-                [typeof(IntPtr), typeof(bool)],
-                modifiers: null);
+            using var mesh = scene.GetMesh(meshIndex);
+            if (mesh is null || !mesh.HasPositions() || !mesh.HasFaces())
+                continue;
 
-            if (constructor is null)
-                throw new MissingMethodException(meshType.FullName, ".ctor(IntPtr, Boolean)");
+            VertexCount += checked((int)mesh.NumVertices);
+            FaceCount += checked((int)mesh.NumFaces);
 
-            for (var meshIndex = 0; meshIndex < MeshCount; meshIndex++)
-            {
-                var meshPointer = Marshal.ReadIntPtr(meshes, meshIndex * IntPtr.Size);
-                if (meshPointer == IntPtr.Zero)
-                    continue;
+            var materialIndex = mesh.GetMaterialIndex();
+            if (!_materials.ContainsKey(materialIndex))
+                _materials[materialIndex] = CreateMaterial(materialIndex);
 
-                using var mesh = (Mesh)constructor.Invoke([meshPointer, false]);
-                if (!mesh.HasPositions() || !mesh.HasFaces())
-                    continue;
-
-                VertexCount += checked((int)mesh.NumVertices);
-                FaceCount += checked((int)mesh.NumFaces);
-                ReadMesh(mesh);
-            }
-        }
-        catch
-        {
-            _triangles.Clear();
-            throw;
+            ReadMesh(mesh, materialIndex);
         }
 
         Normalize();
     }
+
+    public void SetMaterial(uint materialIndex, Color color, float roughness)
+    {
+        _materials[materialIndex] = new MaterialStyle(color, Math.Clamp(roughness, 0f, 1f));
+    }
+
+    public void SetTexture(IImage? texture, string? name)
+    {
+        _texture?.Dispose();
+        _texture = texture;
+        _textureName = name;
+    }
+
+    public string TextureDescription =>
+        _texture is null ? "No texture" : $"Texture: {_textureName ?? "loaded"}";
+
+    public void ToggleTexture() => _useTexture = !_useTexture;
+    public void ToggleLighting() => _lighting = !_lighting;
+    public void ToggleWireframe() => _wireframe = !_wireframe;
 
     public void ResetCamera()
     {
@@ -74,105 +84,135 @@ public sealed class SceneRenderer : IDrawable
     public void Rotate(float deltaX, float deltaY)
     {
         _rotationY += deltaX * 0.01f;
-        _rotationX += deltaY * 0.01f;
+        _rotationX = Math.Clamp(_rotationX + deltaY * 0.01f, -1.5f, 1.5f);
     }
 
-    public void Zoom(float delta)
-    {
+    public void Zoom(float delta) =>
         _scale = Math.Clamp(_scale * (1f + delta), 0.1f, 10f);
+
+    public IReadOnlyList<ShaderMesh> ExportShaderMeshes()
+    {
+        return _triangles
+            .GroupBy(t => t.MeshIndex)
+            .Select(group => new ShaderMesh(
+                group.Key,
+                group.SelectMany(t => new[] { t.A.Position, t.B.Position, t.C.Position })
+                    .SelectMany(p => new[] { p.X, p.Y, p.Z })
+                    .ToArray(),
+                group.SelectMany(t => new[] { t.A.UV, t.B.UV, t.C.UV })
+                    .SelectMany(p => new[] { p.X, p.Y })
+                    .ToArray()))
+            .ToArray();
     }
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        canvas.FillColor = Colors.Black;
+        canvas.FillColor = new Color(0.035f, 0.045f, 0.06f);
         canvas.FillRectangle(dirtyRect);
 
         if (_triangles.Count == 0)
         {
             canvas.FontColor = Colors.White;
             canvas.FontSize = 16;
-            canvas.DrawString("Load a supported 3D asset to preview its scene.",
-                dirtyRect.Center.X, dirtyRect.Center.Y,
-                HorizontalAlignment.Center);
+            canvas.DrawString("Open a 3D asset to start the Assimp.MAUI demonstration.",
+                dirtyRect.Center.X, dirtyRect.Center.Y, HorizontalAlignment.Center);
             return;
         }
 
-        var projected = new List<ProjectedTriangle>(_triangles.Count);
+        var projected = _triangles
+            .Select(triangle =>
+            {
+                var a = Project(triangle.A.Position, dirtyRect);
+                var b = Project(triangle.B.Position, dirtyRect);
+                var c = Project(triangle.C.Position, dirtyRect);
+                return new ProjectedTriangle(triangle, a, b, c, (a.Z + b.Z + c.Z) / 3f);
+            })
+            .OrderBy(t => t.Depth);
 
-        foreach (var triangle in _triangles)
-        {
-            var a = Project(triangle.A, dirtyRect);
-            var b = Project(triangle.B, dirtyRect);
-            var c = Project(triangle.C, dirtyRect);
-
-            projected.Add(new ProjectedTriangle(a, b, c, (a.Z + b.Z + c.Z) / 3f));
-        }
-
-        foreach (var triangle in projected.OrderBy(t => t.Depth))
+        foreach (var projectedTriangle in projected)
         {
             var path = new PathF();
-            path.MoveTo(triangle.A.X, triangle.A.Y);
-            path.LineTo(triangle.B.X, triangle.B.Y);
-            path.LineTo(triangle.C.X, triangle.C.Y);
+            path.MoveTo(projectedTriangle.A.X, projectedTriangle.A.Y);
+            path.LineTo(projectedTriangle.B.X, projectedTriangle.B.Y);
+            path.LineTo(projectedTriangle.C.X, projectedTriangle.C.Y);
             path.Close();
 
-            canvas.FillColor = new Color(0.28f, 0.55f, 0.95f, 0.72f);
-            canvas.FillPath(path);
+            var color = Colors.SlateGray;
+            var roughness = 0.45f;
+            if (_materials.TryGetValue(projectedTriangle.Source.MaterialIndex, out var material))
+            {
+                color = material.Color;
+                roughness = material.Roughness;
+            }
 
-            canvas.StrokeColor = new Color(0.8f, 0.9f, 1f, 0.55f);
-            canvas.StrokeSize = 0.5f;
-            canvas.DrawPath(path);
+            if (_lighting)
+                color = ApplyLighting(color, projectedTriangle.Source, roughness);
+
+            if (_texture is not null && _useTexture)
+            {
+                canvas.SaveState();
+                canvas.ClipPath(path);
+                canvas.DrawImage(_texture, projectedTriangle.Bounds);
+                canvas.RestoreState();
+            }
+            else
+            {
+                canvas.FillColor = color;
+                canvas.FillPath(path);
+            }
+
+            if (_wireframe)
+            {
+                canvas.StrokeColor = Colors.White.WithAlpha(0.55f);
+                canvas.StrokeSize = 0.75f;
+                canvas.DrawPath(path);
+            }
         }
+
+        canvas.FontColor = Colors.White.WithAlpha(0.65f);
+        canvas.FontSize = 12;
+        canvas.DrawString(
+            $"{MeshCount} mesh(es)  •  {MaterialCount} material(s)  •  {TextureCount} embedded texture(s)",
+            12, 12, HorizontalAlignment.Left);
     }
 
-    private void ReadMesh(Mesh mesh)
+    private void ReadMesh(Mesh mesh, uint materialIndex)
     {
-        var vertices = GetHandle(mesh.Vertices);
-        var faces = GetHandle(mesh.Faces);
-
-        var vertexCount = checked((int)mesh.NumVertices);
-        var verticesData = new Point3D[vertexCount];
-
-        for (var i = 0; i < vertexCount; i++)
+        for (uint faceIndex = 0; faceIndex < mesh.NumFaces; faceIndex++)
         {
-            var address = IntPtr.Add(vertices, i * 12);
-            var values = new float[3];
-            Marshal.Copy(address, values, 0, 3);
-            verticesData[i] = new Point3D(values[0], values[1], values[2]);
-        }
-
-        var faceStride = IntPtr.Size == 8 ? 16 : 8;
-
-        for (var faceIndex = 0; faceIndex < mesh.NumFaces; faceIndex++)
-        {
-            var faceAddress = IntPtr.Add(faces, checked((int)faceIndex) * faceStride);
-            var indexCount = checked((int)(uint)Marshal.ReadInt32(faceAddress));
-
-            if (indexCount < 3)
+            var count = mesh.GetFaceIndexCount(faceIndex);
+            if (count < 3)
                 continue;
 
-            var indicesAddress = Marshal.ReadIntPtr(
-                IntPtr.Add(faceAddress, IntPtr.Size == 8 ? 8 : 4));
-
-            if (indicesAddress == IntPtr.Zero)
-                continue;
-
-            var first = ReadVertex(verticesData, indicesAddress, 0);
-            for (var i = 1; i < indexCount - 1; i++)
+            var first = mesh.GetFaceIndex(faceIndex, 0);
+            for (uint i = 1; i + 1 < count; i++)
             {
-                var second = ReadVertex(verticesData, indicesAddress, i);
-                var third = ReadVertex(verticesData, indicesAddress, i + 1);
-                _triangles.Add(new Triangle(first, second, third));
+                var second = mesh.GetFaceIndex(faceIndex, i);
+                var third = mesh.GetFaceIndex(faceIndex, i + 1);
+                _triangles.Add(new Triangle(
+                    ReadVertex(mesh, first),
+                    ReadVertex(mesh, second),
+                    ReadVertex(mesh, third),
+                    materialIndex,
+                    MeshCount - 1));
             }
         }
     }
 
-    private static Point3D ReadVertex(Point3D[] vertices, IntPtr indices, int index)
+    private static Vertex ReadVertex(Mesh mesh, uint index)
     {
-        var vertexIndex = Marshal.ReadInt32(IntPtr.Add(indices, index * sizeof(uint)));
-        return vertexIndex >= 0 && vertexIndex < vertices.Length
-            ? vertices[vertexIndex]
-            : default;
+        var position = new Point3D(
+            mesh.GetVertexComponent(index, 0),
+            mesh.GetVertexComponent(index, 1),
+            mesh.GetVertexComponent(index, 2));
+
+        var uv = mesh.HasTextureCoords(0)
+            ? new Point2D(
+                mesh.GetTextureCoordinateComponent(0, index, 0),
+                1f - mesh.GetTextureCoordinateComponent(0, index, 1))
+            : new Point2D(0.5f, 0.5f);
+
+        return new Vertex(position, uv);
     }
 
     private void Normalize()
@@ -180,32 +220,30 @@ public sealed class SceneRenderer : IDrawable
         if (_triangles.Count == 0)
             return;
 
-        var points = _triangles.SelectMany(t => new[] { t.A, t.B, t.C }).ToArray();
+        var points = _triangles.SelectMany(t => new[] { t.A.Position, t.B.Position, t.C.Position }).ToArray();
         var minX = points.Min(p => p.X);
         var maxX = points.Max(p => p.X);
         var minY = points.Min(p => p.Y);
         var maxY = points.Max(p => p.Y);
         var minZ = points.Min(p => p.Z);
         var maxZ = points.Max(p => p.Z);
-
         var center = new Point3D(
             (minX + maxX) / 2f,
             (minY + maxY) / 2f,
             (minZ + maxZ) / 2f);
 
         var size = Math.Max(maxX - minX, Math.Max(maxY - minY, maxZ - minZ));
-        if (size <= 0)
-            size = 1;
-
-        var factor = 2f / size;
+        var factor = size > 0 ? 2f / size : 1f;
 
         for (var i = 0; i < _triangles.Count; i++)
         {
             var t = _triangles[i];
-            _triangles[i] = new Triangle(
-                Center(t.A, center, factor),
-                Center(t.B, center, factor),
-                Center(t.C, center, factor));
+            _triangles[i] = t with
+            {
+                A = t.A with { Position = Center(t.A.Position, center, factor) },
+                B = t.B with { Position = Center(t.B.Position, center, factor) },
+                C = t.C with { Position = Center(t.C.Position, center, factor) }
+            };
         }
     }
 
@@ -215,12 +253,10 @@ public sealed class SceneRenderer : IDrawable
         var sinY = MathF.Sin(_rotationY);
         var cosX = MathF.Cos(_rotationX);
         var sinX = MathF.Sin(_rotationX);
-
         var x = point.X * cosY - point.Z * sinY;
         var z = point.X * sinY + point.Z * cosY;
         var y = point.Y * cosX - z * sinX;
         z = point.Y * sinX + z * cosX;
-
         var perspective = 2.8f / (3.4f - z);
         var size = MathF.Min(bounds.Width, bounds.Height) * 0.4f * _scale;
 
@@ -230,20 +266,74 @@ public sealed class SceneRenderer : IDrawable
             z);
     }
 
+    private static Color ApplyLighting(Color color, Triangle triangle, float roughness)
+    {
+        var ab = Subtract(triangle.B.Position, triangle.A.Position);
+        var ac = Subtract(triangle.C.Position, triangle.A.Position);
+        var normal = Normalize(Cross(ab, ac));
+        var light = Normalize(new Point3D(-0.45f, 0.75f, 0.65f));
+        var view = Normalize(new Point3D(0f, 0f, 1f));
+        var diffuse = 0.35f + Math.Max(0f, Dot(normal, light)) * 0.65f;
+        var reflected = Reflect(new Point3D(-light.X, -light.Y, -light.Z), normal);
+        var shininess = 4f + (1f - roughness) * 124f;
+        var specular = MathF.Pow(Math.Max(0f, Dot(reflected, view)), shininess) * (1f - roughness) * 0.35f;
+        return new Color(
+            Math.Clamp(color.Red * diffuse + specular, 0f, 1f),
+            Math.Clamp(color.Green * diffuse + specular, 0f, 1f),
+            Math.Clamp(color.Blue * diffuse + specular, 0f, 1f),
+            color.Alpha);
+    }
+
+    private static MaterialStyle CreateMaterial(uint index)
+    {
+        var palette = new[]
+        {
+            Colors.CornflowerBlue, Colors.Orange, Colors.MediumSeaGreen,
+            Colors.MediumPurple, Colors.Goldenrod, Colors.IndianRed
+        };
+        return new MaterialStyle(palette[index % (uint)palette.Length], 0.45f);
+    }
+
     private static Point3D Center(Point3D point, Point3D center, float factor) =>
         new((point.X - center.X) * factor, (point.Y - center.Y) * factor, (point.Z - center.Z) * factor);
 
-    private static IntPtr GetHandle(object value)
-    {
-        var field = value.GetType().GetField("swigCPtr",
-            BindingFlags.Instance | BindingFlags.NonPublic)
-            ?? throw new MissingFieldException(value.GetType().FullName, "swigCPtr");
+    private static Point3D Subtract(Point3D a, Point3D b) =>
+        new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
 
-        var handle = (HandleRef)field.GetValue(value)!;
-        return handle.Handle;
+    private static Point3D Cross(Point3D a, Point3D b) =>
+        new(a.Y * b.Z - a.Z * b.Y, a.Z * b.X - a.X * b.Z, a.X * b.Y - a.Y * b.X);
+
+    private static float Dot(Point3D a, Point3D b) => a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+
+    private static Point3D Reflect(Point3D value, Point3D normal) =>
+        Subtract(value, new Point3D(2f * Dot(value, normal) * normal.X, 2f * Dot(value, normal) * normal.Y, 2f * Dot(value, normal) * normal.Z));
+
+    private static Point3D Normalize(Point3D value)
+    {
+        var length = MathF.Sqrt(Dot(value, value));
+        return length <= 0.0001f ? new Point3D(0, 0, 1) : new Point3D(value.X / length, value.Y / length, value.Z / length);
     }
 
+    private readonly record struct MaterialStyle(Color Color, float Roughness);
+    private readonly record struct Vertex(Point3D Position, Point2D UV);
+    private readonly record struct Point2D(float X, float Y);
     private readonly record struct Point3D(float X, float Y, float Z);
-    private readonly record struct Triangle(Point3D A, Point3D B, Point3D C);
-    private readonly record struct ProjectedTriangle(Point3D A, Point3D B, Point3D C, float Depth);
+    private readonly record struct Triangle(Vertex A, Vertex B, Vertex C, uint MaterialIndex, int MeshIndex)
+    {
+        public RectF Bounds => new(
+            Math.Min(Math.Min(A.Position.X, B.Position.X), C.Position.X),
+            Math.Min(Math.Min(A.Position.Y, B.Position.Y), C.Position.Y),
+            Math.Max(Math.Max(A.Position.X, B.Position.X), C.Position.X),
+            Math.Max(Math.Max(A.Position.Y, B.Position.Y), C.Position.Y));
+    }
+
+    private readonly record struct ProjectedTriangle(Triangle Source, Point3D A, Point3D B, Point3D C, float Depth)
+    {
+        public RectF Bounds => new(
+            Math.Min(Math.Min(A.X, B.X), C.X),
+            Math.Min(Math.Min(A.Y, B.Y), C.Y),
+            Math.Max(Math.Max(A.X, B.X), C.X),
+            Math.Max(Math.Max(A.Y, B.Y), C.Y));
+    }
+    public sealed record ShaderMesh(int MeshIndex, float[] Positions, float[] UVs);
 }

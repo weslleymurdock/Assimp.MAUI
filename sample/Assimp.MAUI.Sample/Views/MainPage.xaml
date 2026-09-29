@@ -5,33 +5,59 @@
              x:Class="Assimp.MAUI.Sample.Views.MainPage"
              x:DataType="vm:MainViewModel"
              Title="Assimp.MAUI Sample">
-    <Grid RowDefinitions="Auto,*,Auto"
-          Padding="16"
-          RowSpacing="12">
-        <VerticalStackLayout Grid.Row="0" Spacing="4">
-            <Label Text="Assimp.MAUI Sample"
-                   FontSize="28"
-                   FontAttributes="Bold" />
-            <Label Text="Load and inspect an Assimp scene on .NET MAUI."
-                   Opacity="0.7" />
-        </VerticalStackLayout>
-        <Border Grid.Row="1" StrokeThickness="1" Padding="0" StrokeShape="RoundRectangle 12">
-            <GraphicsView x:Name="SceneView"
-                          Drawable="{Binding Renderer}"
-                          StartInteraction="OnStartInteraction"
-                          DragInteraction="OnDragInteraction"
-                          EndInteraction="OnEndInteraction" />
-        </Border>
-        <VerticalStackLayout Grid.Row="2" Spacing="8">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10">
-                <Button Grid.Column="0" Text="Open 3D file" Command="{Binding OpenFileCommand}" />
-                <Button Grid.Column="1" Text="Add Textures" Command="{Binding AddTextureCommand}" />
-                <Button Grid.Column="2" Text="Reset" Command="{Binding ResetCommand}" />
-                <Button Grid.Column="3" Text="{Binding AutoRotateButtonLabel}" Command="{Binding AutoRotateCommand}" />
-            </Grid>
-            <Label x:Name="FileLabel" Text="{Binding FileLabel}" LineBreakMode="TailTruncation" />
-            <Label x:Name="StatsLabel" Text="{Binding StatsLabel}" />
-            <Label Text="Tip: drag the preview to rotate the scene." FontSize="12" Opacity="0.6" />
-        </VerticalStackLayout>
+  <Grid Padding="14" RowDefinitions="Auto,*,Auto" RowSpacing="10">
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+      <VerticalStackLayout>
+        <Label Text="Assimp.MAUI" FontSize="28" FontAttributes="Bold" />
+        <Label Text="3D asset, material, texture and shader playground demonstration."
+               Opacity="0.7" />
+      </VerticalStackLayout>
+      <Button Grid.Column="1" Text="Shader Playground" Clicked="OnShaderPlaygroundClicked" />
     </Grid>
+
+    <Border Grid.Row="1" StrokeThickness="1" Padding="0" StrokeShape="RoundRectangle 12">
+      <GraphicsView x:Name="SceneView"
+                    Drawable="{Binding Renderer}"
+                    StartInteraction="OnStartInteraction"
+                    DragInteraction="OnDragInteraction"
+                    EndInteraction="OnEndInteraction" />
+    </Border>
+
+    <ScrollView Grid.Row="2">
+      <VerticalStackLayout Spacing="8">
+        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6">
+          <Button Text="Open 3D" Clicked="OnOpenFileClicked" />
+          <Button Grid.Column="1" Text="Texture" Clicked="OnTextureClicked" />
+          <Button Grid.Column="2" Text="Reset" Clicked="OnResetClicked" />
+          <Button Grid.Column="3" x:Name="AutoRotateButton" Text="Auto rotate" Clicked="OnAutoRotateClicked" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+          <Label Text="Material" VerticalOptions="Center" />
+          <Picker x:Name="MaterialPicker" Grid.Column="1" Title="Imported material" />
+          <Button Grid.Column="2" Text="Apply" Clicked="OnApplyMaterialClicked" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+          <Label Text="Color" VerticalOptions="Center" />
+          <Entry x:Name="ColorEntry" Grid.Column="1" Text="#4F8EF7" Placeholder="#RRGGBB" />
+          <Label Grid.Column="2" Text="Roughness" VerticalOptions="Center" />
+        </Grid>
+
+        <Slider x:Name="RoughnessSlider" Minimum="0" Maximum="1" Value="0.45" />
+
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+          <Button Text="Lighting" Clicked="OnLightingClicked" />
+          <Button Grid.Column="1" Text="Texture On/Off" Clicked="OnTextureToggleClicked" />
+          <Button Grid.Column="2" Text="Wireframe" Clicked="OnWireframeClicked" />
+        </Grid>
+
+        <Label x:Name="FileLabel" Text="No scene loaded" LineBreakMode="TailTruncation" />
+        <Label x:Name="StatsLabel" Text="Scene: —" />
+        <Label x:Name="TextureLabel" Text="No texture" />
+        <Label Text="Drag the preview to orbit. The shader playground can consume the same Assimp mesh data."
+               FontSize="12" Opacity="0.6" />
+      </VerticalStackLayout>
+    </ScrollView>
+  </Grid>
 </ContentPage>

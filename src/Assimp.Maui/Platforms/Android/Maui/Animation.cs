@@ -154,6 +154,49 @@ public class Animation : global::System.IDisposable {
   public Animation() : this(AssimpPINVOKE.new_Animation(), true) {
   }
 
+  public string GetName() {
+    string ret = AssimpPINVOKE.Animation_GetName(swigCPtr);
+    return ret;
+  }
+
+  public double GetDuration() {
+    double ret = AssimpPINVOKE.Animation_GetDuration(swigCPtr);
+    return ret;
+  }
+
+  public double GetTicksPerSecond() {
+    double ret = AssimpPINVOKE.Animation_GetTicksPerSecond(swigCPtr);
+    return ret;
+  }
+
+  public double GetDurationInSeconds() {
+    double ret = AssimpPINVOKE.Animation_GetDurationInSeconds(swigCPtr);
+    return ret;
+  }
+
+  public double GetTimeInTicks(double timeInSeconds) {
+    double ret = AssimpPINVOKE.Animation_GetTimeInTicks(swigCPtr, timeInSeconds);
+    return ret;
+  }
+
+  public NodeAnim GetChannel(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Animation_GetChannel(swigCPtr, index);
+    NodeAnim ret = (cPtr == global::System.IntPtr.Zero) ? null : new NodeAnim(cPtr, false);
+    return ret;
+  }
+
+  public MeshAnim GetMeshChannel(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Animation_GetMeshChannel(swigCPtr, index);
+    MeshAnim ret = (cPtr == global::System.IntPtr.Zero) ? null : new MeshAnim(cPtr, false);
+    return ret;
+  }
+
+  public MeshMorphAnim GetMorphMeshChannel(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Animation_GetMorphMeshChannel(swigCPtr, index);
+    MeshMorphAnim ret = (cPtr == global::System.IntPtr.Zero) ? null : new MeshMorphAnim(cPtr, false);
+    return ret;
+  }
+
 }
 
 }

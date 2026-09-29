@@ -92,6 +92,26 @@ public class MeshAnim : global::System.IDisposable {
   public MeshAnim() : this(AssimpPINVOKE.new_MeshAnim(), true) {
   }
 
+  public string GetName() {
+    string ret = AssimpPINVOKE.MeshAnim_GetName(swigCPtr);
+    return ret;
+  }
+
+  public uint GetKeyCount() {
+    uint ret = AssimpPINVOKE.MeshAnim_GetKeyCount(swigCPtr);
+    return ret;
+  }
+
+  public double GetKeyTime(uint index) {
+    double ret = AssimpPINVOKE.MeshAnim_GetKeyTime(swigCPtr, index);
+    return ret;
+  }
+
+  public uint GetKeyValue(uint index) {
+    uint ret = AssimpPINVOKE.MeshAnim_GetKeyValue(swigCPtr, index);
+    return ret;
+  }
+
 }
 
 }

@@ -319,6 +319,48 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  public Node GetRootNode() {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Scene_GetRootNode(swigCPtr);
+    Node ret = (cPtr == global::System.IntPtr.Zero) ? null : new Node(cPtr, false);
+    return ret;
+  }
+
+  public Mesh GetMesh(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Scene_GetMesh(swigCPtr, index);
+    Mesh ret = (cPtr == global::System.IntPtr.Zero) ? null : new Mesh(cPtr, false);
+    return ret;
+  }
+
+  public Material GetMaterial(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Scene_GetMaterial(swigCPtr, index);
+    Material ret = (cPtr == global::System.IntPtr.Zero) ? null : new Material(cPtr, false);
+    return ret;
+  }
+
+  public Animation GetAnimation(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Scene_GetAnimation(swigCPtr, index);
+    Animation ret = (cPtr == global::System.IntPtr.Zero) ? null : new Animation(cPtr, false);
+    return ret;
+  }
+
+  public Texture GetTexture(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Scene_GetTexture(swigCPtr, index);
+    Texture ret = (cPtr == global::System.IntPtr.Zero) ? null : new Texture(cPtr, false);
+    return ret;
+  }
+
+  public Light GetLight(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Scene_GetLight(swigCPtr, index);
+    Light ret = (cPtr == global::System.IntPtr.Zero) ? null : new Light(cPtr, false);
+    return ret;
+  }
+
+  public Camera GetCamera(uint index) {
+    global::System.IntPtr cPtr = AssimpPINVOKE.Scene_GetCamera(swigCPtr, index);
+    Camera ret = (cPtr == global::System.IntPtr.Zero) ? null : new Camera(cPtr, false);
+    return ret;
+  }
+
 }
 
 }

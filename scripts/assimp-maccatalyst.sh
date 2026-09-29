@@ -28,11 +28,13 @@ ARCHS=()
 if [ "$BUILD_ARM64" = true ]; then ARCHS+=("arm64"); fi
 if [ "$BUILD_X64" = true ]; then ARCHS+=("x86_64"); fi
 
+cd "$(dirname '$0')/.." || exit 1
+
 echo "=== 0. Cleaning previous builds ==="
 for ARCH in "${ARCHS[@]}"; do
   rm -rf "build/maccatalyst-$ARCH"
 done
-rm -rf src/Assimp.Maui.MacCatalyst/Maui
+rm -rf src/Assimp.Maui/Platforms/MacCatalyst/Maui
 
 echo "=== 1. Checking System Dependencies (Homebrew) ==="
 for pkg in cmake swig ninja; do
@@ -98,14 +100,14 @@ if [ ! -f "swig/assimp.i" ]; then
   exit 1
 fi
 
-mkdir -p src/Assimp.Maui.MacCatalyst/Maui
+mkdir -p src/Assimp.Maui/Platforms/MacCatalyst/Maui
 
 # For static libraries on Mac Catalyst, DllImport in C# points to "__Internal"
 swig -c++ -csharp \
   -namespace Assimp.Maui \
   -dllimport __Internal \
-  -outdir src/Assimp.Maui.MacCatalyst/Maui \
-  -o src/Assimp.Maui.MacCatalyst/Maui/assimpmaui.cxx \
+  -outdir src/Assimp.Maui/Platforms/MacCatalyst/Maui \
+  -o src/Assimp.Maui/Platforms/MacCatalyst/Maui/assimpmaui.cxx \
   swig/assimp.i
 
 echo "=== 5. Compiling Native SWIG Static Wrapper (.a) for selected Architectures ==="
@@ -115,7 +117,7 @@ for ARCH in "${ARCHS[@]}"; do
 
   xcrun -sdk macosx clang++ -c -O3 \
     -target "${ARCH}-apple-ios${MACOS_DEPLOYMENT_TARGET}-macabi" \
-    src/Assimp.Maui.MacCatalyst/Maui/assimpmaui.cxx \
+    src/Assimp.Maui/Platforms/MacCatalyst/Maui/assimpmaui.cxx \
     -Iexternal/assimp/include \
     -I"${BUILD_DIR}/include" \
     -o "${BUILD_DIR}/lib/assimpmaui.o"

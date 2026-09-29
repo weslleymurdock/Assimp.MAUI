@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 6.0.5-rc4
+
+    - 🧩 Improvement: new swig interface extension methods 
+   
 ## 6.0.5-rc3
 
     - 🐞 BugFix: windows namespaces werent working
