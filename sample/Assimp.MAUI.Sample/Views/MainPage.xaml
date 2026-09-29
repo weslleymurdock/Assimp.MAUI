@@ -2,61 +2,90 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Assimp.MAUI.Sample.ViewModels"
+             xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="Assimp.MAUI.Sample.Views.MainPage"
              x:DataType="vm:MainViewModel"
-             Title="Assimp.MAUI Sample">
+             Title="{Binding PageTitle}">
   <Grid Padding="14" RowDefinitions="Auto,*,Auto" RowSpacing="10">
     <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
       <VerticalStackLayout>
-        <Label Text="Assimp.MAUI" FontSize="28" FontAttributes="Bold" />
-        <Label Text="3D asset, material, texture and shader playground demonstration."
-               Opacity="0.7" />
+        <Label Text="{Binding PageTitle}" FontSize="28" FontAttributes="Bold" />
+        <Label Text="{Binding PageDescription}" Opacity="0.7" />
       </VerticalStackLayout>
-      <Button Grid.Column="1" Text="Shader Playground" Clicked="OnShaderPlaygroundClicked" />
+      <Button Grid.Column="1"
+              Text="{Binding ShaderPlaygroundButtonLabel}"
+              Command="{Binding ShaderPlaygroundCommand}" />
     </Grid>
 
     <Border Grid.Row="1" StrokeThickness="1" Padding="0" StrokeShape="RoundRectangle 12">
       <GraphicsView x:Name="SceneView"
-                    Drawable="{Binding Renderer}"
-                    StartInteraction="OnStartInteraction"
-                    DragInteraction="OnDragInteraction"
-                    EndInteraction="OnEndInteraction" />
+                    Drawable="{Binding Renderer}">
+        <GraphicsView.Behaviors>
+          <mct:EventToCommandBehavior EventName="StartInteraction"
+                                      Command="{Binding StartInteractionCommand}" />
+          <mct:EventToCommandBehavior EventName="DragInteraction"
+                                      Command="{Binding DragInteractionCommand}" />
+          <mct:EventToCommandBehavior EventName="EndInteraction"
+                                      Command="{Binding EndInteractionCommand}" />
+        </GraphicsView.Behaviors>
+      </GraphicsView>
     </Border>
 
     <ScrollView Grid.Row="2">
       <VerticalStackLayout Spacing="8">
-        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6">
-          <Button Text="Open 3D" Clicked="OnOpenFileClicked" />
-          <Button Grid.Column="1" Text="Texture" Clicked="OnTextureClicked" />
-          <Button Grid.Column="2" Text="Reset" Clicked="OnResetClicked" />
-          <Button Grid.Column="3" x:Name="AutoRotateButton" Text="Auto rotate" Clicked="OnAutoRotateClicked" />
+        <Grid ColumnDefinitions="*,*,*,*"
+              ColumnSpacing="6">
+          <Button Text="{Binding OpenFileButtonLabel}" Command="{Binding OpenFileCommand}" />
+          <Button Grid.Column="1"
+                  Text="{Binding TextureButtonLabel}"
+                  Command="{Binding AddTextureCommand}" />
+          <Button Grid.Column="2"
+                  Text="{Binding ResetButtonLabel}"
+                  Command="{Binding ResetCommand}" />
+          <Button Grid.Column="3"
+                  Text="{Binding AutoRotateButtonLabel}"
+                  Command="{Binding AutoRotateCommand}" />
         </Grid>
 
         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-          <Label Text="Material" VerticalOptions="Center" />
-          <Picker x:Name="MaterialPicker" Grid.Column="1" Title="Imported material" />
-          <Button Grid.Column="2" Text="Apply" Clicked="OnApplyMaterialClicked" />
+          <Label Text="{Binding MaterialLabel}" VerticalOptions="Center" />
+          <Picker Grid.Column="1"
+                  Title="{Binding MaterialPickerTitle}"
+                  ItemsSource="{Binding MaterialOptions}"
+                  SelectedIndex="{Binding SelectedMaterialIndex, Mode=TwoWay}" />
+          <Button Grid.Column="2"
+                  Text="{Binding ApplyMaterialButtonLabel}"
+                  Command="{Binding ApplyMaterialCommand}" />
         </Grid>
 
         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-          <Label Text="Color" VerticalOptions="Center" />
-          <Entry x:Name="ColorEntry" Grid.Column="1" Text="#4F8EF7" Placeholder="#RRGGBB" />
-          <Label Grid.Column="2" Text="Roughness" VerticalOptions="Center" />
+          <Label Text="{Binding ColorLabel}" VerticalOptions="Center" />
+          <Entry Grid.Column="1"
+                 Text="{Binding ColorHex, Mode=TwoWay}"
+                 Placeholder="#RRGGBB" />
+          <Label Grid.Column="2"
+                 Text="{Binding RoughnessLabel}"
+                 VerticalOptions="Center" />
         </Grid>
 
-        <Slider x:Name="RoughnessSlider" Minimum="0" Maximum="1" Value="0.45" />
+        <Slider Minimum="0"
+                Maximum="1"
+                Value="{Binding Roughness, Mode=TwoWay}" />
 
         <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
-          <Button Text="Lighting" Clicked="OnLightingClicked" />
-          <Button Grid.Column="1" Text="Texture On/Off" Clicked="OnTextureToggleClicked" />
-          <Button Grid.Column="2" Text="Wireframe" Clicked="OnWireframeClicked" />
+          <Button Text="{Binding LightingButtonLabel}" Command="{Binding LightingCommand}" />
+          <Button Grid.Column="1"
+                  Text="{Binding TextureToggleButtonLabel}"
+                  Command="{Binding TextureToggleCommand}" />
+          <Button Grid.Column="2"
+                  Text="{Binding WireframeButtonLabel}"
+                  Command="{Binding WireframeCommand}" />
         </Grid>
 
-        <Label x:Name="FileLabel" Text="No scene loaded" LineBreakMode="TailTruncation" />
-        <Label x:Name="StatsLabel" Text="Scene: —" />
-        <Label x:Name="TextureLabel" Text="No texture" />
-        <Label Text="Drag the preview to orbit. The shader playground can consume the same Assimp mesh data."
-               FontSize="12" Opacity="0.6" />
+        <Label Text="{Binding FileLabel}" LineBreakMode="TailTruncation" />
+        <Label Text="{Binding StatsLabel}" />
+        <Label Text="{Binding TextureLabel}" />
+        <Label Text="{Binding InstructionsLabel}" FontSize="12" Opacity="0.6" />
       </VerticalStackLayout>
     </ScrollView>
   </Grid>
