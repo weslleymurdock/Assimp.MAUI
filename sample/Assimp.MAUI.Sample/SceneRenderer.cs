@@ -142,7 +142,7 @@ public sealed class SceneRenderer : IDrawable
                 : Colors.SlateGray;
 
             if (_lighting)
-                color = ApplyLighting(color, projectedTriangle.Source);
+                color = ApplyLighting(color, projectedTriangle.Source, material?.Roughness ?? 0.45f);
 
             if (_texture is not null && _useTexture)
             {
@@ -262,14 +262,22 @@ public sealed class SceneRenderer : IDrawable
             z);
     }
 
-    private static Color ApplyLighting(Color color, Triangle triangle)
+    private static Color ApplyLighting(Color color, Triangle triangle, float roughness)
     {
         var ab = Subtract(triangle.B.Position, triangle.A.Position);
         var ac = Subtract(triangle.C.Position, triangle.A.Position);
         var normal = Normalize(Cross(ab, ac));
         var light = Normalize(new Point3D(-0.45f, 0.75f, 0.65f));
+        var view = Normalize(new Point3D(0f, 0f, 1f));
         var diffuse = 0.35f + Math.Max(0f, Dot(normal, light)) * 0.65f;
-        return new Color(color.Red * diffuse, color.Green * diffuse, color.Blue * diffuse, color.Alpha);
+        var reflected = Reflect(new Point3D(-light.X, -light.Y, -light.Z), normal);
+        var shininess = 4f + (1f - roughness) * 124f;
+        var specular = MathF.Pow(Math.Max(0f, Dot(reflected, view)), shininess) * (1f - roughness) * 0.35f;
+        return new Color(
+            Math.Clamp(color.Red * diffuse + specular, 0f, 1f),
+            Math.Clamp(color.Green * diffuse + specular, 0f, 1f),
+            Math.Clamp(color.Blue * diffuse + specular, 0f, 1f),
+            color.Alpha);
     }
 
     private static MaterialStyle CreateMaterial(uint index)
@@ -292,6 +300,9 @@ public sealed class SceneRenderer : IDrawable
         new(a.Y * b.Z - a.Z * b.Y, a.Z * b.X - a.X * b.Z, a.X * b.Y - a.Y * b.X);
 
     private static float Dot(Point3D a, Point3D b) => a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+
+    private static Point3D Reflect(Point3D value, Point3D normal) =>
+        Subtract(value, new Point3D(2f * Dot(value, normal) * normal.X, 2f * Dot(value, normal) * normal.Y, 2f * Dot(value, normal) * normal.Z));
 
     private static Point3D Normalize(Point3D value)
     {
