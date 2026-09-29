@@ -675,13 +675,13 @@ jobs:
         if: steps.cache-libs.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          ls -R ${{ github.workspace }}/artifacts/
+          ls -R ./artifacts/
     
       - name: Extract Android Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-android-arm64-v8a-bindings.zip -d ${{ github.workspace }}/artifacts/android-bindings
+          unzip -o ./artifacts/assimp-csharp-android-arm64-v8a-bindings.zip -d ./artifacts/android-bindings
 
       - name: Download native Android x86
         uses: actions/download-artifact@v8
