@@ -137,12 +137,16 @@ public sealed class SceneRenderer : IDrawable
             path.LineTo(projectedTriangle.C.X, projectedTriangle.C.Y);
             path.Close();
 
-            var color = _materials.TryGetValue(projectedTriangle.Source.MaterialIndex, out var material)
-                ? material.Color
-                : Colors.SlateGray;
+            var color = Colors.SlateGray;
+            var roughness = 0.45f;
+            if (_materials.TryGetValue(projectedTriangle.Source.MaterialIndex, out var material))
+            {
+                color = material.Color;
+                roughness = material.Roughness;
+            }
 
             if (_lighting)
-                color = ApplyLighting(color, projectedTriangle.Source, material?.Roughness ?? 0.45f);
+                color = ApplyLighting(color, projectedTriangle.Source, roughness);
 
             if (_texture is not null && _useTexture)
             {
