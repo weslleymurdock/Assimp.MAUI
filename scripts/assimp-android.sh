@@ -38,6 +38,8 @@ if [ "$BUILD_ARM64" = true ]; then ABIS+=("arm64-v8a"); fi
 if [ "$BUILD_X86" = true ]; then ABIS+=("x86"); fi
 if [ "$BUILD_X64" = true ]; then ABIS+=("x86_64"); fi
 
+cd "$(dirname "$0")/.." || exit 1
+
 echo "=== 0. Cleaning previous builds ==="
 for ABI in "${ABIS[@]}"; do
   rm -rf "build/android-$ABI"
@@ -160,8 +162,8 @@ mkdir -p swig_output/android
 swig -c++ -csharp \
   -namespace Assimp.Maui \
   -dllimport "assimpmaui" \
-  -outdir src/Assimp.Maui.Android/Maui \
-  -o src/Assimp.Maui.Android/Maui/assimpmaui.cxx \
+  -outdir src/Assimp.Maui/Platforms/Android/Maui \
+  -o src/Assimp.Maui/Platforms/Android/Maui/assimpmaui.cxx \
   swig/assimp.i
 
 echo "=== 6. Compiling Native SWIG Wrapper Library (libassimpmaui.so) for each ABI ==="
@@ -183,7 +185,7 @@ for ABI in "${ABIS[@]}"; do
   # Compila o wrapper como uma Shared Library apontando para a libassimp gerada
   "$CLANG" -shared -O3 \
     --target="${TOOLCHAIN_ARCH}${MIN_SDK_VERSION}" \
-    src/Assimp.Maui.Android/Maui/assimpmaui.cxx \
+    src/Assimp.Maui/Platforms/Android/Maui/assimpmaui.cxx \
     -Iexternal/assimp/include \
     -I"$BUILD_DIR/include" \
     -L"$BUILD_DIR/bin" \
@@ -197,6 +199,7 @@ for ABI in "${ABIS[@]}"; do
   BUILD_DIR="build/android-$ABI"
   if [ -f "$BUILD_DIR/bin/libassimp.so" ] && [ -f "$BUILD_DIR/bin/libassimpmaui.so" ]; then
     echo "SUCCESS: Binaries compiled successfully for $ABI!"
+    if [ $ABI == ""]
     ls -lh "$BUILD_DIR/bin/"libassimp*.so
   else
     echo "ERROR: Binaries were not fully generated for $ABI."

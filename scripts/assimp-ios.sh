@@ -2,7 +2,7 @@
 set -e
 
 ASSIMP_TAG="v6.0.5"
-IOS_DEPLOYMENT_TARGET="14.0"
+IOS_DEPLOYMENT_TARGET="15.0"
 
 # --- Argument Parsing ---
 BUILD_ARM64=false
@@ -38,12 +38,14 @@ if [ "$BUILD_X86_64" = true ]; then
   TARGETS+=("iphonesimulator|x86_64|iphonesimulator|ios-simulator-x86_64")
 fi
 
+cd "$(dirname '$0')/.." || exit 1
+
 echo "=== 0. Cleaning previous builds ==="
 for ENTRY in "${TARGETS[@]}"; do
   IFS='|' read -r _ _ _ SUBDIR <<< "$ENTRY"
   rm -rf "build/$SUBDIR"
 done
-rm -rf src/Assimp.Maui.iOS/Maui
+rm -rf src/Assimp.Maui/Platforms/iOS/Maui
 
 echo "=== 1. Checking System Dependencies (Homebrew) ==="
 for pkg in cmake swig ninja; do
@@ -107,13 +109,13 @@ if [ ! -f "swig/assimp.i" ]; then
   exit 1
 fi
 
-mkdir -p src/Assimp.Maui.iOS/Maui
+mkdir -p src/Assimp.Maui/Platforms/iOS/Maui
 
 swig -c++ -csharp \
   -namespace Assimp.Maui \
   -dllimport __Internal \
-  -outdir src/Assimp.Maui.iOS/Maui \
-  -o src/Assimp.Maui.iOS/Maui/assimpmaui.cxx \
+  -outdir src/Assimp.Maui/Platforms/iOS/Maui \
+  -o src/Assimp.Maui/Platforms/iOS/Maui/assimpmaui.cxx \
   swig/assimp.i
 
 echo "=== 5. Compiling Native SWIG Wrapper (.a) for selected iOS targets ==="
@@ -126,7 +128,7 @@ for ENTRY in "${TARGETS[@]}"; do
   xcrun -sdk "$SYSROOT" clang++ -c -O3 \
     -arch "$ARCH" \
     -miphoneos-version-min="$IOS_DEPLOYMENT_TARGET" \
-    src/Assimp.Maui.iOS/Maui/assimpmaui.cxx \
+    src/Assimp.Maui/Platforms/iOS/Maui/assimpmaui.cxx \
     -Iexternal/assimp/include \
     -I"${BUILD_DIR}/include" \
     -o "${BUILD_DIR}/lib/assimpmaui.o"

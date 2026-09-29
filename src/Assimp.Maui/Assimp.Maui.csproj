@@ -28,14 +28,14 @@
 
 	<PropertyGroup>
 		<PackageId>Assimp.Maui</PackageId>
-		<Version>6.0.5.0-rc3</Version>
+		<Version>6.0.5.0-rc4</Version>
 		<AssemblyVersion>6.0.5.0</AssemblyVersion>
 		<FileVersion>6.0.5.0</FileVersion>
 		<Title>Assimp.Maui</Title>
 		<Authors>Weslley Murdock</Authors>
 		<Company>Remote Code Hub</Company>
 		<PackageReleaseNotes>
-		- 🐞 BugFix: windows namespaces werent working
+		- 🧩 Improvement: new swig interface extension methods
 		</PackageReleaseNotes>
 		<Copyright>Copyright ©2026 Remote Code Hub</Copyright>
 		<PackageTags>assimp;net;maui;native;assimp-net;android;ios;windows;maccatalyst;scene;game;game-dev;engine;assets;asset;3d</PackageTags>
