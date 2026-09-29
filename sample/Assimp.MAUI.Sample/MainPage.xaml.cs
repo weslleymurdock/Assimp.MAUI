@@ -1,3 +1,4 @@
+using Microsoft.Maui.Graphics.Platform;
 using System.Globalization;
 using Assimp.Maui;
 
