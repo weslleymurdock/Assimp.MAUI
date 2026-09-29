@@ -287,9 +287,11 @@ jobs:
       - name: Prepare iOS Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}
-          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
-          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
+          mkdir -p artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
+          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
+          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
+          libtool -static -o artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a
+          rm -rf artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/
 
       - name: Upload Native Binaries (.a)
         uses: actions/upload-artifact@v4
@@ -403,10 +405,12 @@ jobs:
       - name: Prepare Mac Catalyst Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p artifacts/maccatalyst/${{ matrix.arch }}
-          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/
-          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/maccatalyst/${{ matrix.arch }}/
-
+          mkdir -p artifacts/maccatalyst/${{ matrix.arch }}/lib
+          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib
+          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/maccatalyst/${{ matrix.arch }}/lib
+          libtool -static -o artifacts/maccatalyst/${{ matrix.arch }}/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib/libassimpmaui.a
+          rm -rf artifacts/maccatalyst/${{ matrix.arch }}/lib
+          
       - name: Upload Native Binaries (.a)
         uses: actions/upload-artifact@v4
         with:
@@ -615,7 +619,7 @@ jobs:
             fi
   
   nupkg:
-    runs-on: macos-26
+    runs-on: windows-latest
     name: Assimp.Maui.nupkg
     needs: [android, ios, maccatalyst, windows]
     permissions:
@@ -647,7 +651,7 @@ jobs:
         uses: actions/cache@v5
         id: cache-libs
         with:
-          path: ${{ github.workspace }}/src/*.nupkg
+          path: ${{ github.workspace }}/nupkg/*.nupkg
           key: Assimp.Maui.${{ env.VERSION }}.nupkg-${{ env.ASSIMP_VERSION }}
         env: 
           VERSION: ${{ env.VERSION }}
@@ -658,10 +662,6 @@ jobs:
         with:
           dotnet-version: '10.0.x'
           
-      - name: Setup nuget 
-        run: brew install nuget
-        if: steps.cache-libs.outputs.cache-hit != 'true'
-        
       - uses: actions/setup-java@v5
         with:
           distribution: 'microsoft'
@@ -674,11 +674,12 @@ jobs:
         with:
           name: assimp-csharp-android-arm64-v8a-bindings
           path: ${{ github.workspace }}/artifacts/
-
+ 
       - name: Extract Android Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
-          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-android-arm64-v8a-bindings.zip -d ${{ github.workspace }}/artifacts/android-bindings
+          unzip -o ./artifacts/assimp-csharp-android-arm64-v8a-bindings.zip -d ./artifacts/android-bindings
 
       - name: Download native Android x86
         uses: actions/download-artifact@v8
@@ -707,18 +708,19 @@ jobs:
         with:
           name: assimp-android-arm64-v8a
           path: ${{ github.workspace }}/artifacts/assimp-android-arm64-v8a
-
+          
       - name: Download iOS c# bindings
         uses: actions/download-artifact@v8
         if: steps.cache-libs.outputs.cache-hit != 'true'
         with:
           name: assimp-csharp-ios-iphonesimulator-arm64-bindings
-          path: ${{ github.workspace }}/artifacts/
+          path: ./artifacts/
 
       - name: Extract iOS Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
-          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-ios-iphonesimulator-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/ios-bindings
+          unzip -o ./artifacts/assimp-csharp-ios-iphonesimulator-arm64-bindings.zip -d ./artifacts/ios-bindings
       - name: Download native iOS arm64 iphoneos
         uses: actions/download-artifact@v8
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -749,8 +751,9 @@ jobs:
      
       - name: Extract Mac c# Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
-          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-maccatalyst-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/mac-bindings
+          unzip -o ./artifacts/assimp-csharp-maccatalyst-arm64-bindings.zip -d ./artifacts/mac-bindings
 
       - name: Download native Mac arm64
         uses: actions/download-artifact@v8
@@ -775,8 +778,9 @@ jobs:
 
       - name: Extract Windows c# Bindings
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
-          unzip -o ${{ github.workspace }}/artifacts/assimp-csharp-windows-arm64-bindings.zip -d ${{ github.workspace }}/artifacts/win-bindings          
+          unzip -o ./artifacts/assimp-csharp-windows-arm64-bindings.zip -d ./artifacts/win-bindings          
       - name: Download native Windows arm64
         uses: actions/download-artifact@v8
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -792,67 +796,53 @@ jobs:
           path: ${{ github.workspace }}/artifacts/assimp-windows-x64
       - name: Validate artifacts
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
-          ls -R ${{ github.workspace }}/artifacts/
+          ls -R ./artifacts/
     
       - name: Prepare Dirs
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: |
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/Maui
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/Maui
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/MacCatalyst/Maui
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/Maui
-
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/runtimes/android-arm/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/runtimes/android-arm64/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/runtimes/android-x86/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/runtimes/android-x86_64/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/runtimes/ios-arm64/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-x64/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-x64/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
-          mkdir -p ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
-
-          cp -v ${{ github.workspace }}/artifacts/android-bindings/*.cs ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/Maui/
-          cp -v ${{ github.workspace }}/artifacts/ios-bindings/*.cs ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/Maui/
-          cp -v ${{ github.workspace }}/artifacts/mac-bindings/*.cs ${{ github.workspace }}/src/Assimp.Maui/Platforms/MacCatalyst/Maui/
-          cp -v ${{ github.workspace }}/artifacts/win-bindings/*.cs ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/Maui/
-
-          mv -v ${{ github.workspace }}/artifacts/assimp-android-armeabi-v7a/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/runtimes/android-arm/native
-          mv -v ${{ github.workspace }}/artifacts/assimp-android-arm64-v8a/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/runtimes/android-arm64/native
-          mv -v ${{ github.workspace }}/artifacts/assimp-android-x86/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/runtimes/android-x86/native
-          mv -v ${{ github.workspace }}/artifacts/assimp-android-x86_64/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Android/runtimes/android-x86_64/native
-          cd ${{ github.workspace }}/artifacts/assimp-ios-iphoneos-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/runtimes/ios-arm64/native
-          cd ${{ github.workspace }}/artifacts/assimp-ios-iphonesimulator-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native
-          cd ${{ github.workspace }}/artifacts/assimp-ios-iphonesimulator-x86_64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ${{ github.workspace }}/src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-x64/native
-          cd ${{ github.workspace }}/artifacts/assimp-maccatalyst-arm64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ${{ github.workspace }}/src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native
-          cd ${{ github.workspace }}/artifacts/assimp-maccatalyst-x86_64
-          libtool -static -o ../libassimp.a libassimp.a libassimpmaui.a
-          rm -rf libassimp.a libassimpmaui.a
-          mv ../libassimp.a ${{ github.workspace }}/src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-x64/native
-          mv -v ${{ github.workspace }}/artifacts/assimp-windows-arm64/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
-          mv -v ${{ github.workspace }}/artifacts/assimp-windows-x64/*.* ${{ github.workspace }}/src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/Android/Maui
+          mkdir -p ./src/Assimp.Maui/Platforms/iOS/Maui
+          mkdir -p ./src/Assimp.Maui/Platforms/MacCatalyst/Maui
+          mkdir -p ./src/Assimp.Maui/Platforms/Windows/Maui
+          mkdir -p ./src/Assimp.Maui/Platforms/Android/runtimes/android-arm/native
+          mkdir -p ./src/Assimp.Maui/Platforms/Android/runtimes/android-arm64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86/native
+          mkdir -p ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86_64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/iOS/runtimes/ios-arm64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-x64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-x64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
+          cp -v ./artifacts/android-bindings/*.cs ./src/Assimp.Maui/Platforms/Android/Maui/
+          cp -v ./artifacts/ios-bindings/*.cs ./src/Assimp.Maui/Platforms/iOS/Maui/
+          cp -v ./artifacts/mac-bindings/*.cs ./src/Assimp.Maui/Platforms/MacCatalyst/Maui/
+          cp -v ./artifacts/win-bindings/*.cs ./src/Assimp.Maui/Platforms/Windows/Maui/
+          mv -v ./artifacts/assimp-android-armeabi-v7a/*.* ./src/Assimp.Maui/Platforms/Android/runtimes/android-arm/native
+          mv -v ./artifacts/assimp-android-arm64-v8a/*.* ./src/Assimp.Maui/Platforms/Android/runtimes/android-arm64/native
+          mv -v ./artifacts/assimp-android-x86/*.* ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86/native
+          mv -v ./artifacts/assimp-android-x86_64/*.* ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86_64/native
+          mv -v ./artifacts/assimp-ios-iphoneos-arm64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/ios-arm64/native
+          mv -v ./artifacts/assimp-ios-iphonesimulator-arm64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native
+          mv -v ./artifacts/assimp-ios-iphonesimulator-x86_64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-x64/native
+          mv -v ./artifacts/assimp-maccatalyst-arm64/*.* ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native 
+          mv -v ./artifacts/assimp-maccatalyst-x86_64/*.* ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-x64/native
+          mv -v ./artifacts/assimp-windows-arm64/*.* ./src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
+          mv -v ./artifacts/assimp-windows-x64/*.* ./src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
 
       - name: Inspect artifacts
-        run: ls -R ${{ github.workspace }}/src/Assimp.Maui/Platforms/
+        shell: bash
+        run: ls -R ./src/Assimp.Maui/Platforms/
           
       - name: Restore Dependencies
         working-directory: src
         if: steps.cache-libs.outputs.cache-hit != 'true'
+        shell: bash
         run: | 
           echo "⏳ Installing required workloads for .NET 10..."
           dotnet workload install android ios maccatalyst --source https://api.nuget.org/v3/index.json --skip-manifest-update
@@ -870,8 +860,8 @@ jobs:
 
       - name: Pack NuGet Package
         if: steps.cache-libs.outputs.cache-hit != 'true'
-        working-directory: ${{ github.workspace }}/src/Assimp.Maui
-        run: dotnet pack Assimp.Maui.csproj -c Release  -o ${{ github.workspace }}/nupkg "-p:IsOfficialBuild=true"
+        shell: bash
+        run: dotnet pack ./src/Assimp.Maui/Assimp.Maui.csproj -c Release  -o ./nupkg "-p:IsOfficialBuild=true"
       
       - name: NuGet login (OIDC) and package push
         id: login 
@@ -895,7 +885,7 @@ jobs:
 
       - name: Push to NuGet.org (OIDC / Key)
         if: startsWith(github.ref, 'refs/tags/')
-        working-directory: ${{ github.workspace }}/nupkg/
+        working-directory: ./nupkg/
         shell: bash
         run: |
           dotnet nuget push Assimp.Maui.${{ env.VERSION }}.nupkg \
@@ -905,25 +895,26 @@ jobs:
         env: 
           VERSION: ${{ env.VERSION }}
 
-      - name: Push symbols to NuGet.org
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: bash
-        working-directory: ${{ github.workspace }}/nupkg/
-        run: |
-          dotnet nuget push Assimp.Maui.${{ env.VERSION }}.snupkg \
-            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
-        env:
-          VERSION: ${{ env.VERSION }}
+      # - name: Push symbols to NuGet.org
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   shell: bash
+      #   working-directory: ${{ github.workspace }}/nupkg/
+      #   run: |
+      #     dotnet nuget push Assimp.Maui.${{ env.VERSION }}.snupkg \
+      #       --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+      #       --source https://api.nuget.org/v3/index.json \
+      #       --skip-duplicate
+      #   env:
+      #     VERSION: ${{ env.VERSION }}
 
-      - name: Push to GitHub Packages
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          dotnet nuget push ${{ github.workspace }}/nupkg/Assimp.Maui.${{ env.VERSION }}.nupkg \
-            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key "${{ secrets.GITHUB_TOKEN }}" \
-            --skip-duplicate
-        env: 
-          VERSION: ${{ env.VERSION }}
+      # - name: Push to GitHub Packages
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   shell: bash
+      #   run: |
+      #     dotnet nuget push ${{ github.workspace }}/nupkg/Assimp.Maui.${{ env.VERSION }}.nupkg \
+      #       --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+      #       --api-key "${{ secrets.GITHUB_TOKEN }}" \
+      #       --skip-duplicate
+      #   env: 
+      #     VERSION: ${{ env.VERSION }}
  
