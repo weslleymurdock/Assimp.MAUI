@@ -1,3 +1,4 @@
+using Assimp.MAUI.Sample.Renderers;
 using System.Text.Json;
 
 namespace Assimp.MAUI.Sample;

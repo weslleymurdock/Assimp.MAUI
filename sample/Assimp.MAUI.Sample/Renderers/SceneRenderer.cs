@@ -9,7 +9,7 @@ public sealed class SceneRenderer : IDrawable
     private float _rotationX = -0.35f;
     private float _rotationY = 0.55f;
     private float _scale = 1f;
-    private IImage? _texture;
+    private Microsoft.Maui.Graphics.IImage? _texture;
     private string? _textureName;
     private bool _wireframe;
     private bool _lighting = true;
@@ -60,7 +60,7 @@ public sealed class SceneRenderer : IDrawable
         _materials[materialIndex] = new MaterialStyle(color, Math.Clamp(roughness, 0f, 1f));
     }
 
-    public void SetTexture(IImage? texture, string? name)
+    public void SetTexture(Microsoft.Maui.Graphics.IImage? texture, string? name)
     {
         _texture?.Dispose();
         _texture = texture;
@@ -92,17 +92,12 @@ public sealed class SceneRenderer : IDrawable
 
     public IReadOnlyList<ShaderMesh> ExportShaderMeshes()
     {
-        return _triangles
+        return [.. _triangles
             .GroupBy(t => t.MeshIndex)
             .Select(group => new ShaderMesh(
                 group.Key,
-                group.SelectMany(t => new[] { t.A.Position, t.B.Position, t.C.Position })
-                    .SelectMany(p => new[] { p.X, p.Y, p.Z })
-                    .ToArray(),
-                group.SelectMany(t => new[] { t.A.UV, t.B.UV, t.C.UV })
-                    .SelectMany(p => new[] { p.X, p.Y })
-                    .ToArray()))
-            .ToArray();
+                [.. group.SelectMany(t => new[] { t.A.Position, t.B.Position, t.C.Position }).SelectMany(p => new[] { p.X, p.Y, p.Z })],
+                [.. group.SelectMany(t => new[] { t.A.UV, t.B.UV, t.C.UV }).SelectMany(p => new[] { p.X, p.Y })]))];
     }
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
@@ -152,7 +147,7 @@ public sealed class SceneRenderer : IDrawable
             {
                 canvas.SaveState();
                 canvas.ClipPath(path);
-                canvas.DrawImage(_texture, projectedTriangle.Bounds);
+                canvas.DrawImage(_texture, projectedTriangle.Bounds.X, projectedTriangle.Bounds.Y, projectedTriangle.Bounds.Width, projectedTriangle.Bounds.Height);
                 canvas.RestoreState();
             }
             else

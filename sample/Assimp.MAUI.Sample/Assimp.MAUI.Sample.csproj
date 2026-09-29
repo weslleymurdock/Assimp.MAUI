@@ -10,7 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationTitle>Assimp.MAUI Sample</ApplicationTitle>
-    <ApplicationId>com.companyname.assimp.maui.sample</ApplicationId>
+    <ApplicationId>com.remotecodehub.assimp.maui.sample</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <WindowsPackageType>None</WindowsPackageType>
@@ -22,20 +22,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <MauiIcon Include="ResourcesAppIconappicon.svg" ForegroundFile="ResourcesAppIconappiconfg.svg" Color="#512BD4" />
-    <MauiSplashScreen Include="ResourcesSplashsplash.svg" Color="#512BD4" BaseSize="128,128" />
-    <MauiImage Include="ResourcesImages*" />
-    <MauiFont Include="ResourcesFonts*" />
-    <MauiAsset Include="ResourcesRaw**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+    <MauiIcon Include="Resources/AppIcon/appicon.svg" ForegroundFile="Resources/AppIcon/appiconfg.svg" Color="#512BD4" />
+    <MauiSplashScreen Include="Resources/Splash/splash.svg" Color="#512BD4" BaseSize="128,128" />
+    <MauiImage Include="Resources/Images/*" />
+    <MauiFont Include="Resources/Fonts/*" />
+    <MauiAsset Include="Resources/Raw/**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
-    	<PackageReference Include="Assimp.Maui" Version="6.0.5-rc4" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="15.0.1" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
-		<PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.110" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
-	</ItemGroup>
+    <PackageReference Include="Assimp.Maui" Version="6.0.5-rc4" />
+    <PackageReference Include="CommunityToolkit.Maui" Version="15.0.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
+    <PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.110" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
+  </ItemGroup>
 
 </Project>
