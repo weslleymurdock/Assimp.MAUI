@@ -113,11 +113,12 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         SceneView?.Invalidate();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private async Task OpenFile()
     {
         try
         {
+            IsBusy = true;
             var file = await FilePicker.Default.PickAsync(new PickOptions
             {
                 PickerTitle = "Choose an Assimp-supported 3D asset"
@@ -130,13 +131,18 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         {
             await ShowErrorAsync("Unable to load scene", ex.Message);
         }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private async Task AddTexture()
     {
         try
         {
+            IsBusy = true;
             var file = await FilePicker.Default.PickAsync(new PickOptions
             {
                 PickerTitle = "Choose a texture for the loaded 3D asset",
@@ -147,8 +153,8 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
                 return;
 
             await using var stream = await file.OpenReadAsync();
-            var image = PlatformImage.FromStream(stream);
-            _renderer.SetTexture(image, file.FileName);
+            var image = await Task.Run(() => PlatformImage.FromStream(stream));
+            await Task.Run(() => _renderer.SetTexture(image, file.FileName));
             TextureLabel = _renderer.TextureDescription;
             SceneView?.Invalidate();
         }
@@ -156,9 +162,13 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         {
             await ShowErrorAsync("Unable to load texture", ex.Message);
         }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private async Task ShaderPlayground()
     {
         if (_scene is null)
@@ -170,7 +180,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         await Shell.Current.GoToAsync(nameof(Views.ShaderPlaygroundPage));
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private void AutoRotate()
     {
         _autoRotate = !_autoRotate;
@@ -182,14 +192,14 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
             _timer?.Stop();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private void Reset()
     {
         _renderer.ResetCamera();
         SceneView?.Invalidate();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private void ApplyMaterial()
     {
         if (SelectedMaterialIndex < 0)
@@ -206,7 +216,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         SceneView?.Invalidate();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private void Lighting()
     {
         _renderer.ToggleLighting();
@@ -214,7 +224,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         SceneView?.Invalidate();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private void TextureToggle()
     {
         _renderer.ToggleTexture();
@@ -223,7 +233,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         SceneView?.Invalidate();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteBusyCommand))]
     private void Wireframe()
     {
         _renderer.ToggleWireframe();
@@ -260,6 +270,21 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
         _lastPoint = default;
     }
 
+    private bool CanExecuteBusyCommand() => !IsBusy;
+
+    partial void OnIsBusyChanged(bool value)
+    {
+        OpenFileCommand.NotifyCanExecuteChanged();
+        AddTextureCommand.NotifyCanExecuteChanged();
+        ShaderPlaygroundCommand.NotifyCanExecuteChanged();
+        AutoRotateCommand.NotifyCanExecuteChanged();
+        ResetCommand.NotifyCanExecuteChanged();
+        ApplyMaterialCommand.NotifyCanExecuteChanged();
+        LightingCommand.NotifyCanExecuteChanged();
+        TextureToggleCommand.NotifyCanExecuteChanged();
+        WireframeCommand.NotifyCanExecuteChanged();
+    }
+
     private async Task LoadSceneAsync(FileResult file)
     {
         var localPath = Path.Combine(
@@ -274,12 +299,12 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
 
         try
         {
-            scene = Maui.Assimp.ImportFile(
+            scene = await Task.Run(() => Maui.Assimp.ImportFile(
                 localPath,
                 (uint)(PostProcessSteps.Process_Triangulate |
                        PostProcessSteps.Process_JoinIdenticalVertices |
                        PostProcessSteps.Process_GenSmoothNormals |
-                       PostProcessSteps.Process_CalcTangentSpace));
+                       PostProcessSteps.Process_CalcTangentSpace)));
 
             if (scene is null || !scene.HasMeshes())
             {
