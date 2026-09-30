@@ -83,6 +83,8 @@ jobs:
         uses: nttld/setup-ndk@v1
         if: steps.cache.outputs.cache-hit != 'true'
         with:
+          # r26b is retained for compatibility with the existing build.
+          # Explicit linker flags below force 16 KiB ELF LOAD segment alignment.
           ndk-version: r26b
           link-to-sdk: true
 
@@ -98,6 +100,8 @@ jobs:
             -DBUILD_SHARED_LIBS=ON \
             -DCMAKE_C_FLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -Wno-implicit-function-declaration -Wno-error=implicit-function-declaration" \
             -DCMAKE_CXX_FLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
+            -DCMAKE_MODULE_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
             -DASSIMP_BUILD_TESTS=OFF \
             -DASSIMP_BUILD_ASSIMP_TOOLS=OFF \
             -DASSIMP_BUILD_ZLIB=ON \
@@ -141,6 +145,7 @@ jobs:
           NDK_CLANG="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${HOST_TRIPLET}-clang++"
 
           $NDK_CLANG -shared -fPIC -O3 \
+            -Wl,-z,max-page-size=16384 \
             swig_output/android/assimpmaui.cxx \
             -Iexternal/assimp/include \
             -Ibuild/android-${{ matrix.abi }}/include \
@@ -161,6 +166,24 @@ jobs:
           mkdir -p artifacts/android/${{ matrix.abi }}
           cp build/android-${{ matrix.abi }}/bin/libassimp.so artifacts/android/${{ matrix.abi }}/
           cp build/android-${{ matrix.abi }}/bin/libassimpmaui.so artifacts/android/${{ matrix.abi }}/
+
+          case "${{ matrix.abi }}" in
+            "armeabi-v7a")
+              NDK_LIBCXX_ABI="arm-linux-androideabi"
+              ;;
+            "arm64-v8a")
+              NDK_LIBCXX_ABI="aarch64-linux-android"
+              ;;
+            "x86")
+              NDK_LIBCXX_ABI="i686-linux-android"
+              ;;
+            "x86_64")
+              NDK_LIBCXX_ABI="x86_64-linux-android"
+              ;;
+          esac
+
+          cp "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${NDK_LIBCXX_ABI}/libc++_shared.so" \
+            artifacts/android/${{ matrix.abi }}/libc++_shared.so
 
       - name: Upload Native Binaries (.so)
         uses: actions/upload-artifact@v4
