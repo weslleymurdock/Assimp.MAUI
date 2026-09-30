@@ -20,6 +20,7 @@ public sealed partial class MainViewModel : ViewModelBase, IDisposable
     internal GraphicsView SceneView { get; set; } = default!;
 
     public SceneRenderer Renderer => _renderer;
+    [ObservableProperty] public partial bool IsBusy { get; set; } = false;
 
     [ObservableProperty]
     public partial string PageTitle { get; set; } = "Assimp.MAUI";

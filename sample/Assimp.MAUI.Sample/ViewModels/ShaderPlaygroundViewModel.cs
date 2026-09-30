@@ -23,6 +23,8 @@ public sealed partial class ShaderPlaygroundViewModel : ViewModelBase
     {
         _renderer = renderer;
     }
+    [ObservableProperty] 
+    public partial bool IsBusy { get; set; } = false;
 
     [ObservableProperty]
     public partial string PageTitle { get; set; } = "Shader Playground";
