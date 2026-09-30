@@ -28,14 +28,15 @@
 
 	<PropertyGroup>
 		<PackageId>Assimp.Maui</PackageId>
-		<Version>6.0.5.0-rc4</Version>
+		<Version>6.0.5.0-rc5</Version>
 		<AssemblyVersion>6.0.5.0</AssemblyVersion>
 		<FileVersion>6.0.5.0</FileVersion>
 		<Title>Assimp.Maui</Title>
 		<Authors>Weslley Murdock</Authors>
 		<Company>Remote Code Hub</Company>
 		<PackageReleaseNotes>
-		- 🧩 Improvement: new swig interface extension methods
+		- 🐞 BugFix: android page-size to 16kb
+		- 🐞 BugFix: android include c++_shared.so per ABI in package
 		</PackageReleaseNotes>
 		<Copyright>Copyright ©2026 Remote Code Hub</Copyright>
 		<PackageTags>assimp;net;maui;native;assimp-net;android;ios;windows;maccatalyst;scene;game;game-dev;engine;assets;asset;3d</PackageTags>
