@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Assimp.MAUI.Sample.ViewModels"
+             x:Class="Assimp.MAUI.Sample.Views.ShaderPlaygroundPage"
+             x:DataType="vm:ShaderPlaygroundViewModel"
+             Title="{Binding PageTitle}">
+  <Grid Padding="10" RowDefinitions="Auto,*,Auto" RowSpacing="8">
+    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+      <VerticalStackLayout>
+        <Label Text="{Binding PageTitle}" FontSize="24" FontAttributes="Bold" />
+        <Label Text="{Binding PageDescription}" Opacity="0.7" />
+      </VerticalStackLayout>
+      <Picker Grid.Column="1"
+              WidthRequest="220"
+              Title="{Binding ShaderPickerTitle}"
+              ItemsSource="{Binding ShaderNames}"
+              SelectedItem="{Binding SelectedShader, Mode=TwoWay}" />
+    </Grid>
+
+    <WebView x:Name="ShaderView" Grid.Row="1" />
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+      <Label Text="{Binding ConsoleLabel}" LineBreakMode="TailTruncation" />
+      <Button Grid.Column="1"
+              Text="{Binding CompileButtonLabel}"
+              Command="{Binding CompileCommand}" />
+      <Button Grid.Column="2"
+              Text="{Binding ResetShaderButtonLabel}"
+              Command="{Binding ResetShaderCommand}" />
+    </Grid>
+  </Grid>
+</ContentPage>

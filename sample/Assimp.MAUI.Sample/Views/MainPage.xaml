@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Assimp.MAUI.Sample.ViewModels"
+             xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="Assimp.MAUI.Sample.Views.MainPage"
+             x:DataType="vm:MainViewModel"
+             Title="{Binding PageTitle}">
+  <Grid Padding="14" RowDefinitions="Auto,*,Auto" RowSpacing="10">
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+      <VerticalStackLayout>
+        <Label Text="{Binding PageTitle}" FontSize="28" FontAttributes="Bold" />
+        <Label Text="{Binding PageDescription}" Opacity="0.7" />
+      </VerticalStackLayout>
+      <Button Grid.Column="1"
+              Text="{Binding ShaderPlaygroundButtonLabel}"
+              Command="{Binding ShaderPlaygroundCommand}" />
+    </Grid>
+
+    <Border Grid.Row="1" StrokeThickness="1" Padding="0" StrokeShape="RoundRectangle 12">
+      <GraphicsView x:Name="SceneView"
+                    Drawable="{Binding Renderer}">
+        <GraphicsView.Behaviors>
+          <mct:EventToCommandBehavior EventName="StartInteraction"
+                                      Command="{Binding StartInteractionCommand}" />
+          <mct:EventToCommandBehavior EventName="DragInteraction"
+                                      Command="{Binding DragInteractionCommand}" />
+          <mct:EventToCommandBehavior EventName="EndInteraction"
+                                      Command="{Binding EndInteractionCommand}" />
+        </GraphicsView.Behaviors>
+      </GraphicsView>
+    </Border>
+
+    <ActivityIndicator Grid.Row="1"
+                       IsRunning="{Binding IsBusy}"
+                       IsVisible="{Binding IsBusy}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       WidthRequest="56"
+                       HeightRequest="56"
+                       ZIndex="10" />
+
+    <ScrollView Grid.Row="2">
+      <VerticalStackLayout Spacing="8">
+        <Grid ColumnDefinitions="*,*,*,*"
+              ColumnSpacing="6">
+          <Button Text="{Binding OpenFileButtonLabel}" Command="{Binding OpenFileCommand}" />
+          <Button Grid.Column="1"
+                  Text="{Binding TextureButtonLabel}"
+                  Command="{Binding AddTextureCommand}" />
+          <Button Grid.Column="2"
+                  Text="{Binding ResetButtonLabel}"
+                  Command="{Binding ResetCommand}" />
+          <Button Grid.Column="3"
+                  Text="{Binding AutoRotateButtonLabel}"
+                  Command="{Binding AutoRotateCommand}" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+          <Label Text="{Binding MaterialLabel}" VerticalOptions="Center" />
+          <Picker Grid.Column="1"
+                  Title="{Binding MaterialPickerTitle}"
+                  ItemsSource="{Binding MaterialOptions}"
+                  SelectedIndex="{Binding SelectedMaterialIndex, Mode=TwoWay}" />
+          <Button Grid.Column="2"
+                  Text="{Binding ApplyMaterialButtonLabel}"
+                  Command="{Binding ApplyMaterialCommand}" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+          <Label Text="{Binding ColorLabel}" VerticalOptions="Center" />
+          <Entry Grid.Column="1"
+                 Text="{Binding ColorHex, Mode=TwoWay}"
+                 Placeholder="#RRGGBB" />
+          <Label Grid.Column="2"
+                 Text="{Binding RoughnessLabel}"
+                 VerticalOptions="Center" />
+        </Grid>
+
+        <Slider Minimum="0"
+                Maximum="1"
+                Value="{Binding Roughness, Mode=TwoWay}" />
+
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+          <Button Text="{Binding LightingButtonLabel}" Command="{Binding LightingCommand}" />
+          <Button Grid.Column="1"
+                  Text="{Binding TextureToggleButtonLabel}"
+                  Command="{Binding TextureToggleCommand}" />
+          <Button Grid.Column="2"
+                  Text="{Binding WireframeButtonLabel}"
+                  Command="{Binding WireframeCommand}" />
+        </Grid>
+
+        <Label Text="{Binding FileLabel}" LineBreakMode="TailTruncation" />
+        <Label Text="{Binding StatsLabel}" />
+        <Label Text="{Binding TextureLabel}" />
+        <Label Text="{Binding InstructionsLabel}" FontSize="12" Opacity="0.6" />
+      </VerticalStackLayout>
+    </ScrollView>
+  </Grid>
+</ContentPage>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>
+:root{color-scheme:dark;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:#0b0f14;color:#d8dee9;height:100vh;overflow:hidden}
+#root{display:grid;grid-template-columns:1fr 1.15fr;height:100vh;gap:8px;padding:8px}
+.panel{border:1px solid #263241;border-radius:8px;overflow:hidden;background:#10161e;display:flex;flex-direction:column}
+.bar{padding:7px 10px;background:#151d27;color:#8fbcbb;font-size:12px}
+.editor{position:relative;flex:1;min-height:0}
+textarea,pre{position:absolute;inset:0;margin:0;padding:12px;border:0;outline:0;resize:none;overflow:auto;white-space:pre;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}
+textarea{background:transparent;color:transparent;caret-color:#fff;z-index:2}
+pre{background:#0d131a;color:#d8dee9;z-index:1;pointer-events:none}
+.kw{color:#81a1c1}.type{color:#b48ead}.num{color:#ebcb8b}.comment{color:#616e7f}.fn{color:#a3be8c}
+#preview{width:100%;height:100%;display:block;background:#05070a}
+#console{height:90px;overflow:auto;padding:8px;background:#080b0f;color:#a3be8c;font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap}
+.bad{color:#bf616a}.ok{color:#a3be8c}
+@media(max-width:900px){#root{grid-template-columns:1fr;grid-template-rows:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="root">
+ <section class="panel">
+  <div class="bar">GLSL fragment shader — edit and compile</div>
+  <div class="editor"><pre id="highlight"></pre><textarea id="code" spellcheck="false"></textarea></div>
+  <div class="bar">The editor uses local syntax highlighting; no remote assets are required.</div>
+ </section>
+ <section class="panel">
+  <div class="bar">WebGL shader preview — imported Assimp mesh</div>
+  <canvas id="preview"></canvas>
+  <div class="bar">Compiler console</div>
+  <div id="console">Ready.</div>
+ </section>
+</div>
+<script>
+const code=document.getElementById('code'), highlight=document.getElementById('highlight'), canvas=document.getElementById('preview'), consoleEl=document.getElementById('console');
+let fragmentSource='', meshData=[], program=null, gl=null, start=performance.now();
+
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function highlightCode(s){
+ let out=esc(s);
+ out=out.replace(/(\/\/.*)$/gm,'<span class="comment">$1</span>');
+ out=out.replace(/\b(vec[234]|mat[234]|float|int|bool|void)\b/g,'<span class="type">$1</span>');
+ out=out.replace(/\b(0x[0-9a-fA-F]+|\d+(?:\.\d+)?)\b/g,'<span class="num">$1</span>');
+ out=out.replace(/\b(attribute|uniform|in|out|const|return|if|else|for|while|discard)\b/g,'<span class="kw">$1</span>');
+ out=out.replace(/\b(main|normalize|dot|max|min|pow|mix|sin|cos|length)\b/g,'<span class="fn">$1</span>');
+ return out;
+}
+function sync(){highlight.innerHTML=highlightCode(code.value)+'\n';highlight.scrollTop=code.scrollTop;highlight.scrollLeft=code.scrollLeft;}
+code.addEventListener('input',sync);code.addEventListener('scroll',sync);
+
+function log(message, bad=false){consoleEl.className=bad?'bad':'ok';consoleEl.textContent=message;}
+function compileShader(type, source){
+ const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);
+ if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){const info=gl.getShaderInfoLog(shader)||'Unknown compiler error';gl.deleteShader(shader);throw new Error(info);}
+ return shader;
+}
+function vertexSource(){
+ return '#version 300 es\nprecision highp float;\nin vec3 aPosition;\nin vec3 aNormal;\nin vec2 aUv;\nout vec3 vNormal;\nout vec2 vUv;\nuniform float uTime;\nvoid main(){vNormal=aNormal;vUv=aUv;float a=uTime*0.18;mat3 r=mat3(cos(a),0.,sin(a),0.,1.,0.,-sin(a),0.,cos(a));vec3 p=r*aPosition;float z=p.z+4.0;gl_Position=vec4(p.xy/(z*0.65),0.5-p.z*0.12,1.0);}';
+}
+function createProgram(){
+ if(!gl)return;
+ const vs=compileShader(gl.VERTEX_SHADER,vertexSource());
+ const fs=compileShader(gl.FRAGMENT_SHADER,fragmentSource);
+ const p=gl.createProgram();gl.attachShader(p,vs);gl.attachShader(p,fs);gl.linkProgram(p);
+ gl.deleteShader(vs);gl.deleteShader(fs);
+ if(!gl.getProgramParameter(p,gl.LINK_STATUS)){throw new Error(gl.getProgramInfoLog(p)||'Program link failed');}
+ if(program)gl.deleteProgram(program);program=p;return p;
+}
+function rebuild(){
+ if(!gl||!meshData.length)return;
+ try{
+  createProgram();log('Shader compiled and linked successfully.');
+ }catch(e){program=null;log(String(e.message||e),true);}
+}
+function buildBuffers(){
+ if(!gl||!meshData.length)return null;
+ const positions=[], normals=[], uvs=[];
+ for(const mesh of meshData){
+  const p=mesh.positions,u=mesh.uvs;
+  for(let i=0;i<p.length;i+=9){
+   const ax=p[i],ay=p[i+1],az=p[i+2],bx=p[i+3],by=p[i+4],bz=p[i+5],cx=p[i+6],cy=p[i+7],cz=p[i+8];
+   const ab=[bx-ax,by-ay,bz-az],ac=[cx-ax,cy-ay,cz-az];
+   const n=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
+   const l=Math.hypot(...n)||1;n[0]/=l;n[1]/=l;n[2]/=l;
+   positions.push(ax,ay,az,bx,by,bz,cx,cy,cz);normals.push(...n,...n,...n);
+   const ui=(i/3)*2;uvs.push(u[ui]||0,u[ui+1]||0,u[ui+2]||0,u[ui+3]||0,u[ui+4]||0,u[ui+5]||0);
+  }
+ }
+ const pb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(positions),gl.STATIC_DRAW);
+ const nb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(normals),gl.STATIC_DRAW);
+ const ub=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,ub);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(uvs),gl.STATIC_DRAW);
+ return {pb,nb,ub,count:positions.length/3};
+}
+let buffers=null;
+function draw(t){
+ if(!gl){requestAnimationFrame(draw);return}
+ if(!buffers)buffers=buildBuffers();
+ gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(.02,.03,.05,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+ if(program&&buffers){
+  gl.useProgram(program);
+  let loc=gl.getAttribLocation(program,'aPosition');gl.bindBuffer(gl.ARRAY_BUFFER,buffers.pb);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,3,gl.FLOAT,false,0,0);
+  loc=gl.getAttribLocation(program,'aNormal');gl.bindBuffer(gl.ARRAY_BUFFER,buffers.nb);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,3,gl.FLOAT,false,0,0);
+  loc=gl.getAttribLocation(program,'aUv');gl.bindBuffer(gl.ARRAY_BUFFER,buffers.ub);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  const timeLoc=gl.getUniformLocation(program,'uTime');if(timeLoc)gl.uniform1f(timeLoc,(t-start)/1000);
+  gl.drawArrays(gl.TRIANGLES,0,buffers.count);
+ }
+ requestAnimationFrame(draw);
+}
+function resize(){const d=devicePixelRatio||1;canvas.width=Math.max(1,canvas.clientWidth*d);canvas.height=Math.max(1,canvas.clientHeight*d);}
+window.setMeshData=function(json){meshData=JSON.parse(json);buffers=null;resize();};
+window.setFragmentShader=function(source){fragmentSource=source;code.value=source;sync();};
+window.compileCurrentShader=function(){rebuild();return consoleEl.textContent;};
+gl=canvas.getContext('webgl2',{antialias:true});
+if(!gl)log('WebGL2 is unavailable in this WebView.',true);
+window.addEventListener('resize',resize);resize();requestAnimationFrame(draw);
+</script>
+</body>
+</html>
