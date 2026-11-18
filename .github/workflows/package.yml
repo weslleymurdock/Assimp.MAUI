@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  ASSIMP_VERSION: '6.0.5'
+  ASSIMP_VERSION: '6.0.6'
 
 jobs:
   changes:

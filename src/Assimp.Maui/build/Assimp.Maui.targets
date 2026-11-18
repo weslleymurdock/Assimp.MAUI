@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <LibVersion>6.0.5-rc5</LibVersion> 
+    <LibVersion>6.0.6-rc1</LibVersion> 
     <NuGetPathUnix Condition="'$(MSBuildRuntimeType)' == 'Core' AND '$(OS)' != 'Windows_NT'">$(NuGetPackageRoot.Replace('\',
       '/'))</NuGetPathUnix>
     <NuGetPathUnix Condition="'$(NuGetPathUnix)' == ''">$(NuGetPackageRoot)</NuGetPathUnix>
@@ -45,22 +45,9 @@
       <Link>Platforms/iOS/lib/arm64s/libassimp.a</Link>
       <Visible>True</Visible>
     </None>
-    <None Include="$(NuGetPathUnix)Assimp.Maui/$(LibVersion)/runtimes/iossimulator-x64/native/*.a">
-      <Link>Platforms/iOS/lib/x86_64/libassimp.a</Link>
-      <Visible>True</Visible>
-    </None>
   </ItemGroup>
 
   <!-- iOS Native Linking -->
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('iossimulator-x64'))">
-    <NativeReference
-      Include="$(NuGetPathUnix)Assimp.Maui/$(LibVersion)/runtimes/iossimulator-x64/native/libassimp.a">
-      <Kind>Static</Kind>
-      <ForceLoad>True</ForceLoad>
-      <SmartLink>False</SmartLink>
-    </NativeReference>
-  </ItemGroup>
-
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('iossimulator-arm64'))">
     <NativeReference
       Include="$(NuGetPathUnix)Assimp.Maui/$(LibVersion)/runtimes/iossimulator-arm64/native/libassimp.a">
@@ -83,15 +70,6 @@
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('maccatalyst-arm64'))">
     <NativeReference
       Include="$(NuGetPathUnix)Assimp.Maui/$(LibVersion)/runtimes/maccatalyst-arm64/native/libassimp.a">
-      <Kind>Static</Kind>
-      <ForceLoad>True</ForceLoad>
-      <SmartLink>False</SmartLink>
-    </NativeReference>
-  </ItemGroup>
-
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('maccatalyst-x64'))">
-    <NativeReference
-      Include="$(NuGetPathUnix)Assimp.Maui/$(LibVersion)/runtimes/maccatalyst-x64/native/libassimp.a">
       <Kind>Static</Kind>
       <ForceLoad>True</ForceLoad>
       <SmartLink>False</SmartLink>

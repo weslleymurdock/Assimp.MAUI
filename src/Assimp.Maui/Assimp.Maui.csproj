@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net11.0-android;net11.0-ios;net11.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net11.0-windows10.0.19041.0</TargetFrameworks>
 
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
@@ -28,9 +28,9 @@
 
 	<PropertyGroup>
 		<PackageId>Assimp.Maui</PackageId>
-		<Version>6.0.5.0-rc5</Version>
-		<AssemblyVersion>6.0.5.0</AssemblyVersion>
-		<FileVersion>6.0.5.0</FileVersion>
+		<Version>6.0.6.0-rc1</Version>
+		<AssemblyVersion>6.0.6.0</AssemblyVersion>
+		<FileVersion>6.0.6.0</FileVersion>
 		<Title>Assimp.Maui</Title>
 		<Authors>Weslley Murdock</Authors>
 		<Company>Remote Code Hub</Company>
@@ -53,8 +53,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="11.0.10" />
 	</ItemGroup>
 
 	<ItemGroup>
