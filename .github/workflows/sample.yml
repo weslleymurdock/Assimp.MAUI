@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 env:
-  ASSIMP_VERSION: '6.0.5'
+  ASSIMP_VERSION: '6.0.6'
 
 jobs:
   changes:
@@ -46,16 +46,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: net10.0-android
+          - target: net11.0-android
             os: windows-latest
             runtime: android-arm64
-          - target: net10.0-ios
-            os: macos-26
+          - target: net11.0-ios
+            os: xcode-27
             runtime: iossimulator-arm64
-          - target: net10.0-maccatalyst
-            os: macos-26
+          - target: net11.0-maccatalyst
+            os: xcode-27
             runtime: maccatalyst-arm64
-          - target: net10.0-windows10.0.19041.0
+          - target: net11.0-windows10.0.19041.0
             os: windows-latest
             runtime: win-x64
 
@@ -63,16 +63,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup .NET 10
+      - name: Setup .NET 11
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
-          
-      - name: Setup Xcode 26.3
-        uses: maxim-lobanov/setup-xcode@v1
-        if: ${{ runner.os == 'macOS' }}
-        with:
-          xcode-version: '26.3'
+          dotnet-version: '11.0.x'
           
       - name: Setup Java    
         uses: actions/setup-java@v5
@@ -86,7 +80,7 @@ jobs:
         shell: pwsh
         run: |
           $package = "assimp.maui"
-          $version = "6.0.5-rc3"
+          $version = "6.0.6-rc1"
           $url = "https://api.nuget.org/v3-flatcontainer/$package/$version/$package.nuspec"
 
           try {

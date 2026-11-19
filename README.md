@@ -12,10 +12,10 @@
 
 This package includes native binaries optimized for the following .NET MAUI targets:
 
-* **Android:** `net10.0-android` (`arm64-v8a`, `armeabi-v7a`, `x86_64`)
-* **iOS:** `net10.0-ios` (`ios-arm64`, `iossimulator-arm64`, `iossimulator-x64`)
-* **macOS (Mac Catalyst):** `net10.0-maccatalyst` (`maccatalyst-x64`, `maccatalyst-arm64`)
-* **Windows:** `net10.0-windows10.0.19041.0` (`win10-x64`, `win10-arm64`)
+* **Android:** `net11.0-android` (`arm64-v8a`, `armeabi-v7a`, `x86_64`)
+* **iOS:** `net11.0-ios` (`ios-arm64`, `iossimulator-arm64`, `iossimulator-x64`)
+* **macOS (Mac Catalyst):** `net11.0-maccatalyst` (`maccatalyst-x64`, `maccatalyst-arm64`)
+* **Windows:** `net11.0-windows10.0.19041.0` (`win10-x64`, `win10-arm64`)
 
 ---
 

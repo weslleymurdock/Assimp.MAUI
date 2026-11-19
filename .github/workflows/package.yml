@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  ASSIMP_VERSION: '6.0.5'
+  ASSIMP_VERSION: '6.0.6'
 
 jobs:
   changes:
@@ -118,6 +118,7 @@ jobs:
         run: |
           mkdir -p swig_output/android
           swig -c++ -csharp \
+            -doxygen \
             -namespace Assimp.Maui \
             -dllimport assimpmaui \
             -outdir swig_output/android \
@@ -201,7 +202,7 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || needs.changes.outputs.native == 'true'
     needs: [changes]
     name: iOS
-    runs-on: macos-26
+    runs-on: xcode-27
     strategy:
       fail-fast: false
       matrix:
@@ -209,15 +210,11 @@ jobs:
           - target: device
             sdk: iphoneos
             arch: arm64
-            min_version: "14.0"
+            min_version: "15.0"
           - target: simulator
             sdk: iphonesimulator
             arch: arm64
-            min_version: "14.0"
-          - target: simulator
-            sdk: iphonesimulator
-            arch: x86_64
-            min_version: "14.0"
+            min_version: "15.0"
 
     steps:
       - name: Checkout Repository with Submodules
@@ -234,13 +231,6 @@ jobs:
             assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip
             artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
           key: ${{ runner.os }}-assimp-${{ github.ref_name }}-${{ env.ASSIMP_VERSION }}
-        
-      - name: Setup Xcode 26.3
-        uses: maxim-lobanov/setup-xcode@v1
-        if: steps.cache.outputs.cache-hit != 'true'
-      
-        with:
-          xcode-version: '26.3'
 
       - name: Install SWIG and Tools
         if: steps.cache.outputs.cache-hit != 'true'
@@ -275,6 +265,7 @@ jobs:
         run: |
           mkdir -p swig_output/ios
           swig -c++ -csharp \
+            -doxygen \
             -namespace Assimp.Maui \
             -dllimport __Internal \
             -outdir swig_output/ios \
@@ -332,15 +323,13 @@ jobs:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || needs.changes.outputs.native == 'true'
     needs: [changes]
     name: MacCatalyst
-    runs-on: macos-26
+    runs-on: xcode-27
     strategy:
       fail-fast: false
       matrix:
         include:
           - arch: arm64
-            min_version: "14.0"
-          - arch: x86_64
-            min_version: "14.0"
+            min_version: "17.0" 
 
     steps:
       - name: Cache Assimp Submodule
@@ -358,14 +347,7 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-
-     
-      - name: Setup Xcode 26.3
-        uses: maxim-lobanov/setup-xcode@v1
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          xcode-version: '26.3'
-
+ 
       - name: Install SWIG and Tools
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -400,6 +382,7 @@ jobs:
         run: |
           mkdir -p swig_output/maccatalyst
           swig -c++ -csharp \
+            -doxygen \
             -namespace Assimp.Maui \
             -dllimport __Internal \
             -outdir swig_output/maccatalyst \
@@ -506,6 +489,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path swig_output/windows
           swig -c++ -csharp `
+            -doxygen `
             -namespace Assimp.Maui `
             -dllimport assimpmaui `
             -outdir swig_output/windows `
@@ -678,11 +662,11 @@ jobs:
         env: 
           VERSION: ${{ env.VERSION }}
 
-      - name: Setup .NET 10
+      - name: Setup .NET 11
         if: steps.cache-libs.outputs.cache-hit != 'true'
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
           
       - uses: actions/setup-java@v5
         with:
@@ -757,13 +741,6 @@ jobs:
           name: assimp-ios-iphonesimulator-arm64
           path: ${{ github.workspace }}/artifacts/assimp-ios-iphonesimulator-arm64
 
-      - name: Download native iOS x86_64 iphonesimulator 
-        uses: actions/download-artifact@v8
-        if: steps.cache-libs.outputs.cache-hit != 'true'
-        with:
-          name: assimp-ios-iphonesimulator-x86_64
-          path: ${{ github.workspace }}/artifacts/assimp-ios-iphonesimulator-x86_64
-    
       - name: Download Mac c# bindings
         uses: actions/download-artifact@v8
         if: steps.cache-libs.outputs.cache-hit != 'true'
@@ -783,13 +760,6 @@ jobs:
         with:
           name: assimp-maccatalyst-arm64
           path: ${{ github.workspace }}/artifacts/assimp-maccatalyst-arm64
-
-      - name: Download native Mac x86_64
-        uses: actions/download-artifact@v8
-        if: steps.cache-libs.outputs.cache-hit != 'true'
-        with:
-          name: assimp-maccatalyst-x86_64
-          path: ${{ github.workspace }}/artifacts/assimp-maccatalyst-x86_64
 
       - name: Download Windows c# bindings
         uses: actions/download-artifact@v8
@@ -835,10 +805,8 @@ jobs:
           mkdir -p ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86/native
           mkdir -p ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86_64/native
           mkdir -p ./src/Assimp.Maui/Platforms/iOS/runtimes/ios-arm64/native
-          mkdir -p ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native
-          mkdir -p ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-x64/native
-          mkdir -p ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native
-          mkdir -p ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-x64/native
+          mkdir -p ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native 
+          mkdir -p ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native 
           mkdir -p ./src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
           mkdir -p ./src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
           cp -v ./artifacts/android-bindings/*.cs ./src/Assimp.Maui/Platforms/Android/Maui/
@@ -851,9 +819,7 @@ jobs:
           mv -v ./artifacts/assimp-android-x86_64/*.* ./src/Assimp.Maui/Platforms/Android/runtimes/android-x86_64/native
           mv -v ./artifacts/assimp-ios-iphoneos-arm64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/ios-arm64/native
           mv -v ./artifacts/assimp-ios-iphonesimulator-arm64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-arm64/native
-          mv -v ./artifacts/assimp-ios-iphonesimulator-x86_64/*.* ./src/Assimp.Maui/Platforms/iOS/runtimes/iossimulator-x64/native
           mv -v ./artifacts/assimp-maccatalyst-arm64/*.* ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-arm64/native 
-          mv -v ./artifacts/assimp-maccatalyst-x86_64/*.* ./src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-x64/native
           mv -v ./artifacts/assimp-windows-arm64/*.* ./src/Assimp.Maui/Platforms/Windows/runtimes/win-arm64/native
           mv -v ./artifacts/assimp-windows-x64/*.* ./src/Assimp.Maui/Platforms/Windows/runtimes/win-x64/native
 
@@ -910,7 +876,7 @@ jobs:
         working-directory: ./nupkg/
         shell: bash
         run: |
-          dotnet nuget push Assimp.Maui.${{ env.VERSION }}.nupkg \
+          dotnet nuget push ./*pkg \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate

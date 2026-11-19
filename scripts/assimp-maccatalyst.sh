@@ -3,6 +3,12 @@ set -e
 
 ASSIMP_TAG="v6.0.5"
 MACOS_DEPLOYMENT_TARGET="14.0"
+PUBLISH_LOCAL=true
+SSH_HOST=""
+REMOTE_BUILD=false
+case "${CI:-}" in
+  true|1|yes|TRUE|YES) PUBLISH_LOCAL=false ;;
+esac
 
 # --- Argument Parsing ---
 BUILD_ARM64=false
@@ -12,6 +18,14 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
     -arm64) BUILD_ARM64=true ;;
     -x64) BUILD_X64=true ;;
+    --ci|--no-publish-local) PUBLISH_LOCAL=false ;;
+    --local|--publish-local) PUBLISH_LOCAL=true ;;
+    --ssh)
+      [ "$#" -ge 2 ] || { echo "Missing host after --ssh"; exit 1; }
+      SSH_HOST="$2"
+      shift
+      ;;
+    --remote-build) REMOTE_BUILD=true ;;
     *) echo "Unknown parameter passed: $1"; exit 1 ;;
   esac
   shift
@@ -28,7 +42,53 @@ ARCHS=()
 if [ "$BUILD_ARM64" = true ]; then ARCHS+=("arm64"); fi
 if [ "$BUILD_X64" = true ]; then ARCHS+=("x86_64"); fi
 
-cd "$(dirname '$0')/.." || exit 1
+cd "$(dirname "$0")/.." || exit 1
+
+REPO_ROOT="$(pwd)"
+
+clean_maccatalyst_outputs() {
+  rm -rf -- "$REPO_ROOT/src/Assimp.Maui/Platforms/MacCatalyst/Maui"
+  for ARCH in "${ARCHS[@]}"; do
+    rm -rf -- "$REPO_ROOT/src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-$ARCH/native"
+  done
+}
+
+if [ -n "$SSH_HOST" ] && [ "$REMOTE_BUILD" = false ]; then
+  command -v ssh >/dev/null 2>&1 || { echo "ERROR: ssh is required for --ssh"; exit 1; }
+  command -v scp >/dev/null 2>&1 || { echo "ERROR: scp is required for --ssh"; exit 1; }
+  command -v tar >/dev/null 2>&1 || { echo "ERROR: tar is required for --ssh"; exit 1; }
+
+  clean_maccatalyst_outputs
+  LOCAL_JOB="$(mktemp -d "${TMPDIR:-/tmp}/assimp-maui-maccatalyst-ssh.XXXXXX")"
+  REMOTE_DIR="$(ssh "$SSH_HOST" 'mktemp -d /tmp/assimp-maui-maccatalyst-ssh.XXXXXX')"
+  [ -n "$REMOTE_DIR" ] || { echo "ERROR: remote temporary directory was not created"; exit 1; }
+  cleanup_remote() {
+    ssh "$SSH_HOST" "rm -rf '$REMOTE_DIR'" >/dev/null 2>&1 || true
+    rm -rf -- "$LOCAL_JOB"
+  }
+  trap cleanup_remote EXIT
+
+  tar -czf "$LOCAL_JOB/source.tar.gz" \
+    --exclude='.git' --exclude='*/.git/*' \
+    -C "$REPO_ROOT" external/assimp src/Assimp.Maui swig scripts/assimp-maccatalyst.sh
+  scp "$LOCAL_JOB/source.tar.gz" "$SSH_HOST:$REMOTE_DIR/source.tar.gz"
+  ssh "$SSH_HOST" "mkdir -p '$REMOTE_DIR/source' && tar -xzf '$REMOTE_DIR/source.tar.gz' -C '$REMOTE_DIR/source'"
+
+  remote_command="cd '$REMOTE_DIR/source' && bash scripts/assimp-maccatalyst.sh --remote-build --local"
+  [ "$BUILD_ARM64" = true ] && remote_command+=" -arm64"
+  [ "$BUILD_X64" = true ] && remote_command+=" -x64"
+  ssh "$SSH_HOST" "$remote_command"
+  ssh "$SSH_HOST" "tar -czf '$REMOTE_DIR/result.tar.gz' -C '$REMOTE_DIR/source' src/Assimp.Maui/Platforms/MacCatalyst"
+  scp "$SSH_HOST:$REMOTE_DIR/result.tar.gz" "$LOCAL_JOB/result.tar.gz"
+  tar -xzf "$LOCAL_JOB/result.tar.gz" -C "$REPO_ROOT"
+  echo "Mac Catalyst build completed on $SSH_HOST and copied to $REPO_ROOT/src/Assimp.Maui/Platforms/MacCatalyst"
+  exit 0
+fi
+
+if [ "$PUBLISH_LOCAL" = true ]; then
+  echo "=== Local artifact publishing enabled ==="
+  clean_maccatalyst_outputs
+fi
 
 echo "=== 0. Cleaning previous builds ==="
 for ARCH in "${ARCHS[@]}"; do
@@ -48,7 +108,9 @@ done
 
 echo "=== 2. Cloning Assimp Repository (Tag $ASSIMP_TAG) ==="
 mkdir -p external
-if [ ! -d "external/assimp/.git" ]; then
+if [ "$REMOTE_BUILD" = true ]; then
+  echo "Using Assimp source transferred by the SSH caller."
+elif [ ! -d "external/assimp/.git" ]; then
   echo "Cloning Assimp into external/assimp at tag $ASSIMP_TAG..."
   git clone --depth 1 --branch "$ASSIMP_TAG" https://github.com/assimp/assimp.git external/assimp
 else
@@ -59,9 +121,11 @@ else
   cd ../..
 fi
 
-cd external/assimp
-git submodule update --init --recursive --depth 1
-cd ../..
+if [ "$REMOTE_BUILD" = false ]; then
+  cd external/assimp
+  git submodule update --init --recursive --depth 1
+  cd ../..
+fi
 
 echo "=== 3. Configuring and Building Assimp for selected Mac Catalyst Architectures ==="
 echo "Architectures to build: ${ARCHS[*]}"
@@ -104,6 +168,7 @@ mkdir -p src/Assimp.Maui/Platforms/MacCatalyst/Maui
 
 # For static libraries on Mac Catalyst, DllImport in C# points to "__Internal"
 swig -c++ -csharp \
+  -doxygen \
   -namespace Assimp.Maui \
   -dllimport __Internal \
   -outdir src/Assimp.Maui/Platforms/MacCatalyst/Maui \
@@ -123,6 +188,13 @@ for ARCH in "${ARCHS[@]}"; do
     -o "${BUILD_DIR}/lib/assimpmaui.o"
   
   ar rcs "${BUILD_DIR}/lib/libassimpmaui.a" "${BUILD_DIR}/lib/assimpmaui.o"
+
+  if [ "$PUBLISH_LOCAL" = true ]; then
+    RUNTIME_DIR="src/Assimp.Maui/Platforms/MacCatalyst/runtimes/maccatalyst-$ARCH/native"
+    mkdir -p "$RUNTIME_DIR"
+    cp -f "${BUILD_DIR}/lib/"*.a "$RUNTIME_DIR/"
+    echo "Published Mac Catalyst $ARCH assets to $RUNTIME_DIR"
+  fi
 done
 
 echo "=== 6. Build Result ==="
