@@ -80,13 +80,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential zip
-
-      - name: Install supported SWIG
-        uses: mmomtchev/setup-swig@v4
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          version: v4.3.0
+          sudo apt-get install -y swig cmake build-essential zip
 
       - name: Set up Android NDK
         uses: nttld/setup-ndk@v1
@@ -182,13 +176,7 @@ jobs:
       - name: Install SWIG and Tools
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          brew install cmake
-
-      - name: Install supported SWIG
-        uses: mmomtchev/setup-swig@v4
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          version: v4.3.0
+          brew install swig cmake
 
       - name: Build iOS native library and C# bindings
         if: steps.cache.outputs.cache-hit != 'true'
@@ -265,13 +253,7 @@ jobs:
       - name: Install SWIG and Tools
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          brew install cmake
-
-      - name: Install supported SWIG
-        uses: mmomtchev/setup-swig@v4
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          version: v4.3.0
+          brew install swig cmake
 
       - name: Build Mac Catalyst native library and C# bindings
         if: steps.cache.outputs.cache-hit != 'true'
@@ -338,11 +320,10 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Install supported SWIG
-        uses: mmomtchev/setup-swig@v4
+      - name: Install SWIG via Chocolatey
         if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          version: v4.3.0
+        run: |
+          choco install swig -y
 
       - name: Build Windows native library and C# bindings
         if: steps.cache.outputs.cache-hit != 'true'
