@@ -35,8 +35,9 @@
 		<Authors>Weslley Murdock</Authors>
 		<Company>Remote Code Hub</Company>
 		<PackageReleaseNotes>
-		- 🐞 BugFix: android page-size to 16kb
-		- 🐞 BugFix: android include c++_shared.so per ABI in package
+		- 🧩 Improvement: Upgrade lib version to 6.0.6
+		- 🧩 Improvement Upgrade .NET version to 11.0
+		- 🛠️ Breaking Change: Drop support to x64 apple runtime identifiers (iossimulator-x64 and maccatalyst-x64)
 		</PackageReleaseNotes>
 		<Copyright>Copyright ©2026 Remote Code Hub</Copyright>
 		<PackageTags>assimp;net;maui;native;assimp-net;android;ios;windows;maccatalyst;scene;game;game-dev;engine;assets;asset;3d</PackageTags>

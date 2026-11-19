@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 6.0.6.0-rc1
+
+- 🧩 Improvement: Upgrade lib version to 6.0.6
+- 🧩 Improvement Upgrade .NET version to 11.0
+- 🛠️ Breaking Change: Drop support to x64 apple runtime identifiers (iossimulator-x64 and maccatalyst-x64)
+
 ## 6.0.5-rc5 
 
     - 🐞 BugFix: android page-size to 16kb
