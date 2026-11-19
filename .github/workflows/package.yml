@@ -129,7 +129,7 @@ jobs:
                   if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
                     if ((getline sentinel) <= 0) { printf "%s",doc; print line; next }
                     if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; doc=""; pending=0; next }
-                    printf "%s",doc; print line; print sentinel; if (ending != "") print ending; doc=""; pending=0; next
+                    printf "%s",doc; print line; print sentinel; doc=""; pending=0; next
                   }
                   printf "%s",doc; doc=""; pending=0
                 }
@@ -137,7 +137,7 @@ jobs:
                 if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
                   if ((getline sentinel) <= 0) { print line; next }
                   if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; next }
-                  print line; print sentinel; if (ending != "") print ending; next
+                  print line; print sentinel; next
                 }
                 print line
               }
@@ -292,7 +292,7 @@ jobs:
                   if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
                     if ((getline sentinel) <= 0) { printf "%s",doc; print line; next }
                     if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; doc=""; pending=0; next }
-                    printf "%s",doc; print line; print sentinel; if (ending != "") print ending; doc=""; pending=0; next
+                    printf "%s",doc; print line; print sentinel; doc=""; pending=0; next
                   }
                   printf "%s",doc; doc=""; pending=0
                 }
@@ -300,7 +300,7 @@ jobs:
                 if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
                   if ((getline sentinel) <= 0) { print line; next }
                   if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; next }
-                  print line; print sentinel; if (ending != "") print ending; next
+                  print line; print sentinel; next
                 }
                 print line
               }
@@ -428,7 +428,7 @@ jobs:
                   if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
                     if ((getline sentinel) <= 0) { printf "%s",doc; print line; next }
                     if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; doc=""; pending=0; next }
-                    printf "%s",doc; print line; print sentinel; if (ending != "") print ending; doc=""; pending=0; next
+                    printf "%s",doc; print line; print sentinel; doc=""; pending=0; next
                   }
                   printf "%s",doc; doc=""; pending=0
                 }
@@ -436,7 +436,7 @@ jobs:
                 if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
                   if ((getline sentinel) <= 0) { print line; next }
                   if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; next }
-                  print line; print sentinel; if (ending != "") print ending; next
+                  print line; print sentinel; next
                 }
                 print line
               }
