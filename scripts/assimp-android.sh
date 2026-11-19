@@ -5,6 +5,12 @@ ASSIMP_TAG="v6.0.5"
 NDK_VERSION="26.1.10909125" # NDK r26b
 MIN_SDK_VERSION="24"
 TARGET_SDK_VERSION="37"
+PUBLISH_LOCAL=true
+SSH_HOST=""
+REMOTE_BUILD=false
+case "${CI:-}" in
+  true|1|yes|TRUE|YES) PUBLISH_LOCAL=false ;;
+esac
 
 # --- Argument Parsing ---
 BUILD_ARM=false
@@ -18,6 +24,14 @@ while [[ "$#" -gt 0 ]]; do
     -arm64) BUILD_ARM64=true ;;
     -x86) BUILD_X86=true ;;
     -x64) BUILD_X64=true ;;
+    --ci|--no-publish-local) PUBLISH_LOCAL=false ;;
+    --local|--publish-local) PUBLISH_LOCAL=true ;;
+    --ssh)
+      [ "$#" -ge 2 ] || { echo "Missing host after --ssh"; exit 1; }
+      SSH_HOST="$2"
+      shift
+      ;;
+    --remote-build) REMOTE_BUILD=true ;;
     *) echo "Unknown parameter passed: $1"; exit 1 ;;
   esac
   shift
@@ -39,6 +53,64 @@ if [ "$BUILD_X86" = true ]; then ABIS+=("x86"); fi
 if [ "$BUILD_X64" = true ]; then ABIS+=("x86_64"); fi
 
 cd "$(dirname "$0")/.." || exit 1
+
+REPO_ROOT="$(pwd)"
+
+clean_android_outputs() {
+  rm -rf -- "$REPO_ROOT/src/Assimp.Maui/Platforms/Android/Maui"
+  for ABI in "${ABIS[@]}"; do
+    case "$ABI" in
+      armeabi-v7a) RID=android-arm ;;
+      arm64-v8a) RID=android-arm64 ;;
+      x86) RID=android-x86 ;;
+      x86_64) RID=android-x86_64 ;;
+    esac
+    rm -rf -- "$REPO_ROOT/src/Assimp.Maui/Platforms/Android/runtimes/$RID/native"
+  done
+}
+
+if [ -n "$SSH_HOST" ] && [ "$REMOTE_BUILD" = false ]; then
+  command -v ssh >/dev/null 2>&1 || { echo "ERROR: ssh is required for --ssh"; exit 1; }
+  command -v scp >/dev/null 2>&1 || { echo "ERROR: scp is required for --ssh"; exit 1; }
+  command -v tar >/dev/null 2>&1 || { echo "ERROR: tar is required for --ssh"; exit 1; }
+
+  clean_android_outputs
+  LOCAL_JOB="$(mktemp -d "${TMPDIR:-/tmp}/assimp-maui-android-ssh.XXXXXX")"
+  REMOTE_DIR="$(ssh "$SSH_HOST" 'mktemp -d /tmp/assimp-maui-android-ssh.XXXXXX')"
+  [ -n "$REMOTE_DIR" ] || { echo "ERROR: remote temporary directory was not created"; exit 1; }
+  cleanup_remote() {
+    ssh "$SSH_HOST" "rm -rf '$REMOTE_DIR'" >/dev/null 2>&1 || true
+    rm -rf -- "$LOCAL_JOB"
+  }
+  trap cleanup_remote EXIT
+
+  tar -czf "$LOCAL_JOB/source.tar.gz" \
+    --exclude='.git' --exclude='*/.git/*' \
+    -C "$REPO_ROOT" external/assimp src/Assimp.Maui swig scripts/assimp-android.sh
+  scp "$LOCAL_JOB/source.tar.gz" "$SSH_HOST:$REMOTE_DIR/source.tar.gz"
+  ssh "$SSH_HOST" "mkdir -p '$REMOTE_DIR/source' && tar -xzf '$REMOTE_DIR/source.tar.gz' -C '$REMOTE_DIR/source'"
+
+  remote_command="cd '$REMOTE_DIR/source' && bash scripts/assimp-android.sh --remote-build --local"
+  for ABI in "${ABIS[@]}"; do
+    case "$ABI" in
+      armeabi-v7a) remote_command+=" -arm" ;;
+      arm64-v8a) remote_command+=" -arm64" ;;
+      x86) remote_command+=" -x86" ;;
+      x86_64) remote_command+=" -x64" ;;
+    esac
+  done
+  ssh "$SSH_HOST" "$remote_command"
+  ssh "$SSH_HOST" "tar -czf '$REMOTE_DIR/result.tar.gz' -C '$REMOTE_DIR/source' src/Assimp.Maui/Platforms/Android"
+  scp "$SSH_HOST:$REMOTE_DIR/result.tar.gz" "$LOCAL_JOB/result.tar.gz"
+  tar -xzf "$LOCAL_JOB/result.tar.gz" -C "$REPO_ROOT"
+  echo "Android build completed on $SSH_HOST and copied to $REPO_ROOT/src/Assimp.Maui/Platforms/Android"
+  exit 0
+fi
+
+if [ "$PUBLISH_LOCAL" = true ]; then
+  echo "=== Local artifact publishing enabled ==="
+  clean_android_outputs
+fi
 
 echo "=== 0. Cleaning previous builds ==="
 for ABI in "${ABIS[@]}"; do
@@ -102,7 +174,9 @@ else
 fi
 
 echo "=== 3. Cloning Assimp Repository (Tag $ASSIMP_TAG) ==="
-if [ ! -d "external/assimp" ]; then
+if [ "$REMOTE_BUILD" = true ]; then
+  echo "Using Assimp source transferred by the SSH caller."
+elif [ ! -d "external/assimp" ]; then
   echo "Cloning Assimp into external/assimp at tag $ASSIMP_TAG..."
   git clone --depth 1 --branch "$ASSIMP_TAG" https://github.com/assimp/assimp.git external/assimp
 else
@@ -113,9 +187,11 @@ else
   cd ../..
 fi
 
-cd external/assimp
-git submodule update --init --recursive --depth 1
-cd ../../
+if [ "$REMOTE_BUILD" = false ]; then
+  cd external/assimp
+  git submodule update --init --recursive --depth 1
+  cd ../../
+fi
 
 # CFLAGS/CXXFLAGS for file I/O compatibility and suppressing implicit declaration warnings in contribs
 CMAKE_C_FLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -Wno-implicit-function-declaration -Wno-error=implicit-function-declaration"
@@ -160,6 +236,7 @@ fi
 mkdir -p swig_output/android
 
 swig -c++ -csharp \
+  -doxygen \
   -namespace Assimp.Maui \
   -dllimport "assimpmaui" \
   -outdir src/Assimp.Maui/Platforms/Android/Maui \
@@ -193,14 +270,40 @@ for ABI in "${ABIS[@]}"; do
     -o "$BUILD_DIR/bin/libassimpmaui.so"
 done
 
+publish_android_runtime() {
+  local abi="$1"
+  local rid ndk_abi runtime_root libcxx
+  case "$abi" in
+    armeabi-v7a) rid=android-arm; ndk_abi=arm-linux-androideabi ;;
+    arm64-v8a) rid=android-arm64; ndk_abi=aarch64-linux-android ;;
+    x86) rid=android-x86; ndk_abi=i686-linux-android ;;
+    x86_64) rid=android-x86_64; ndk_abi=x86_64-linux-android ;;
+    *) echo "ERROR: unsupported Android ABI: $abi"; return 1 ;;
+  esac
+
+  runtime_root="src/Assimp.Maui/Platforms/Android/runtimes/$rid/native"
+  mkdir -p "$runtime_root"
+  cp -f "build/android-$abi/bin/libassimp.so" "$runtime_root/"
+  cp -f "build/android-$abi/bin/libassimpmaui.so" "$runtime_root/"
+  libcxx="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$ndk_abi/libc++_shared.so"
+  if [ ! -f "$libcxx" ]; then
+    echo "ERROR: libc++_shared.so not found at $libcxx"
+    return 1
+  fi
+  cp -f "$libcxx" "$runtime_root/"
+  echo "Published Android $abi assets to $runtime_root"
+}
+
 echo "=== 7. Build Result ==="
 ALL_SUCCESS=true
 for ABI in "${ABIS[@]}"; do
   BUILD_DIR="build/android-$ABI"
   if [ -f "$BUILD_DIR/bin/libassimp.so" ] && [ -f "$BUILD_DIR/bin/libassimpmaui.so" ]; then
     echo "SUCCESS: Binaries compiled successfully for $ABI!"
-    if [ $ABI == ""]
-    ls -lh "$BUILD_DIR/bin/"libassimp*.so
+    ls -lh "$BUILD_DIR/bin/"libassimp*.so "$BUILD_DIR/bin/"libassimpmaui.so
+    if [ "$PUBLISH_LOCAL" = true ]; then
+      publish_android_runtime "$ABI"
+    fi
   else
     echo "ERROR: Binaries were not fully generated for $ABI."
     ALL_SUCCESS=false

@@ -1,11 +1,29 @@
+#requires -Version 5.1
+
 param(
-    [string]$Arch = "x64" # Opções: x64, arm64
+    [string]$Arch = "x64", # Opções: x64, arm64
+    [switch]$PublishLocal,
+    [switch]$NoPublishLocal
 )
+
+if ($Arch.Count -gt 1) {
+    $overallExitCode = 0
+    foreach ($targetArch in $Arch) {
+        $forwardedArgs = @('-Arch', $targetArch)
+        if ($PublishLocal) { $forwardedArgs += '-PublishLocal' }
+        if ($NoPublishLocal) { $forwardedArgs += '-NoPublishLocal' }
+        & $PSCommandPath @forwardedArgs
+        if ($LASTEXITCODE -ne 0) { $overallExitCode = $LASTEXITCODE }
+    }
+    exit $overallExitCode
+}
 
 $ErrorActionPreference = "Stop"
 $ASSIMP_TAG = "v6.0.5"
 $BUILD_DIR = "$PSScriptRoot/../build/windows-$Arch"
 $SWIG_OUT = "$PSScriptRoot/../src/Assimp.Maui/Platforms/Windows/Maui"
+$RUNTIME_RID = if ($Arch -eq "arm64") { "win-arm64" } else { "win-x64" }
+$PUBLISH_LOCAL = $PublishLocal -or (-not $NoPublishLocal -and $env:CI -notin @('true', '1', 'yes', 'TRUE', 'YES'))
 
 if ($Arch -ne "x64" -and $Arch -ne "arm64") {
     Write-Error "Invalid architecture. Use 'x64' or 'arm64'."
@@ -16,9 +34,16 @@ Write-Host "=== 0. Detecting or Installing Visual Studio 2022 Build Tools ===" -
 
 $VcvarsPath = $null
 
-$DefaultVsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-if (Test-Path $DefaultVsWhere) {
-    $VsPath = & $DefaultVsWhere -latest -products * -requires Microsoft.Component.VisualStudio.VC.Tools.Core.x86.x64 -property installationPath
+$VsWhereCandidates = @(
+    "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe",
+    "$env:ProgramData\Microsoft\VisualStudio\Installer\vswhere.exe",
+    "$env:LOCALAPPDATA\Microsoft\VisualStudio\Installer\vswhere.exe"
+)
+$VsWhere = $VsWhereCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if ($VsWhere) {
+    $VsRequirements = @('Microsoft.VisualStudio.Component.VC.Tools.x86.x64')
+    if ($Arch -eq 'arm64') { $VsRequirements += 'Microsoft.VisualStudio.Component.VC.Tools.ARM64' }
+    $VsPath = & $VsWhere -latest -products * -requires $VsRequirements -property installationPath
     if ($VsPath) {
         $PotentialPath = Join-Path $VsPath "VC\Auxiliary\Build\vcvarsall.bat"
         if (Test-Path $PotentialPath) {
@@ -31,15 +56,20 @@ if (!$VcvarsPath) {
     $drives = [System.IO.DriveInfo]::GetDrives() | Where-Object { $_.IsReady -and $_.DriveType -eq 'Fixed' }
     foreach ($drive in $drives) {
         $driveLetter = $drive.Name.Substring(0, 1)
-        $SearchPath = "${driveLetter}:\Microsoft Visual Studio"
-        
-        if (Test-Path $SearchPath) {
-            $found = Get-ChildItem -Path $SearchPath -Filter "vcvarsall.bat" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($found) {
-                $VcvarsPath = $found.FullName
-                break
+        foreach ($SearchPath in @(
+            "${driveLetter}:\Program Files\Microsoft Visual Studio",
+            "${driveLetter}:\Program Files (x86)\Microsoft Visual Studio",
+            "${driveLetter}:\Microsoft Visual Studio"
+        )) {
+            if (Test-Path $SearchPath) {
+                $found = Get-ChildItem -Path $SearchPath -Filter "vcvarsall.bat" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($found) {
+                    $VcvarsPath = $found.FullName
+                    break
+                }
             }
         }
+        if ($VcvarsPath) { break }
     }
 }
 
@@ -59,7 +89,8 @@ if (!$VcvarsPath) {
     Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
 
     Write-Host "Running silent installation (this may take a few minutes)..." -ForegroundColor Cyan
-    $processArgs = "--quiet --wait --norestart --nocache --installPath `"$installPath`" --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+    $arm64Component = if ($Arch -eq "arm64") { " --add Microsoft.VisualStudio.Component.VC.Tools.ARM64" } else { "" }
+    $processArgs = "--quiet --wait --norestart --nocache --installPath `"$installPath`" --add Microsoft.VisualStudio.Workload.VCTools$arm64Component --includeRecommended"
     $installProcess = Start-Process -FilePath $installerPath -ArgumentList $processArgs -Wait -PassThru
 
     if ($installProcess.ExitCode -ne 0 -and $installProcess.ExitCode -ne 3010) {
@@ -76,6 +107,13 @@ if (!$VcvarsPath -or !(Test-Path $VcvarsPath)) {
 Write-Host "Using MSVC toolchain located at: $VcvarsPath" -ForegroundColor Green
 
 Set-Location $PSScriptRoot/..
+
+if ($PUBLISH_LOCAL) {
+    Write-Host "=== Local artifact publishing enabled ===" -ForegroundColor Cyan
+    if (Test-Path $SWIG_OUT) { Remove-Item -Recurse -Force $SWIG_OUT }
+    $runtimeDir = "src/Assimp.Maui/Platforms/Windows/runtimes/$RUNTIME_RID/native"
+    if (Test-Path $runtimeDir) { Remove-Item -Recurse -Force $runtimeDir }
+}
 
 Write-Host "=== 1. Cleaning previous builds ===" -ForegroundColor Cyan
 if (Test-Path $BUILD_DIR) { Remove-Item -Recurse -Force $BUILD_DIR }
@@ -117,6 +155,7 @@ Write-Host "=== 4. Generating SWIG C# Bindings for Windows ===" -ForegroundColor
 New-Item -ItemType Directory -Force -Path $SWIG_OUT | Out-Null
 
 swig -c++ -csharp `
+    -doxygen `
     -namespace Assimp.Maui `
     -dllimport "assimpmaui" `
     -outdir $SWIG_OUT `
@@ -150,6 +189,12 @@ $WrapperDll = "$BUILD_DIR/bin/Release/assimpmaui.dll"
 if ((Test-Path $AssimpDll) -and (Test-Path $WrapperDll)) {
     Write-Host "SUCCESS: Windows binaries compiled successfully for $Arch!" -ForegroundColor Green
     Get-Item $AssimpDll, $WrapperDll | Select-Object Name, Length
+    if ($PUBLISH_LOCAL) {
+        $runtimeDir = "src/Assimp.Maui/Platforms/Windows/runtimes/$RUNTIME_RID/native"
+        New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null
+        Get-ChildItem -LiteralPath "$BUILD_DIR/bin/Release" -Filter '*.dll' -File | Copy-Item -Destination $runtimeDir -Force
+        Write-Host "Published Windows $RUNTIME_RID assets to $runtimeDir" -ForegroundColor Green
+    }
 }
 else {
     Write-Error "ERROR: Windows compilation failed for $Arch."
