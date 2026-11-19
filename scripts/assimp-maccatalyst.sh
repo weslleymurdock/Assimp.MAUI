@@ -166,14 +166,95 @@ fi
 
 mkdir -p src/Assimp.Maui/Platforms/MacCatalyst/Maui
 
+prepare_swig_parse_tree() {
+  SWIG_PARSE_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/assimp-swig-headers.XXXXXX")"
+  mkdir -p "$SWIG_PARSE_ROOT/assimp"
+  cp -R external/assimp/include/assimp/. "$SWIG_PARSE_ROOT/assimp/"
+  sed 's#external/assimp/include/assimp/#assimp/#g' swig/assimp.i > "$SWIG_PARSE_ROOT/assimp.i"
+
+  local header temp
+  while IFS= read -r -d '' header; do
+    temp="$header.tmp"
+    awk '
+      function is_force32(value) {
+        return value ~ /^[[:space:]]*_[A-Za-z0-9]+_Force32Bit[[:space:]]*=[[:space:]]*INT_MAX/ || value ~ /^[[:space:]]*FORCE_32BIT[[:space:]]*=[[:space:]]*INT_MAX/
+      }
+      function emit_pending_doc() {
+        printf "%s", pending_doc
+        pending_doc = ""
+        pending = 0
+      }
+      BEGIN { in_doc = 0; pending = 0; pending_doc = "" }
+      {
+        line = $0
+        if (in_doc) {
+          pending_doc = pending_doc line ORS
+          if (line ~ /\*\//) { in_doc = 0; pending = 1 }
+          next
+        }
+        if (pending) {
+          if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
+            if ((getline sentinel) <= 0) { emit_pending_doc(); print line; next }
+            if (is_force32(sentinel)) {
+              if ((getline endif_line) > 0 && endif_line ~ /^[[:space:]]*#endif/) {
+                pending_doc = ""; pending = 0
+                print "    /* SWIG parser: omitted 32-bit enum sentinel. */"
+                next
+              }
+              emit_pending_doc(); print line; print sentinel
+              if (endif_line != "") print endif_line
+              next
+            }
+            emit_pending_doc(); print line; print sentinel
+            next
+          }
+          emit_pending_doc()
+        }
+        if (line ~ /^[[:space:]]*\/\*\*/) {
+          pending_doc = line ORS
+          if (line !~ /\*\//) { in_doc = 1 } else { pending = 1 }
+          next
+        }
+        if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
+          if ((getline sentinel) <= 0) { print line; next }
+          if (is_force32(sentinel)) {
+            if ((getline endif_line) > 0 && endif_line ~ /^[[:space:]]*#endif/) {
+              print "    /* SWIG parser: omitted 32-bit enum sentinel. */"
+              next
+            }
+            print line; print sentinel
+            if (endif_line != "") print endif_line
+            next
+          }
+          print line; print sentinel
+          next
+        }
+        print line
+      }
+      END { if (in_doc || pending) printf "%s", pending_doc }
+    ' "$header" > "$temp"
+    # Keep the workaround line-scoped: equivalent to sed on `}; //! enum ...`.
+    sed -E 's/^([[:space:]]*};)[[:space:]]*\/\/!+ enum.*$/\1/' "$temp" > "$header"
+    rm -f "$temp"
+  done < <(find "$SWIG_PARSE_ROOT/assimp" -type f -name '*.h' -print0)
+}
+
+prepare_swig_parse_tree
+
 # For static libraries on Mac Catalyst, DllImport in C# points to "__Internal"
-swig -c++ -csharp \
-  -doxygen \
-  -namespace Assimp.Maui \
-  -dllimport __Internal \
-  -outdir src/Assimp.Maui/Platforms/MacCatalyst/Maui \
-  -o src/Assimp.Maui/Platforms/MacCatalyst/Maui/assimpmaui.cxx \
-  swig/assimp.i
+SWIG_OUT="src/Assimp.Maui/Platforms/MacCatalyst/Maui"
+SWIG_ARGS=(
+  -c++ -csharp
+  -namespace Assimp.Maui
+  -dllimport __Internal
+  -outdir "$SWIG_OUT"
+  -o "$SWIG_OUT/assimpmaui.cxx"
+  "$SWIG_PARSE_ROOT/assimp.i"
+)
+
+echo "Using $(swig -version 2>&1 | awk '/SWIG Version/{print $3; exit}') with Doxygen-enabled C# generation."
+swig -doxygen -I"$SWIG_PARSE_ROOT" "${SWIG_ARGS[@]}"
+rm -rf "$SWIG_PARSE_ROOT"
 
 echo "=== 5. Compiling Native SWIG Static Wrapper (.a) for selected Architectures ==="
 for ARCH in "${ARCHS[@]}"; do
