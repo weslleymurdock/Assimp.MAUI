@@ -10,6 +10,11 @@
 
 namespace Assimp.Maui {
 
+/// A node in the imported hierarchy.
+/// Each node has name, a parent node (except for the root node),
+/// a transformation relative to its parent and possibly several child nodes.
+/// Simple file formats don't support hierarchical structures - for these formats
+/// the imported scene does consist of only a single root node without children.
 public class Node : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +62,26 @@ public class Node : global::System.IDisposable {
     }
   }
 
+  ///  The name of the node.
+  /// The name might be empty (length of zero) but all nodes which
+  /// need to be referenced by either bones or animations are named.
+  /// Multiple nodes may have the same name, except for nodes which are referenced
+  /// by bones (see #aiBone and #aiMesh::mBones). Their names *must* be unique.
+  /// Cameras and lights reference a specific node by name - if there
+  /// are multiple nodes with this name, they are assigned to each of them.
+  ///
+  ///
+  /// There are no limitations with regard to the characters contained in
+  /// the name string as it is usually taken directly from the source file.
+  /// Implementations should be able to handle tokens such as whitespace, tabs,
+  /// line feeds, quotation marks, ampersands etc.
+  /// Sometimes assimp introduces new nodes not present in the source file
+  /// into the hierarchy (usually out of necessity because sometimes the
+  /// source hierarchy format is simply not compatible). Their names are
+  /// surrounded by  &amp;lt;&amp;gt;
+  ///  e.g.
+  ///  &amp;lt;DummyRootNode&amp;gt;
+  /// .
   public String Name {
     set {
       AssimpPINVOKE.Node_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +93,7 @@ public class Node : global::System.IDisposable {
     } 
   }
 
+  ///  The transformation relative to the node's parent.
   public SWIGTYPE_p_aiMatrix4x4tT_float_t Transformation {
     set {
       AssimpPINVOKE.Node_Transformation_set(swigCPtr, SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(value));
@@ -79,6 +105,7 @@ public class Node : global::System.IDisposable {
     } 
   }
 
+  ///  Parent node. nullptr if this node is the root node.
   public Node Parent {
     set {
       AssimpPINVOKE.Node_Parent_set(swigCPtr, Node.getCPtr(value));
@@ -90,6 +117,7 @@ public class Node : global::System.IDisposable {
     } 
   }
 
+  ///  The number of child nodes of this node.
   public uint NumChildren {
     set {
       AssimpPINVOKE.Node_NumChildren_set(swigCPtr, value);
@@ -100,6 +128,7 @@ public class Node : global::System.IDisposable {
     } 
   }
 
+  ///  The child nodes of this node. nullptr if mNumChildren is 0.
   public SWIGTYPE_p_p_aiNode Children {
     set {
       AssimpPINVOKE.Node_Children_set(swigCPtr, SWIGTYPE_p_p_aiNode.getCPtr(value));
@@ -111,6 +140,7 @@ public class Node : global::System.IDisposable {
     } 
   }
 
+  ///  The number of meshes of this node.
   public uint NumMeshes {
     set {
       AssimpPINVOKE.Node_NumMeshes_set(swigCPtr, value);
@@ -121,6 +151,8 @@ public class Node : global::System.IDisposable {
     } 
   }
 
+  ///  The meshes of this node. Each entry is an index into the
+  /// mesh list of the #aiScene.
   public SWIGTYPE_p_unsigned_int Meshes {
     set {
       AssimpPINVOKE.Node_Meshes_set(swigCPtr, SWIGTYPE_p_unsigned_int.getCPtr(value));
@@ -132,6 +164,11 @@ public class Node : global::System.IDisposable {
     } 
   }
 
+  ///  Metadata associated with this node or nullptr if there is no metadata.
+  ///  Whether any metadata is generated depends on the source file format. See the
+  /// importer_notes
+  ///  page for more information on every source file
+  /// format. Importers that don't document any metadata don't write any.
   public Metadata MetaData {
     set {
       AssimpPINVOKE.Node_MetaData_set(swigCPtr, Metadata.getCPtr(value));
@@ -143,13 +180,19 @@ public class Node : global::System.IDisposable {
     } 
   }
 
+  ///  Constructor
   public Node() : this(AssimpPINVOKE.new_Node__SWIG_0(), true) {
   }
 
+  ///  Construction from a specific name
   public Node(SWIGTYPE_p_std__string name) : this(AssimpPINVOKE.new_Node__SWIG_1(SWIGTYPE_p_std__string.getCPtr(name)), true) {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  /// <summary>Searches for a node with a specific name, beginning at this nodes. Normally you will call this method on the root node of the scene.</summary>
+  ///
+  /// <param name="name"> Name to search for</param> 
+  /// <returns>nullptr or a valid Node if the search was successful.</returns>
   public Node FindNode(String name) {
     global::System.IntPtr cPtr = AssimpPINVOKE.Node_FindNode__SWIG_0(swigCPtr, String.getCPtr(name));
     Node ret = (cPtr == global::System.IntPtr.Zero) ? null : new Node(cPtr, false);
@@ -157,6 +200,9 @@ public class Node : global::System.IDisposable {
     return ret;
   }
 
+  /// <summary>Will search for a node described by its name.</summary>
+  /// <param name="name">  The name for the node to look for.</param> 
+  /// <returns>Pointer showing to the node or nullptr if not found.</returns>
   public Node FindNode(string name) {
     global::System.IntPtr cPtr = AssimpPINVOKE.Node_FindNode__SWIG_2(swigCPtr, name);
     Node ret = (cPtr == global::System.IntPtr.Zero) ? null : new Node(cPtr, false);
@@ -169,6 +215,9 @@ public class Node : global::System.IDisposable {
     return ret;
   }
 
+  /// <summary>Will add new children.</summary>
+  /// <param name="numChildren">  Number of children to add.</param> 
+  /// <param name="children">     The array with pointers showing to the children.</param>
   public void addChildren(uint numChildren, SWIGTYPE_p_p_aiNode children) {
     AssimpPINVOKE.Node_addChildren(swigCPtr, numChildren, SWIGTYPE_p_p_aiNode.getCPtr(children));
   }

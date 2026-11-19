@@ -9,6 +9,20 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+///  Describes the animation of a single node. The name specifies the
+///  bone/node which is affected by this animation channel. The keyframes
+///  are given in three separate series of values, one each for position,
+///  rotation and scaling. The transformation matrix computed from these
+///  values replaces the node's original transformation matrix at a
+///  specific time.
+///  This means all keys are absolute and not relative to the bone default pose.
+///  The order in which the transformations are applied is
+///  - as usual - scaling, rotation, translation.
+///
+/// All keys are returned in their correct, chronological order.
+///  Duplicate keys don't pass the validation step. Most likely there
+///  will be no negative time values, but they are not forbidden also ( so
+///  implementations need to cope with them! )
 
 public class NodeAnim : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +71,8 @@ public class NodeAnim : global::System.IDisposable {
     }
   }
 
+  /// The name of the node affected by this animation. The node
+  /// must exist and it must be unique.
   public String NodeName {
     set {
       AssimpPINVOKE.NodeAnim_NodeName_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +84,7 @@ public class NodeAnim : global::System.IDisposable {
     } 
   }
 
+  ///  The number of position keys
   public uint NumPositionKeys {
     set {
       AssimpPINVOKE.NodeAnim_NumPositionKeys_set(swigCPtr, value);
@@ -78,6 +95,10 @@ public class NodeAnim : global::System.IDisposable {
     } 
   }
 
+  ///  The position keys of this animation channel. Positions are
+  /// specified as 3D vector. The array is mNumPositionKeys in size.
+  /// If there are position keys, there will also be at least one
+  /// scaling and one rotation key.
   public VectorKey PositionKeys {
     set {
       AssimpPINVOKE.NodeAnim_PositionKeys_set(swigCPtr, VectorKey.getCPtr(value));
@@ -89,6 +110,7 @@ public class NodeAnim : global::System.IDisposable {
     } 
   }
 
+  ///  The number of rotation keys
   public uint NumRotationKeys {
     set {
       AssimpPINVOKE.NodeAnim_NumRotationKeys_set(swigCPtr, value);
@@ -99,6 +121,11 @@ public class NodeAnim : global::System.IDisposable {
     } 
   }
 
+  ///  The rotation keys of this animation channel. Rotations are
+  ///  given as quaternions,  which are 4D vectors. The array is
+  ///  mNumRotationKeys in size.
+  /// If there are rotation keys, there will also be at least one
+  /// scaling and one position key.
   public QuatKey RotationKeys {
     set {
       AssimpPINVOKE.NodeAnim_RotationKeys_set(swigCPtr, QuatKey.getCPtr(value));
@@ -110,6 +137,7 @@ public class NodeAnim : global::System.IDisposable {
     } 
   }
 
+  ///  The number of scaling keys
   public uint NumScalingKeys {
     set {
       AssimpPINVOKE.NodeAnim_NumScalingKeys_set(swigCPtr, value);
@@ -120,6 +148,10 @@ public class NodeAnim : global::System.IDisposable {
     } 
   }
 
+  ///  The scaling keys of this animation channel. Scalings are
+  ///  specified as 3D vector. The array is mNumScalingKeys in size.
+  /// If there are scaling keys, there will also be at least one
+  /// position and one rotation key.
   public VectorKey ScalingKeys {
     set {
       AssimpPINVOKE.NodeAnim_ScalingKeys_set(swigCPtr, VectorKey.getCPtr(value));
@@ -131,6 +163,10 @@ public class NodeAnim : global::System.IDisposable {
     } 
   }
 
+  /// Defines how the animation behaves before the first
+  /// key is encountered.
+  /// The default value is aiAnimBehaviour_DEFAULT (the original
+  /// transformation matrix of the affected node is used).
   public AnimBehaviour PreState {
     set {
       AssimpPINVOKE.NodeAnim_PreState_set(swigCPtr, (int)value);
@@ -141,6 +177,10 @@ public class NodeAnim : global::System.IDisposable {
     } 
   }
 
+  /// Defines how the animation behaves after the last
+  /// key was processed.
+  /// The default value is aiAnimBehaviour_DEFAULT (the original
+  /// transformation matrix of the affected node is taken).
   public AnimBehaviour PostState {
     set {
       AssimpPINVOKE.NodeAnim_PostState_set(swigCPtr, (int)value);

@@ -10,10 +10,15 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Enumerates the methods of mesh morphing supported by Assimp.</summary>
 public enum MorphingMethod {
+  ///  Morphing method to be determined
   MorphingMethod_UNKNOWN = 0,
+  ///  Interpolation between morph targets
   MorphingMethod_VERTEX_BLEND = 1,
+  ///  Normalized morphing between morph targets
   MorphingMethod_MORPH_NORMALIZED = 2,
+  ///  Relative morphing between morph targets
   MorphingMethod_MORPH_RELATIVE = 3
 }
 

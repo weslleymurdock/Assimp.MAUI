@@ -10,6 +10,8 @@
 
 namespace Assimp.Maui {
 
+/// An animation consists of key-frame data for a number of nodes. For
+/// each node affected by the animation a separate series of data is given.
 public class Animation : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +59,9 @@ public class Animation : global::System.IDisposable {
     }
   }
 
+  /// The name of the animation. If the modeling package this data was
+  /// exported from does support only a single animation channel, this
+  /// name is usually empty (length is zero).
   public String Name {
     set {
       AssimpPINVOKE.Animation_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +73,7 @@ public class Animation : global::System.IDisposable {
     } 
   }
 
+  ///  Duration of the animation in ticks.
   public double Duration {
     set {
       AssimpPINVOKE.Animation_Duration_set(swigCPtr, value);
@@ -78,6 +84,7 @@ public class Animation : global::System.IDisposable {
     } 
   }
 
+  ///  Ticks per second. 0 if not specified in the imported file
   public double TicksPerSecond {
     set {
       AssimpPINVOKE.Animation_TicksPerSecond_set(swigCPtr, value);
@@ -88,6 +95,8 @@ public class Animation : global::System.IDisposable {
     } 
   }
 
+  /// The number of bone animation channels. Each channel affects
+  /// a single node.
   public uint NumChannels {
     set {
       AssimpPINVOKE.Animation_NumChannels_set(swigCPtr, value);
@@ -98,6 +107,8 @@ public class Animation : global::System.IDisposable {
     } 
   }
 
+  /// The node animation channels. Each channel affects a single node.
+  /// The array is mNumChannels in size.
   public SWIGTYPE_p_p_aiNodeAnim Channels {
     set {
       AssimpPINVOKE.Animation_Channels_set(swigCPtr, SWIGTYPE_p_p_aiNodeAnim.getCPtr(value));
@@ -109,6 +120,8 @@ public class Animation : global::System.IDisposable {
     } 
   }
 
+  /// The number of mesh animation channels. Each channel affects
+  /// a single mesh and defines vertex-based animation.
   public uint NumMeshChannels {
     set {
       AssimpPINVOKE.Animation_NumMeshChannels_set(swigCPtr, value);
@@ -119,6 +132,8 @@ public class Animation : global::System.IDisposable {
     } 
   }
 
+  /// The mesh animation channels. Each channel affects a single mesh.
+  /// The array is mNumMeshChannels in size.
   public SWIGTYPE_p_p_aiMeshAnim MeshChannels {
     set {
       AssimpPINVOKE.Animation_MeshChannels_set(swigCPtr, SWIGTYPE_p_p_aiMeshAnim.getCPtr(value));
@@ -130,6 +145,8 @@ public class Animation : global::System.IDisposable {
     } 
   }
 
+  /// The number of mesh animation channels. Each channel affects
+  /// a single mesh and defines morphing animation.
   public uint NumMorphMeshChannels {
     set {
       AssimpPINVOKE.Animation_NumMorphMeshChannels_set(swigCPtr, value);
@@ -140,6 +157,8 @@ public class Animation : global::System.IDisposable {
     } 
   }
 
+  /// The morph mesh animation channels. Each channel affects a single mesh.
+  /// The array is mNumMorphMeshChannels in size.
   public SWIGTYPE_p_p_aiMeshMorphAnim MorphMeshChannels {
     set {
       AssimpPINVOKE.Animation_MorphMeshChannels_set(swigCPtr, SWIGTYPE_p_p_aiMeshMorphAnim.getCPtr(value));

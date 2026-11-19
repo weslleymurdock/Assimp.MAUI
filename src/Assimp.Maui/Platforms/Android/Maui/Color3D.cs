@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>Represents a color in Red-Green-Blue space.</summary>
 
 public class Color3D : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -66,15 +67,20 @@ public class Color3D : global::System.IDisposable {
   public Color3D(float _r) : this(AssimpPINVOKE.new_Color3D__SWIG_2(_r), true) {
   }
 
-  public Color3D(Color3D o) : this(AssimpPINVOKE.new_Color3D__SWIG_3(Color3D.getCPtr(o)), true) {
+  ///  Component-wise epsilon-based comparison
+  public bool epsilonCompare(Color3D other) {
+    bool ret = AssimpPINVOKE.Color3D_epsilonCompare(swigCPtr, Color3D.getCPtr(other));
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
   }
 
+  ///  Check whether a color is black
   public bool IsBlack() {
     bool ret = AssimpPINVOKE.Color3D_IsBlack(swigCPtr);
     return ret;
   }
 
+  ///  Red, green and blue color values
   public float r {
     set {
       AssimpPINVOKE.Color3D_r_set(swigCPtr, value);

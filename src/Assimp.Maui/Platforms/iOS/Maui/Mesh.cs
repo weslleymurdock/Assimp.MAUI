@@ -10,6 +10,19 @@
 
 namespace Assimp.Maui {
 
+/// <summary>A mesh represents a geometry or model with a single material.</summary>
+/// It usually consists of a number of vertices and a series of primitives/faces
+/// referencing the vertices. In addition there might be a series of bones, each
+/// of them addressing a number of vertices with a certain weight. Vertex data
+/// is presented in channels with each channel containing a single per-vertex
+/// information such as a set of texture coordinates or a normal vector.
+/// If a data pointer is non-null, the corresponding data stream is present.
+/// From C++-programs you can also use the comfort functions Has*() to
+/// test for the presence of various data streams.
+/// A Mesh uses only a single material which is referenced by a material ID.
+/// The mPositions member is usually not optional. However, vertex positions
+/// *could* be missing if the #AI_SCENE_FLAGS_INCOMPLETE flag is set in
+/// &lt;code&gt;    aiScene::mFlags&lt;/code&gt;
 public class Mesh : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +70,10 @@ public class Mesh : global::System.IDisposable {
     }
   }
 
+  /// Bitwise combination of the members of the #aiPrimitiveType enum.
+  /// This specifies which types of primitives are present in the mesh.
+  /// The "SortByPrimitiveType"-Step can be used to make sure the
+  /// output meshes consist of one primitive type each.
   public uint PrimitiveTypes {
     set {
       AssimpPINVOKE.Mesh_PrimitiveTypes_set(swigCPtr, value);
@@ -67,6 +84,9 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// The number of vertices in this mesh.
+  /// This is also the size of all of the per-vertex data arrays.
+  /// The maximum value for this member is #AI_MAX_VERTICES.
   public uint NumVertices {
     set {
       AssimpPINVOKE.Mesh_NumVertices_set(swigCPtr, value);
@@ -77,6 +97,9 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// The number of primitives (triangles, polygons, lines) in this  mesh.
+  /// This is also the size of the mFaces array.
+  /// The maximum value for this member is #AI_MAX_FACES.
   public uint NumFaces {
     set {
       AssimpPINVOKE.Mesh_NumFaces_set(swigCPtr, value);
@@ -87,6 +110,9 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Vertex positions.</summary>
+  /// This array is always present in a mesh. The array is
+  /// mNumVertices in size.
   public SWIGTYPE_p_aiVector3tT_float_t Vertices {
     set {
       AssimpPINVOKE.Mesh_Vertices_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -98,6 +124,24 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Vertex normals.</summary>
+  /// The array contains normalized vectors, nullptr if not present.
+  /// The array is mNumVertices in size. Normals are undefined for
+  /// point and line primitives. A mesh consisting of points and
+  /// lines only may not have normal vectors. Meshes with mixed
+  /// primitive types (i.e. lines and triangles) may have normals,
+  /// but the normals for vertices that are only referenced by
+  /// point or line primitives are undefined and set to QNaN (WARN:
+  /// qNaN compares to inequal to *everything*, even to qNaN itself.
+  /// Using code like this to check whether a field is qnan is:
+  /// &lt;code&gt;    #define IS_QNAN(f) (f != f)&lt;/code&gt;
+  ///
+  /// still dangerous because even 1.f == 1.f could evaluate to false! (
+  /// remember the subtleties of IEEE754 artithmetics). Use stuff like
+  /// ``fpclassify`` instead.
+  /// Normal vectors computed by Assimp are always unit-length.
+  /// However, this needn't apply for normals that have been taken
+  /// directly from the model file.
   public SWIGTYPE_p_aiVector3tT_float_t Normals {
     set {
       AssimpPINVOKE.Mesh_Normals_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -109,6 +153,17 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Vertex tangents.</summary>
+  /// The tangent of a vertex points in the direction of the positive
+  /// X texture axis. The array contains normalized vectors, nullptr if
+  /// not present. The array is mNumVertices in size. A mesh consisting
+  /// of points and lines only may not have normal vectors. Meshes with
+  /// mixed primitive types (i.e. lines and triangles) may have
+  /// normals, but the normals for vertices that are only referenced by
+  /// point or line primitives are undefined and set to qNaN.  See
+  /// the #mNormals member for a detailed discussion of qNaNs.
+  /// If the mesh contains tangents, it automatically also
+  /// contains bitangents.
   public SWIGTYPE_p_aiVector3tT_float_t Tangents {
     set {
       AssimpPINVOKE.Mesh_Tangents_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -120,6 +175,12 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Vertex bitangents.</summary>
+  /// The bitangent of a vertex points in the direction of the positive
+  /// Y texture axis. The array contains normalized vectors, nullptr if not
+  /// present. The array is mNumVertices in size.
+  /// If the mesh contains tangents, it automatically also contains
+  /// bitangents.
   public SWIGTYPE_p_aiVector3tT_float_t Bitangents {
     set {
       AssimpPINVOKE.Mesh_Bitangents_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -131,6 +192,10 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Vertex color sets.</summary>
+  /// A mesh may contain 0 to #AI_MAX_NUMBER_OF_COLOR_SETS vertex
+  /// colors per vertex. nullptr if not present. Each array is
+  /// mNumVertices in size if present.
   public SWIGTYPE_p_p_aiColor4tT_float_t Colors {
     set {
       AssimpPINVOKE.Mesh_Colors_set(swigCPtr, SWIGTYPE_p_p_aiColor4tT_float_t.getCPtr(value));
@@ -142,6 +207,10 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Vertex texture coordinates, also known as UV channels.</summary>
+  /// A mesh may contain 0 to AI_MAX_NUMBER_OF_TEXTURECOORDS channels per
+  /// vertex. Used and unused (nullptr) channels may go in any order.
+  /// The array is mNumVertices in size.
   public SWIGTYPE_p_p_aiVector3tT_float_t TextureCoords {
     set {
       AssimpPINVOKE.Mesh_TextureCoords_set(swigCPtr, SWIGTYPE_p_p_aiVector3tT_float_t.getCPtr(value));
@@ -153,6 +222,12 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Specifies the number of components for a given UV channel.</summary>
+  /// Up to three channels are supported (UVW, for accessing volume
+  /// or cube maps). If the value is 2 for a given channel n, the
+  /// component p.z of mTextureCoords[n][p] is set to 0.0f.
+  /// If the value is 1 for a given channel, p.y is set to 0.0f, too.
+  /// 4D coordinates are not supported
   public SWIGTYPE_p_unsigned_int NumUVComponents {
     set {
       AssimpPINVOKE.Mesh_NumUVComponents_set(swigCPtr, SWIGTYPE_p_unsigned_int.getCPtr(value));
@@ -164,6 +239,11 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The faces the mesh is constructed from.</summary>
+  /// Each face refers to a number of vertices by their indices.
+  /// This array is always present in a mesh, its size is given
+  ///  in mNumFaces. If the #AI_SCENE_FLAGS_NON_VERBOSE_FORMAT
+  /// is NOT set each face references an unique set of vertices.
   public Face Faces {
     set {
       AssimpPINVOKE.Mesh_Faces_set(swigCPtr, Face.getCPtr(value));
@@ -175,6 +255,7 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// The number of bones this mesh contains. Can be 0, in which case the mBones array is nullptr.
   public uint NumBones {
     set {
       AssimpPINVOKE.Mesh_NumBones_set(swigCPtr, value);
@@ -185,6 +266,9 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The bones of this mesh.</summary>
+  /// A bone consists of a name by which it can be found in the
+  /// frame hierarchy and a set of vertex weights.
   public SWIGTYPE_p_p_aiBone Bones {
     set {
       AssimpPINVOKE.Mesh_Bones_set(swigCPtr, SWIGTYPE_p_p_aiBone.getCPtr(value));
@@ -196,6 +280,10 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The material used by this mesh.</summary>
+  /// A mesh uses only a single material. If an imported model uses
+  /// multiple materials, the import splits up the mesh. Use this value
+  /// as index into the scene's material list.
   public uint MaterialIndex {
     set {
       AssimpPINVOKE.Mesh_MaterialIndex_set(swigCPtr, value);
@@ -206,6 +294,16 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// Name of the mesh. Meshes can be named, but this is not a
+  /// requirement and leaving this field empty is totally fine.
+  /// There are mainly three uses for mesh names:
+  ///  - some formats name nodes and meshes independently.
+  ///  - importers tend to split meshes up to meet the
+  ///     one-material-per-mesh requirement. Assigning
+  ///     the same (dummy) name to each of the result meshes
+  ///     aids the caller at recovering the original mesh
+  ///     partitioning.
+  ///  - Vertex animations refer to meshes by their names.
   public String Name {
     set {
       AssimpPINVOKE.Mesh_Name_set(swigCPtr, String.getCPtr(value));
@@ -217,6 +315,10 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// The number of attachment meshes.
+  /// Currently known to work with loaders:
+  /// - Collada
+  /// - gltf
   public uint NumAnimMeshes {
     set {
       AssimpPINVOKE.Mesh_NumAnimMeshes_set(swigCPtr, value);
@@ -227,6 +329,12 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// Attachment meshes for this mesh, for vertex-based animation.
+  /// Attachment meshes carry replacement data for some of the
+  /// mesh'es vertex components (usually positions, normals).
+  /// Currently known to work with loaders:
+  /// - Collada
+  /// - gltf
   public SWIGTYPE_p_p_aiAnimMesh AnimMeshes {
     set {
       AssimpPINVOKE.Mesh_AnimMeshes_set(swigCPtr, SWIGTYPE_p_p_aiAnimMesh.getCPtr(value));
@@ -238,6 +346,8 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  ///  Method of morphing when anim-meshes are specified.
+  /// <seealso cref="aiMorphingMethod to learn more about the provided morphing targets."/>
   public MorphingMethod Method {
     set {
       AssimpPINVOKE.Mesh_Method_set(swigCPtr, (int)value);
@@ -248,6 +358,7 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  ///  The bounding box.
   public AABB AABB {
     set {
       AssimpPINVOKE.Mesh_AABB_set(swigCPtr, AABB.getCPtr(value));
@@ -259,6 +370,7 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  /// Vertex UV stream names. Pointer to array of size AI_MAX_NUMBER_OF_TEXTURECOORDS
   public SWIGTYPE_p_p_aiString TextureCoordsNames {
     set {
       AssimpPINVOKE.Mesh_TextureCoordsNames_set(swigCPtr, SWIGTYPE_p_p_aiString.getCPtr(value));
@@ -270,64 +382,93 @@ public class Mesh : global::System.IDisposable {
     } 
   }
 
+  ///  The default class constructor.
   public Mesh() : this(AssimpPINVOKE.new_Mesh(), true) {
   }
 
+  /// <summary>Check whether the mesh contains positions. Provided no special        scene flags are set, this will always be true</summary>
+  /// <returns>true, if positions are stored, false if not.</returns>
   public bool HasPositions() {
     bool ret = AssimpPINVOKE.Mesh_HasPositions(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the mesh contains faces. If no special scene flags        are set this should always return true</summary>
+  /// <returns>true, if faces are stored, false if not.</returns>
   public bool HasFaces() {
     bool ret = AssimpPINVOKE.Mesh_HasFaces(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the mesh contains normal vectors</summary>
+  /// <returns>true, if normals are stored, false if not.</returns>
   public bool HasNormals() {
     bool ret = AssimpPINVOKE.Mesh_HasNormals(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the mesh contains tangent and bitangent vectors. It is not possible that it contains tangents and no bitangents (or the other way round). The existence of one of them implies that the second is there, too.</summary>
+  /// <returns>true, if tangents and bi-tangents are stored, false if not.</returns>
   public bool HasTangentsAndBitangents() {
     bool ret = AssimpPINVOKE.Mesh_HasTangentsAndBitangents(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the mesh contains a vertex color set</summary>
+  /// <param name="index">    Index of the vertex color set</param> 
+  /// <returns>true, if vertex colors are stored, false if not.</returns>
   public bool HasVertexColors(uint index) {
     bool ret = AssimpPINVOKE.Mesh_HasVertexColors(swigCPtr, index);
     return ret;
   }
 
+  /// <summary>Check whether the mesh contains a texture coordinate set</summary>
+  /// <param name="index">    Index of the texture coordinates set</param> 
+  /// <returns>true, if texture coordinates are stored, false if not.</returns>
   public bool HasTextureCoords(uint index) {
     bool ret = AssimpPINVOKE.Mesh_HasTextureCoords(swigCPtr, index);
     return ret;
   }
 
+  /// <summary>Get the number of UV channels the mesh contains.</summary>
+  /// <returns>the number of stored uv-channels.</returns>
   public uint GetNumUVChannels() {
     uint ret = AssimpPINVOKE.Mesh_GetNumUVChannels(swigCPtr);
     return ret;
   }
 
+  /// <summary>Get the number of vertex color channels the mesh contains.</summary>
+  /// <returns>The number of stored color channels.</returns>
   public uint GetNumColorChannels() {
     uint ret = AssimpPINVOKE.Mesh_GetNumColorChannels(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the mesh contains bones.</summary>
+  /// <returns>true, if bones are stored.</returns>
   public bool HasBones() {
     bool ret = AssimpPINVOKE.Mesh_HasBones(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the mesh contains a texture coordinate set name</summary>
+  /// <param name="pIndex"> Index of the texture coordinates set</param> 
+  /// <returns>true, if texture coordinates for the index exists.</returns>
   public bool HasTextureCoordsName(uint pIndex) {
     bool ret = AssimpPINVOKE.Mesh_HasTextureCoordsName(swigCPtr, pIndex);
     return ret;
   }
 
+  /// <summary>Set a texture coordinate set name</summary>
+  /// <param name="pIndex"> Index of the texture coordinates set</param> 
+  /// <param name="texCoordsName"> name of the texture coordinate set</param>
   public void SetTextureCoordsName(uint pIndex, String texCoordsName) {
     AssimpPINVOKE.Mesh_SetTextureCoordsName(swigCPtr, pIndex, String.getCPtr(texCoordsName));
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  /// <summary>Get a texture coordinate set name</summary>
+  /// <returns>The texture coordinate name.</returns>
   public String GetTextureCoordsName(uint index) {
     global::System.IntPtr cPtr = AssimpPINVOKE.Mesh_GetTextureCoordsName(swigCPtr, index);
     String ret = (cPtr == global::System.IntPtr.Zero) ? null : new String(cPtr, false);

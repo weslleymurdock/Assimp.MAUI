@@ -10,12 +10,27 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Defines how the mapping coords for a texture are generated.</summary>
+///  Real-time applications typically require full UV coordinates, so the use of
+///  the aiProcess_GenUVCoords step is highly recommended. It generates proper
+///  UV channels for non-UV mapped objects, as long as an accurate description
+///  how the mapping should look like (e.g spherical) is given.
+///  See the #AI_MATKEY_MAPPING property for more details.
 public enum TextureMapping {
+  /// The mapping coordinates are taken from an UV channel.
+  /// #AI_MATKEY_UVWSRC property specifies from which UV channel
+  /// the texture coordinates are to be taken from (remember,
+  /// meshes can have more than one UV channel).
   TextureMapping_UV = 0,
+  ///  Spherical mapping
   TextureMapping_SPHERE = 1,
+  ///  Cylindrical mapping
   TextureMapping_CYLINDER = 2,
+  ///  Cubic mapping
   TextureMapping_BOX = 3,
+  ///  Planar mapping
   TextureMapping_PLANE = 4,
+  ///  Undefined mapping. Have fun.
   TextureMapping_OTHER = 5
 }
 

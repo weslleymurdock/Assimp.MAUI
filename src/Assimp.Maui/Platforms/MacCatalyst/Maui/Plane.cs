@@ -10,6 +10,7 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Represents a plane in a three-dimensional, euclidean space</summary>
 public class Plane : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -67,6 +68,7 @@ public class Plane : global::System.IDisposable {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  ///  Plane equation
   public float a {
     set {
       AssimpPINVOKE.Plane_a_set(swigCPtr, value);

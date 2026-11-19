@@ -10,6 +10,46 @@
 
 namespace Assimp.Maui {
 
+///  Helper structure to describe a virtual camera.
+/// Cameras have a representation in the node graph and can be animated.
+/// An important aspect is that the camera itself is also part of the
+/// scene-graph. This means, any values such as the look-at vector are not
+/// *absolute*, they're **relative** to the coordinate system defined
+/// by the node which corresponds to the camera. This allows for camera
+/// animations. For static cameras parameters like the 'look-at' or 'up' vectors
+/// are usually specified directly in aiCamera, but beware, they could also
+/// be encoded in the node transformation. The following (pseudo)code sample
+/// shows how to do it: 
+///
+///
+/// &lt;code&gt;    // Get the camera matrix for a camera at a specific time
+///     // if the node hierarchy for the camera does not contain
+///     // at least one animated node this is a static computation
+///     get-camera-matrix (node sceneRoot, camera cam) : matrix
+///     {
+///        node   cnd = find-node-for-camera(cam)
+///        matrix cmt = identity()
+///
+///        // as usual - get the absolute camera transformation for this frame
+///        for each node nd in hierarchy from sceneRoot to cnd
+///          matrix cur
+///          if (is-animated(nd))
+///             cur = eval-animation(nd)
+///          else cur = nd-&amp;gt;mTransformation;
+///          cmt = mult-matrices( cmt, cur )
+///        end for
+///
+///        // now multiply with the camera's own local transform
+///        cam = mult-matrices (cam, get-camera-matrix(cmt) )
+///     }&lt;/code&gt;
+///
+///
+/// some file formats (such as 3DS, ASE) export a "target point" -
+/// the point the camera is looking at (it can even be animated). Assimp
+/// writes the target point as a subnode of the camera's main node,
+/// called "&lt;camName&gt;.Target". However this is just additional information
+/// then the transformation tracks of the camera main node make the
+/// camera already look in the right direction.
 public class Camera : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +97,10 @@ public class Camera : global::System.IDisposable {
     }
   }
 
+  /// The name of the camera.
+  /// There must be a node in the scenegraph with the same name.
+  /// This node specifies the position of the camera in the scene
+  /// hierarchy and can be animated.
   public String Name {
     set {
       AssimpPINVOKE.Camera_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +112,9 @@ public class Camera : global::System.IDisposable {
     } 
   }
 
+  /// Position of the camera relative to the coordinate space
+  /// defined by the corresponding node.
+  /// The default value is 0|0|0.
   public SWIGTYPE_p_aiVector3tT_float_t Position {
     set {
       AssimpPINVOKE.Camera_Position_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -79,6 +126,12 @@ public class Camera : global::System.IDisposable {
     } 
   }
 
+  /// 'Up' - vector of the camera coordinate system relative to
+  /// the coordinate space defined by the corresponding node.
+  /// The 'right' vector of the camera coordinate system is
+  /// the cross product of  the up and lookAt vectors.
+  /// The default value is 0|1|0. The vector
+  /// may be normalized, but it needn't.
   public SWIGTYPE_p_aiVector3tT_float_t Up {
     set {
       AssimpPINVOKE.Camera_Up_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -90,6 +143,11 @@ public class Camera : global::System.IDisposable {
     } 
   }
 
+  /// 'LookAt' - vector of the camera coordinate system relative to
+  /// the coordinate space defined by the corresponding node.
+  /// This is the viewing direction of the user.
+  /// The default value is 0|0|1. The vector
+  /// may be normalized, but it needn't.
   public SWIGTYPE_p_aiVector3tT_float_t LookAt {
     set {
       AssimpPINVOKE.Camera_LookAt_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -101,6 +159,10 @@ public class Camera : global::System.IDisposable {
     } 
   }
 
+  /// Horizontal field of view angle, in radians.
+  /// The field of view angle is the angle between the center
+  /// line of the screen and the left or right border.
+  /// The default value is 1/4PI.
   public float HorizontalFOV {
     set {
       AssimpPINVOKE.Camera_HorizontalFOV_set(swigCPtr, value);
@@ -111,6 +173,9 @@ public class Camera : global::System.IDisposable {
     } 
   }
 
+  ///  Distance of the near clipping plane from the camera.
+  /// The value may not be 0.f (for arithmetic reasons to prevent
+  /// a division through zero). The default value is 0.1f.
   public float ClipPlaneNear {
     set {
       AssimpPINVOKE.Camera_ClipPlaneNear_set(swigCPtr, value);
@@ -121,6 +186,12 @@ public class Camera : global::System.IDisposable {
     } 
   }
 
+  ///  Distance of the far clipping plane from the camera.
+  /// The far clipping plane must, of course, be further away than the
+  /// near clipping plane. The default value is 1000.f. The ratio
+  /// between the near and the far plane should not be too
+  /// large (between 1000-10000 should be ok) to avoid floating-point
+  /// inaccuracies which could lead to z-fighting.
   public float ClipPlaneFar {
     set {
       AssimpPINVOKE.Camera_ClipPlaneFar_set(swigCPtr, value);
@@ -131,6 +202,11 @@ public class Camera : global::System.IDisposable {
     } 
   }
 
+  ///  Screen aspect ratio.
+  /// This is the ration between the width and the height of the
+  /// screen. Typical values are 4/3, 1/2 or 1/1. This value is
+  /// 0 if the aspect ratio is not defined in the source file.
+  /// 0 is also the default value.
   public float Aspect {
     set {
       AssimpPINVOKE.Camera_Aspect_set(swigCPtr, value);
@@ -141,6 +217,13 @@ public class Camera : global::System.IDisposable {
     } 
   }
 
+  /// Half horizontal orthographic width, in scene units.
+  /// The orthographic width specifies the half width of the
+  /// orthographic view box. If non-zero the camera is
+  /// orthographic and the mAspect should define to the
+  /// ratio between the orthographic width and height
+  /// and mHorizontalFOV should be set to 0.
+  /// The default value is 0 (not orthographic).
   public float OrthographicWidth {
     set {
       AssimpPINVOKE.Camera_OrthographicWidth_set(swigCPtr, value);
@@ -154,6 +237,8 @@ public class Camera : global::System.IDisposable {
   public Camera() : this(AssimpPINVOKE.new_Camera(), true) {
   }
 
+  /// <summary>Get a *right-handed* camera matrix from me</summary>
+  /// <param name="out"> Camera matrix to be filled</param>
   public void GetCameraMatrix(SWIGTYPE_p_aiMatrix4x4tT_float_t out_) {
     AssimpPINVOKE.Camera_GetCameraMatrix(swigCPtr, SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(out_));
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();

@@ -10,11 +10,40 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Enumerates the types of geometric primitives supported by Assimp.</summary>
+///
+/// <seealso cref="aiFace Face data structure"/>
+/// <seealso cref="aiProcess_SortByPType Per-primitive sorting of meshes"/>
+/// <seealso cref="aiProcess_Triangulate Automatic triangulation"/>
+/// <seealso cref="AI_CONFIG_PP_SBP_REMOVE Removal of specific primitive types."/>
 public enum PrimitiveType {
+  /// <summary>A point primitive.</summary>
+  /// This is just a single vertex in the virtual world,
+  /// #aiFace contains just one index for such a primitive.
   PrimitiveType_POINT = 1,
+  /// <summary>A line primitive.</summary>
+  /// This is a line defined through a start and an end position.
+  /// #aiFace contains exactly two indices for such a primitive.
   PrimitiveType_LINE = 2,
+  /// <summary>A triangular primitive.</summary>
+  /// A triangle consists of three indices.
   PrimitiveType_TRIANGLE = 4,
+  /// <summary>A higher-level polygon with more than 3 edges.</summary>
+  /// A triangle is a polygon, but polygon in this context means
+  /// "all polygons that are not triangles". The "Triangulate"-Step
+  /// is provided for your convenience, it splits all polygons in
+  /// triangles (which are much easier to handle).
   PrimitiveType_POLYGON = 8,
+  /// <summary>A flag to determine whether this triangles only mesh is NGON encoded.</summary>
+  /// NGON encoding is a special encoding that tells whether 2 or more consecutive triangles
+  /// should be considered as a triangle fan. This is identified by looking at the first vertex index.
+  /// 2 consecutive triangles with the same 1st vertex index are part of the same
+  /// NGON.
+  /// At the moment, only quads (concave or convex) are supported, meaning that polygons are 'seen' as
+  /// triangles, as usual after a triangulation pass.
+  /// To get an NGON encoded mesh, please use the aiProcess_Triangulate post process.
+  /// <seealso cref="aiProcess_Triangulate
+  /// https://github.com/KhronosGroup/glTF/pull/1620"/>
   PrimitiveType_NGONEncodingFlag = 16
 }
 

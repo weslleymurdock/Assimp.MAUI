@@ -10,6 +10,24 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Data structure for a single material property</summary>
+///  As an user, you'll probably never need to deal with this data structure.
+///  Just use the provided aiGetMaterialXXX() or aiMaterial::Get() family
+///  of functions to query material properties easily. Processing them
+///  manually is faster, but it is not the recommended way. It isn't worth
+///  the effort. 
+///
+///  Material property names follow a simple scheme:
+/// &lt;code&gt;        $&amp;lt;name&amp;gt;
+///        ?&amp;lt;name&amp;gt;
+///           A public property, there must be corresponding AI_MATKEY_XXX define
+///           2nd: Public, but ignored by the #aiProcess_RemoveRedundantMaterials
+///           post-processing step.
+///        ~&amp;lt;name&amp;gt;
+///           A temporary property for internal use.&lt;/code&gt;
+///
+///
+/// <seealso cref="aiMaterial"/>
 public class MaterialProperty : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +75,8 @@ public class MaterialProperty : global::System.IDisposable {
     }
   }
 
+  /// Specifies the name of the property (key)
+  /// Keys are generally case insensitive.
   public String Key {
     set {
       AssimpPINVOKE.MaterialProperty_Key_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +88,9 @@ public class MaterialProperty : global::System.IDisposable {
     } 
   }
 
+  ///  Textures: Specifies their exact usage semantic.
+  /// For non-texture properties, this member is always 0
+  /// (or, better-said, #aiTextureType_NONE).
   public uint Semantic {
     set {
       AssimpPINVOKE.MaterialProperty_Semantic_set(swigCPtr, value);
@@ -78,6 +101,8 @@ public class MaterialProperty : global::System.IDisposable {
     } 
   }
 
+  /// Textures: Specifies the index of the texture.
+  /// For non-texture properties, this member is always 0.
   public uint Index {
     set {
       AssimpPINVOKE.MaterialProperty_Index_set(swigCPtr, value);
@@ -88,6 +113,8 @@ public class MaterialProperty : global::System.IDisposable {
     } 
   }
 
+  /// Size of the buffer mData is pointing to, in bytes.
+  /// This value may not be 0.
   public uint DataLength {
     set {
       AssimpPINVOKE.MaterialProperty_DataLength_set(swigCPtr, value);
@@ -98,6 +125,11 @@ public class MaterialProperty : global::System.IDisposable {
     } 
   }
 
+  ///  Type information for the property.
+  /// Defines the data layout inside the data buffer. This is used
+  /// by the library internally to perform debug checks and to
+  /// utilize proper type conversions.
+  /// (It's probably a hacky solution, but it works.)
   public PropertyTypeInfo Type {
     set {
       AssimpPINVOKE.MaterialProperty_Type_set(swigCPtr, (int)value);
@@ -108,6 +140,8 @@ public class MaterialProperty : global::System.IDisposable {
     } 
   }
 
+  ///  Binary buffer to hold the property's value.
+  /// The size of the buffer is always mDataLength.
   public string Data {
     set {
       AssimpPINVOKE.MaterialProperty_Data_set(swigCPtr, value);

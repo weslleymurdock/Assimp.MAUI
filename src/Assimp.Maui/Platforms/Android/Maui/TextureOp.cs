@@ -10,12 +10,32 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Defines how the Nth texture of a specific type is combined with the result of all previous layers.</summary>
+///  Example (left: key, right: value): 
+///
+/// &lt;code&gt;      DiffColor0     - gray
+///      DiffTextureOp0 - aiTextureOpMultiply
+///      DiffTexture0   - tex1.png
+///      DiffTextureOp0 - aiTextureOpAdd
+///      DiffTexture1   - tex2.png&lt;/code&gt;
+///
+///  Written as equation, the final diffuse term for a specific pixel would be:
+/// &lt;code&gt;      diffFinal = DiffColor0 * sampleTex(DiffTexture0,UV0) +
+///         sampleTex(DiffTexture1,UV0) * diffContrib;&lt;/code&gt;
+///
+///  where 'diffContrib' is the intensity of the incoming light for that pixel.
 public enum TextureOp {
+  ///  T = T1 * T2
   TextureOp_Multiply = 0,
+  ///  T = T1 + T2
   TextureOp_Add = 1,
+  ///  T = T1 - T2
   TextureOp_Subtract = 2,
+  ///  T = T1 / T2
   TextureOp_Divide = 3,
+  ///  T = (T1 + T2) - (T1 * T2)
   TextureOp_SmoothAdd = 4,
+  ///  T = T1 + (T2-0.5)
   TextureOp_SignedAdd = 5
 }
 

@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+///  Describes a morphing animation of a given mesh.
 
 public class MeshMorphAnim : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +58,10 @@ public class MeshMorphAnim : global::System.IDisposable {
     }
   }
 
+  /// Name of the mesh to be animated. An empty string is not allowed,
+  /// animated meshes need to be named (not necessarily uniquely,
+  /// the name can basically serve as wildcard to select a group
+  /// of meshes with similar animation setup)
   public String Name {
     set {
       AssimpPINVOKE.MeshMorphAnim_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +73,7 @@ public class MeshMorphAnim : global::System.IDisposable {
     } 
   }
 
+  ///  Size of the #mKeys array. Must be 1, at least.
   public uint NumKeys {
     set {
       AssimpPINVOKE.MeshMorphAnim_NumKeys_set(swigCPtr, value);
@@ -78,6 +84,7 @@ public class MeshMorphAnim : global::System.IDisposable {
     } 
   }
 
+  ///  Key frames of the animation. May not be nullptr.
   public MeshMorphKey Keys {
     set {
       AssimpPINVOKE.MeshMorphAnim_Keys_set(swigCPtr, MeshMorphKey.getCPtr(value));

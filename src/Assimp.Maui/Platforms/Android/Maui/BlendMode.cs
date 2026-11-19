@@ -10,8 +10,26 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Defines alpha-blend flags.</summary>
+///  If you're familiar with OpenGL or D3D, these flags aren't new to you.
+///  They define *how* the final color value of a pixel is computed, basing
+///  on the previous color at that pixel and the new color value from the
+///  material.
+///  The blend formula is:
+/// &lt;code&gt;        SourceColor * SourceBlend + DestColor * DestBlend&lt;/code&gt;
+///
+///  where DestColor is the previous color in the frame-buffer at this
+///  position and SourceColor is the material color before the transparency
+///  calculation.
+///
+///  This corresponds to the #AI_MATKEY_BLEND_FUNC property.
 public enum BlendMode {
+  ///  Formula:
+  /// &lt;code&gt;      SourceColor*SourceAlpha + DestColor*(1-SourceAlpha)&lt;/code&gt;
   BlendMode_Default = 0,
+  ///  Additive blending
+  ///  Formula:
+  /// &lt;code&gt;      SourceColor*1 + DestColor*1&lt;/code&gt;
   BlendMode_Additive = 1
 }
 

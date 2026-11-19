@@ -10,6 +10,11 @@
 
 namespace Assimp.Maui {
 
+/// Describes vertex-based animations for a single mesh or a group of
+/// meshes. Meshes carry the animation data for each frame in their
+/// aiMesh::mAnimMeshes array. The purpose of aiMeshAnim is to
+/// define keyframes linking each mesh attachment to a particular
+/// point in time.
 public class MeshAnim : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +62,10 @@ public class MeshAnim : global::System.IDisposable {
     }
   }
 
+  /// Name of the mesh to be animated. An empty string is not allowed,
+  /// animated meshes need to be named (not necessarily uniquely,
+  /// the name can basically serve as wild-card to select a group
+  /// of meshes with similar animation setup)
   public String Name {
     set {
       AssimpPINVOKE.MeshAnim_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +77,7 @@ public class MeshAnim : global::System.IDisposable {
     } 
   }
 
+  ///  Size of the #mKeys array. Must be 1, at least.
   public uint NumKeys {
     set {
       AssimpPINVOKE.MeshAnim_NumKeys_set(swigCPtr, value);
@@ -78,6 +88,7 @@ public class MeshAnim : global::System.IDisposable {
     } 
   }
 
+  ///  Key frames of the animation. May not be nullptr.
   public MeshKey Keys {
     set {
       AssimpPINVOKE.MeshAnim_Keys_set(swigCPtr, MeshKey.getCPtr(value));

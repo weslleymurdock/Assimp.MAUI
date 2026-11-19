@@ -10,6 +10,11 @@
 
 namespace Assimp.Maui {
 
+/// <summary>A single bone of a mesh.</summary>
+///  A bone has a name by which it can be found in the frame hierarchy and by
+///  which it can be addressed by animations. In addition it has a number of
+///  influences on vertices, and a matrix relating the mesh position to the
+///  position of the bone at the time of binding.
 public class Bone : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +62,7 @@ public class Bone : global::System.IDisposable {
     }
   }
 
+  /// The name of the bone.
   public String Name {
     set {
       AssimpPINVOKE.Bone_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +74,8 @@ public class Bone : global::System.IDisposable {
     } 
   }
 
+  /// The number of vertices affected by this bone.
+  /// The maximum value for this member is #AI_MAX_BONE_WEIGHTS.
   public uint NumWeights {
     set {
       AssimpPINVOKE.Bone_NumWeights_set(swigCPtr, value);
@@ -78,6 +86,8 @@ public class Bone : global::System.IDisposable {
     } 
   }
 
+  /// The bone armature node - used for skeleton conversion
+  /// you must enable aiProcess_PopulateArmatureData to populate this
   public Node Armature {
     set {
       AssimpPINVOKE.Bone_Armature_set(swigCPtr, Node.getCPtr(value));
@@ -89,6 +99,8 @@ public class Bone : global::System.IDisposable {
     } 
   }
 
+  /// The bone node in the scene - used for skeleton conversion
+  /// you must enable aiProcess_PopulateArmatureData to populate this
   public Node Node {
     set {
       AssimpPINVOKE.Bone_Node_set(swigCPtr, Node.getCPtr(value));
@@ -100,6 +112,7 @@ public class Bone : global::System.IDisposable {
     } 
   }
 
+  /// The influence weights of this bone, by vertex index.
   public VertexWeight Weights {
     set {
       AssimpPINVOKE.Bone_Weights_set(swigCPtr, VertexWeight.getCPtr(value));
@@ -111,6 +124,14 @@ public class Bone : global::System.IDisposable {
     } 
   }
 
+  /// Matrix that transforms from mesh space to bone space in bind pose.
+  /// This matrix describes the position of the mesh
+  /// in the local space of this bone when the skeleton was bound.
+  /// Thus it can be used directly to determine a desired vertex position,
+  /// given the world-space transform of the bone when animated,
+  /// and the position of the vertex in mesh space.
+  /// It is sometimes called an inverse-bind matrix,
+  /// or inverse bind pose matrix.
   public SWIGTYPE_p_aiMatrix4x4tT_float_t OffsetMatrix {
     set {
       AssimpPINVOKE.Bone_OffsetMatrix_set(swigCPtr, SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(value));
@@ -122,9 +143,12 @@ public class Bone : global::System.IDisposable {
     } 
   }
 
+  ///
+  /// <summary>Default constructor</summary>
   public Bone() : this(AssimpPINVOKE.new_Bone__SWIG_0(), true) {
   }
 
+  /// <summary>Copy constructor</summary>
   public Bone(Bone other) : this(AssimpPINVOKE.new_Bone__SWIG_1(Bone.getCPtr(other)), true) {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }

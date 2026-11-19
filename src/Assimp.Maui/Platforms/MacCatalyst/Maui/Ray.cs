@@ -10,6 +10,7 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Represents a ray</summary>
 public class Ray : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -68,6 +69,7 @@ public class Ray : global::System.IDisposable {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  ///  Position and direction of the ray
   public SWIGTYPE_p_aiVector3tT_float_t pos {
     set {
       AssimpPINVOKE.Ray_pos_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));

@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+///  An axis-aligned bounding box.
 
 public class AABB : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -79,9 +80,13 @@ public class AABB : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The default class constructor.</summary>
   public AABB() : this(AssimpPINVOKE.new_AABB__SWIG_0(), true) {
   }
 
+  /// <summary>The class constructor with the minimum and maximum.</summary>
+  /// <param name="min">  The minimum dimension.</param> 
+  /// <param name="max">  The maximum dimension.</param>
   public AABB(SWIGTYPE_p_aiVector3tT_float_t min, SWIGTYPE_p_aiVector3tT_float_t max) : this(AssimpPINVOKE.new_AABB__SWIG_1(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(min), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(max)), true) {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }

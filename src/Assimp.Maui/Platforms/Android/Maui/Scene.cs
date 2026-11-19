@@ -9,6 +9,11 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// The root structure of the imported data.
+/// Everything that was imported from the given file can be accessed from here.
+/// Objects of this class are generally maintained and owned by Assimp, not
+/// by the caller. You shouldn't want to instance it, nor should you ever try to
+/// delete a given scene on your own.
 
 public class Scene : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +62,10 @@ public class Scene : global::System.IDisposable {
     }
   }
 
+  ///  Any combination of the AI_SCENE_FLAGS_XXX flags. By default
+  /// this value is 0, no flags are set. Most applications will
+  /// want to reject all scenes with the AI_SCENE_FLAGS_INCOMPLETE
+  /// bit set.
   public uint Flags {
     set {
       AssimpPINVOKE.Scene_Flags_set(swigCPtr, value);
@@ -67,6 +76,11 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The root node of the hierarchy.
+  /// There will always be at least the root node if the import
+  /// was successful (and no special flags have been set).
+  /// Presence of further nodes depends on the format and content
+  /// of the imported file.
   public Node RootNode {
     set {
       AssimpPINVOKE.Scene_RootNode_set(swigCPtr, Node.getCPtr(value));
@@ -78,6 +92,7 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The number of meshes in the scene.
   public uint NumMeshes {
     set {
       AssimpPINVOKE.Scene_NumMeshes_set(swigCPtr, value);
@@ -88,6 +103,11 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The array of meshes.
+  /// Use the indices given in the aiNode structure to access
+  /// this array. The array is mNumMeshes in size. If the
+  /// AI_SCENE_FLAGS_INCOMPLETE flag is not set there will always
+  /// be at least ONE material.
   public SWIGTYPE_p_p_aiMesh Meshes {
     set {
       AssimpPINVOKE.Scene_Meshes_set(swigCPtr, SWIGTYPE_p_p_aiMesh.getCPtr(value));
@@ -99,6 +119,7 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The number of materials in the scene.
   public uint NumMaterials {
     set {
       AssimpPINVOKE.Scene_NumMaterials_set(swigCPtr, value);
@@ -109,6 +130,11 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The array of materials.
+  /// Use the index given in each aiMesh structure to access this
+  /// array. The array is mNumMaterials in size. If the
+  /// AI_SCENE_FLAGS_INCOMPLETE flag is not set there will always
+  /// be at least ONE material.
   public SWIGTYPE_p_p_aiMaterial Materials {
     set {
       AssimpPINVOKE.Scene_Materials_set(swigCPtr, SWIGTYPE_p_p_aiMaterial.getCPtr(value));
@@ -120,6 +146,7 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The number of animations in the scene.
   public uint NumAnimations {
     set {
       AssimpPINVOKE.Scene_NumAnimations_set(swigCPtr, value);
@@ -130,6 +157,9 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The array of animations.
+  /// All animations imported from the given file are listed here.
+  /// The array is mNumAnimations in size.
   public SWIGTYPE_p_p_aiAnimation Animations {
     set {
       AssimpPINVOKE.Scene_Animations_set(swigCPtr, SWIGTYPE_p_p_aiAnimation.getCPtr(value));
@@ -141,6 +171,7 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The number of textures embedded into the file
   public uint NumTextures {
     set {
       AssimpPINVOKE.Scene_NumTextures_set(swigCPtr, value);
@@ -151,6 +182,10 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The array of embedded textures.
+  /// Not many file formats embed their textures into the file.
+  /// An example is Quake's MDL format (which is also used by
+  /// some GameStudio versions)
   public SWIGTYPE_p_p_aiTexture Textures {
     set {
       AssimpPINVOKE.Scene_Textures_set(swigCPtr, SWIGTYPE_p_p_aiTexture.getCPtr(value));
@@ -162,6 +197,8 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The number of light sources in the scene. Light sources
+  /// are fully optional, in most cases this attribute will be 0
   public uint NumLights {
     set {
       AssimpPINVOKE.Scene_NumLights_set(swigCPtr, value);
@@ -172,6 +209,9 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The array of light sources.
+  /// All light sources imported from the given file are
+  /// listed here. The array is mNumLights in size.
   public SWIGTYPE_p_p_aiLight Lights {
     set {
       AssimpPINVOKE.Scene_Lights_set(swigCPtr, SWIGTYPE_p_p_aiLight.getCPtr(value));
@@ -183,6 +223,8 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The number of cameras in the scene. Cameras
+  /// are fully optional, in most cases this attribute will be 0
   public uint NumCameras {
     set {
       AssimpPINVOKE.Scene_NumCameras_set(swigCPtr, value);
@@ -193,6 +235,11 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The array of cameras.
+  /// All cameras imported from the given file are listed here.
+  /// The array is mNumCameras in size. The first camera in the
+  /// array (if existing) is the default camera view into
+  /// the scene.
   public SWIGTYPE_p_p_aiCamera Cameras {
     set {
       AssimpPINVOKE.Scene_Cameras_set(swigCPtr, SWIGTYPE_p_p_aiCamera.getCPtr(value));
@@ -204,6 +251,10 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The global metadata assigned to the scene itself.</summary>
+  ///  This data contains global metadata which belongs to the scene like
+  ///  unit-conversions, versions, vendors or other model-specific data. This
+  ///  can be used to store format-specific metadata as well.
   public Metadata MetaData {
     set {
       AssimpPINVOKE.Scene_MetaData_set(swigCPtr, Metadata.getCPtr(value));
@@ -215,6 +266,7 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  The name of the scene itself.
   public String Name {
     set {
       AssimpPINVOKE.Scene_Name_set(swigCPtr, String.getCPtr(value));
@@ -226,6 +278,7 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  /// 
   public uint NumSkeletons {
     set {
       AssimpPINVOKE.Scene_NumSkeletons_set(swigCPtr, value);
@@ -236,6 +289,7 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  /// 
   public SWIGTYPE_p_p_aiSkeleton Skeletons {
     set {
       AssimpPINVOKE.Scene_Skeletons_set(swigCPtr, SWIGTYPE_p_p_aiSkeleton.getCPtr(value));
@@ -247,60 +301,74 @@ public class Scene : global::System.IDisposable {
     } 
   }
 
+  ///  Default constructor - set everything to 0/nullptr
   public Scene() : this(AssimpPINVOKE.new_Scene(), true) {
   }
 
+  ///  Check whether the scene contains meshes Unless no special scene flags are set this will always be true.
   public bool HasMeshes() {
     bool ret = AssimpPINVOKE.Scene_HasMeshes(swigCPtr);
     return ret;
   }
 
+  ///  Check whether the scene contains materials Unless no special scene flags are set this will always be true.
   public bool HasMaterials() {
     bool ret = AssimpPINVOKE.Scene_HasMaterials(swigCPtr);
     return ret;
   }
 
+  ///  Check whether the scene contains lights
   public bool HasLights() {
     bool ret = AssimpPINVOKE.Scene_HasLights(swigCPtr);
     return ret;
   }
 
+  ///  Check whether the scene contains textures
   public bool HasTextures() {
     bool ret = AssimpPINVOKE.Scene_HasTextures(swigCPtr);
     return ret;
   }
 
+  ///  Check whether the scene contains cameras
   public bool HasCameras() {
     bool ret = AssimpPINVOKE.Scene_HasCameras(swigCPtr);
     return ret;
   }
 
+  ///  Check whether the scene contains animations
   public bool HasAnimations() {
     bool ret = AssimpPINVOKE.Scene_HasAnimations(swigCPtr);
     return ret;
   }
 
+  ///  Check whether the scene contains skeletons
   public bool HasSkeletons() {
     bool ret = AssimpPINVOKE.Scene_HasSkeletons(swigCPtr);
     return ret;
   }
 
+  ///  Returns a short filename from a full path
   public static string GetShortFilename(string filename) {
     string ret = AssimpPINVOKE.Scene_GetShortFilename(filename);
     return ret;
   }
 
+  ///  Returns an embedded texture
   public Texture GetEmbeddedTexture(string filename) {
     global::System.IntPtr cPtr = AssimpPINVOKE.Scene_GetEmbeddedTexture(swigCPtr, filename);
     Texture ret = (cPtr == global::System.IntPtr.Zero) ? null : new Texture(cPtr, false);
     return ret;
   }
 
+  ///  Returns an embedded texture and its index
   public SWIGTYPE_p_std__pairT_aiTexture_const_p_int_t GetEmbeddedTextureAndIndex(string filename) {
     SWIGTYPE_p_std__pairT_aiTexture_const_p_int_t ret = new SWIGTYPE_p_std__pairT_aiTexture_const_p_int_t(AssimpPINVOKE.Scene_GetEmbeddedTextureAndIndex(swigCPtr, filename), true);
     return ret;
   }
 
+  /// <summary>Will try to locate a bone described by its name.</summary>
+  /// <param name="name">  The name to look for.</param> 
+  /// <returns>The bone as a pointer.</returns>
   public Bone findBone(String name) {
     global::System.IntPtr cPtr = AssimpPINVOKE.Scene_findBone(swigCPtr, String.getCPtr(name));
     Bone ret = (cPtr == global::System.IntPtr.Zero) ? null : new Bone(cPtr, false);
@@ -308,6 +376,7 @@ public class Scene : global::System.IDisposable {
     return ret;
   }
 
+  ///   Internal data, do not touch
   public SWIGTYPE_p_void Private {
     set {
       AssimpPINVOKE.Scene_Private_set(swigCPtr, SWIGTYPE_p_void.getCPtr(value));

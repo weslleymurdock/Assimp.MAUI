@@ -9,6 +9,13 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>An AnimMesh is an attachment to an #aiMesh stores per-vertex animations for a particular frame.</summary>
+///  You may think of an #aiAnimMesh as a `patch` for the host mesh, which
+///  replaces only certain vertex data streams at a particular time.
+///  Each mesh stores n attached attached meshes (#aiMesh::mAnimMeshes).
+///  The actual relationship between the time line and anim meshes is
+///  established by #aiMeshAnim, which references singular mesh attachments
+///  by their ID and binds them to a time offset.
 
 public class AnimMesh : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +64,7 @@ public class AnimMesh : global::System.IDisposable {
     }
   }
 
+  /// Anim Mesh name
   public String Name {
     set {
       AssimpPINVOKE.AnimMesh_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +76,12 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  /// Replacement for aiMesh::mVertices. If this array is non-nullptr,
+  /// it *must* contain mNumVertices entries. The corresponding
+  /// array in the host mesh must be non-nullptr as well - animation
+  /// meshes may neither add or nor remove vertex components (if
+  /// a replacement array is nullptr and the corresponding source
+  /// array is not, the source data is taken instead)
   public SWIGTYPE_p_aiVector3tT_float_t Vertices {
     set {
       AssimpPINVOKE.AnimMesh_Vertices_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -79,6 +93,7 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  ///  Replacement for aiMesh::mNormals.
   public SWIGTYPE_p_aiVector3tT_float_t Normals {
     set {
       AssimpPINVOKE.AnimMesh_Normals_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -90,6 +105,7 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  ///  Replacement for aiMesh::mTangents.
   public SWIGTYPE_p_aiVector3tT_float_t Tangents {
     set {
       AssimpPINVOKE.AnimMesh_Tangents_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -101,6 +117,7 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  ///  Replacement for aiMesh::mBitangents.
   public SWIGTYPE_p_aiVector3tT_float_t Bitangents {
     set {
       AssimpPINVOKE.AnimMesh_Bitangents_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -112,6 +129,7 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  ///  Replacement for aiMesh::mColors
   public SWIGTYPE_p_p_aiColor4tT_float_t Colors {
     set {
       AssimpPINVOKE.AnimMesh_Colors_set(swigCPtr, SWIGTYPE_p_p_aiColor4tT_float_t.getCPtr(value));
@@ -123,6 +141,7 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  ///  Replacement for aiMesh::mTextureCoords
   public SWIGTYPE_p_p_aiVector3tT_float_t TextureCoords {
     set {
       AssimpPINVOKE.AnimMesh_TextureCoords_set(swigCPtr, SWIGTYPE_p_p_aiVector3tT_float_t.getCPtr(value));
@@ -134,6 +153,12 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  ///  The number of vertices in the aiAnimMesh, and thus the length of all
+  /// the member arrays.
+  /// This has always the same value as the mNumVertices property in the
+  /// corresponding aiMesh. It is duplicated here merely to make the length
+  /// of the member arrays accessible even if the aiMesh is not known, e.g.
+  /// from language bindings.
   public uint NumVertices {
     set {
       AssimpPINVOKE.AnimMesh_NumVertices_set(swigCPtr, value);
@@ -144,6 +169,7 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  /// Weight of the AnimMesh.
   public float Weight {
     set {
       AssimpPINVOKE.AnimMesh_Weight_set(swigCPtr, value);
@@ -154,29 +180,42 @@ public class AnimMesh : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The class constructor.</summary>
   public AnimMesh() : this(AssimpPINVOKE.new_AnimMesh(), true) {
   }
 
+  /// <summary>Check whether the anim-mesh overrides the vertex positions        of its host mesh.</summary>
+  /// <returns>true if positions are stored, false if not.</returns>
   public bool HasPositions() {
     bool ret = AssimpPINVOKE.AnimMesh_HasPositions(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the anim-mesh overrides the vertex normals        of its host mesh</summary>
+  /// <returns>true if normals are stored, false if not.</returns>
   public bool HasNormals() {
     bool ret = AssimpPINVOKE.AnimMesh_HasNormals(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the anim-mesh overrides the vertex tangents        and bitangents of its host mesh. As for aiMesh,        tangents and bitangents always go together.</summary>
+  /// <returns>true if tangents and bi-tangents are stored, false if not.</returns>
   public bool HasTangentsAndBitangents() {
     bool ret = AssimpPINVOKE.AnimMesh_HasTangentsAndBitangents(swigCPtr);
     return ret;
   }
 
+  /// <summary>Check whether the anim mesh overrides a particular        set of vertex colors on his host mesh.</summary>
+  /// <param name="pIndex"> 0<index<AI_MAX_NUMBER_OF_COLOR_SETS</param> 
+  /// <returns>true if vertex colors are stored, false if not.</returns>
   public bool HasVertexColors(uint pIndex) {
     bool ret = AssimpPINVOKE.AnimMesh_HasVertexColors(swigCPtr, pIndex);
     return ret;
   }
 
+  /// <summary>Check whether the anim mesh overrides a particular       set of texture coordinates on his host mesh.</summary>
+  /// <param name="pIndex"> 0<index<AI_MAX_NUMBER_OF_TEXTURECOORDS</param> 
+  /// <returns>true if texture coordinates are stored, false if not.</returns>
   public bool HasTextureCoords(uint pIndex) {
     bool ret = AssimpPINVOKE.AnimMesh_HasTextureCoords(swigCPtr, pIndex);
     return ret;

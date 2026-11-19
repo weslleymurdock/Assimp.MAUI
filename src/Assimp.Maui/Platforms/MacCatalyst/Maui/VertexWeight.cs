@@ -10,6 +10,7 @@
 
 namespace Assimp.Maui {
 
+/// <summary>A single influence of a bone on a vertex.</summary>
 public class VertexWeight : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +58,7 @@ public class VertexWeight : global::System.IDisposable {
     }
   }
 
+  ///  Index of the vertex which is influenced by the bone.
   public uint VertexId {
     set {
       AssimpPINVOKE.VertexWeight_VertexId_set(swigCPtr, value);
@@ -67,6 +69,7 @@ public class VertexWeight : global::System.IDisposable {
     } 
   }
 
+  ///  The strength of the influence in the range (0...1). The influence from all bones at one vertex amounts to 1.
   public float Weight {
     set {
       AssimpPINVOKE.VertexWeight_Weight_set(swigCPtr, value);
@@ -77,9 +80,13 @@ public class VertexWeight : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Default constructor</summary>
   public VertexWeight() : this(AssimpPINVOKE.new_VertexWeight__SWIG_0(), true) {
   }
 
+  /// <summary>Initialization from a given index and vertex weight factor</summary>
+  /// <param name="pID"> ID</param> 
+  /// <param name="pWeight"> Vertex weight factor</param>
   public VertexWeight(uint pID, float pWeight) : this(AssimpPINVOKE.new_VertexWeight__SWIG_1(pID, pWeight), true) {
   }
 

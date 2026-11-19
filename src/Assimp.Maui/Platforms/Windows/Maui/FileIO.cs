@@ -9,6 +9,11 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>C-API: File system callbacks</summary>
+///  Provided are functions to open and close files. Supply a custom structure to
+///  the import function. If you don't, a default implementation is used. Use custom
+///  file systems to enable reading from other sources, such as ZIPs
+///  or memory locations.
 
 public class FileIO : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +62,7 @@ public class FileIO : global::System.IDisposable {
     }
   }
 
+  ///  Function used to open a new file
   public SWIGTYPE_p_f_p_aiFileIO_p_q_const__char_p_q_const__char__p_aiFile OpenProc {
     set {
       AssimpPINVOKE.FileIO_OpenProc_set(swigCPtr, SWIGTYPE_p_f_p_aiFileIO_p_q_const__char_p_q_const__char__p_aiFile.getCPtr(value));
@@ -68,6 +74,7 @@ public class FileIO : global::System.IDisposable {
     } 
   }
 
+  ///  Function used to close an existing file
   public SWIGTYPE_p_f_p_aiFileIO_p_aiFile__void CloseProc {
     set {
       AssimpPINVOKE.FileIO_CloseProc_set(swigCPtr, SWIGTYPE_p_f_p_aiFileIO_p_aiFile__void.getCPtr(value));
@@ -79,6 +86,7 @@ public class FileIO : global::System.IDisposable {
     } 
   }
 
+  ///  User-defined, opaque data
   public string UserData {
     set {
       AssimpPINVOKE.FileIO_UserData_set(swigCPtr, value);

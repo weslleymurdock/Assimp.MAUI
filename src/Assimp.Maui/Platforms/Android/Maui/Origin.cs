@@ -10,10 +10,16 @@
 
 namespace Assimp.Maui {
 
+/// Seek origins (for the virtual file system API).
+/// Much cooler than using SEEK_SET, SEEK_CUR or SEEK_END.
 public enum Origin {
+  ///  Beginning of the file
   Origin_SET = 0,
+  ///  Current position of the file pointer
   Origin_CUR = 1,
+  ///  End of the file, offsets must be negative
   Origin_END = 2,
+  ///   Force 32-bit size enum
   _AI_ORIGIN_ENFORCE_ENUM_SIZE = 2147483647
 }
 

@@ -10,6 +10,8 @@
 
 namespace Assimp.Maui {
 
+/// Metadata entry
+/// The type field uniquely identifies the underlying type of the data field
 public class MetadataEntry : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;

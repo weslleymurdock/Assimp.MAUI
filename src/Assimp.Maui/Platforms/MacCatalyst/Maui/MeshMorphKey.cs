@@ -10,6 +10,7 @@
 
 namespace Assimp.Maui {
 
+///  Binds a morph anim mesh to a specific point in time.
 public class MeshMorphKey : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +58,7 @@ public class MeshMorphKey : global::System.IDisposable {
     }
   }
 
+  ///  The time of this key
   public double Time {
     set {
       AssimpPINVOKE.MeshMorphKey_Time_set(swigCPtr, value);
@@ -67,6 +69,9 @@ public class MeshMorphKey : global::System.IDisposable {
     } 
   }
 
+  /// The values and weights at the time of this key
+  ///  - mValues: index of attachment mesh to apply weight at the same position in mWeights
+  ///  - mWeights: weight to apply to the blend shape index at the same position in mValues
   public SWIGTYPE_p_unsigned_int Values {
     set {
       AssimpPINVOKE.MeshMorphKey_Values_set(swigCPtr, SWIGTYPE_p_unsigned_int.getCPtr(value));
@@ -89,6 +94,7 @@ public class MeshMorphKey : global::System.IDisposable {
     } 
   }
 
+  ///  The number of values and weights
   public uint NumValuesAndWeights {
     set {
       AssimpPINVOKE.MeshMorphKey_NumValuesAndWeights_set(swigCPtr, value);

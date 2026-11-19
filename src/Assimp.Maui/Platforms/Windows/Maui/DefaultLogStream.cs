@@ -10,11 +10,20 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Enumerates predefined log streaming destinations.</summary>
+/// Logging to these streams can be enabled with a single call to
+///   #LogStream::createDefaultStream.
 public enum DefaultLogStream {
+  ///  Stream the log to a file
   DefaultLogStream_FILE = 1,
+  ///  Stream the log to std::cout
   DefaultLogStream_STDOUT = 2,
+  ///  Stream the log to std::cerr
   DefaultLogStream_STDERR = 4,
+  ///  MSVC only: Stream the log the the debugger
+  /// (this relies on OutputDebugString from the Win32 SDK)
   DefaultLogStream_DEBUGGER = 8,
+  ///  Force 32-bit size enum
   _AI_DLS_ENFORCE_ENUM_SIZE = 2147483647
 }
 
