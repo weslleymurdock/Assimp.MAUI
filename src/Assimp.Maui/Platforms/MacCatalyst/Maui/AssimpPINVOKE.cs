@@ -378,8 +378,8 @@ class AssimpPINVOKE {
   [global::System.Runtime.InteropServices.DllImport("__Internal", EntryPoint="CSharp_AssimpfMaui_new_Color3D__SWIG_2___")]
   public static extern global::System.IntPtr new_Color3D__SWIG_2(float jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("__Internal", EntryPoint="CSharp_AssimpfMaui_new_Color3D__SWIG_3___")]
-  public static extern global::System.IntPtr new_Color3D__SWIG_3(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("__Internal", EntryPoint="CSharp_AssimpfMaui_Color3D_epsilonCompare___")]
+  public static extern bool Color3D_epsilonCompare(global::System.Runtime.InteropServices.HandleRef jarg1, global::System.Runtime.InteropServices.HandleRef jarg2);
 
   [global::System.Runtime.InteropServices.DllImport("__Internal", EntryPoint="CSharp_AssimpfMaui_Color3D_IsBlack___")]
   public static extern bool Color3D_IsBlack(global::System.Runtime.InteropServices.HandleRef jarg1);

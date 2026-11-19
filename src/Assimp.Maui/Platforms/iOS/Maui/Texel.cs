@@ -10,6 +10,8 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Helper structure to represent a texel in a ARGB8888 format</summary>
+///  Used by aiTexture.
 public class Texel : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;

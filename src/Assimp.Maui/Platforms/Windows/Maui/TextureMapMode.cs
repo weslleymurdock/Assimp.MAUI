@@ -10,10 +10,19 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Defines how UV coordinates outside the [0...1] range are handled.</summary>
+///  Commonly referred to as 'wrapping mode'.
 public enum TextureMapMode {
+  ///  A texture coordinate u|v is translated to u%1|v%1
   TextureMapMode_Wrap = 0,
+  /// Texture coordinates outside [0...1]
+  /// are clamped to the nearest valid value.
   TextureMapMode_Clamp = 1,
+  /// If the texture coordinates for a pixel are outside [0...1]
+  /// the texture is not applied to that pixel
   TextureMapMode_Decal = 3,
+  /// A texture coordinate u|v becomes u%1|v%1 if (u-(u%1))%2 is zero and
+  /// 1-(u%1)|1-(v%1) otherwise
   TextureMapMode_Mirror = 2
 }
 

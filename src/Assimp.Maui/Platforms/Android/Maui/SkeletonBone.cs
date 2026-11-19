@@ -9,6 +9,18 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>A skeleton bone represents a single bone is a skeleton structure.</summary>
+/// Skeleton-Animations can be represented via a skeleton struct, which describes
+/// a hierarchical tree assembled from skeleton bones. A bone is linked to a mesh.
+/// The bone knows its parent bone. If there is no parent bone the parent id is
+/// marked with -1.
+/// The skeleton-bone stores a pointer to its used armature. If there is no
+/// armature this value if set to nullptr.
+/// A skeleton bone stores its offset-matrix, which is the absolute transformation
+/// for the bone. The bone stores the locale transformation to its parent as well.
+/// You can compute the offset matrix by multiplying the hierarchy like:
+/// Tree: s1 -&gt; s2 -&gt; s3
+/// Offset-Matrix s3 = locale-s3 * locale-s2 * locale-s1
 
 public class SkeletonBone : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +69,7 @@ public class SkeletonBone : global::System.IDisposable {
     }
   }
 
+  ///  The parent bone index, is -1 one if this bone represents the root bone.
   public int Parent {
     set {
       AssimpPINVOKE.SkeletonBone_Parent_set(swigCPtr, value);
@@ -67,6 +80,7 @@ public class SkeletonBone : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The bone armature node - used for skeleton conversion you must enable aiProcess_PopulateArmatureData to populate this</summary>
   public Node Armature {
     set {
       AssimpPINVOKE.SkeletonBone_Armature_set(swigCPtr, Node.getCPtr(value));
@@ -78,6 +92,7 @@ public class SkeletonBone : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The bone node in the scene - used for skeleton conversion you must enable aiProcess_PopulateArmatureData to populate this</summary>
   public Node Node {
     set {
       AssimpPINVOKE.SkeletonBone_Node_set(swigCPtr, Node.getCPtr(value));
@@ -89,6 +104,7 @@ public class SkeletonBone : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The number of weights</summary>
   public uint NumnWeights {
     set {
       AssimpPINVOKE.SkeletonBone_NumnWeights_set(swigCPtr, value);
@@ -99,6 +115,7 @@ public class SkeletonBone : global::System.IDisposable {
     } 
   }
 
+  ///  The mesh index, which will get influenced by the weight.
   public Mesh MeshId {
     set {
       AssimpPINVOKE.SkeletonBone_MeshId_set(swigCPtr, Mesh.getCPtr(value));
@@ -110,6 +127,7 @@ public class SkeletonBone : global::System.IDisposable {
     } 
   }
 
+  ///  The influence weights of this bone, by vertex index.
   public VertexWeight Weights {
     set {
       AssimpPINVOKE.SkeletonBone_Weights_set(swigCPtr, VertexWeight.getCPtr(value));
@@ -121,6 +139,14 @@ public class SkeletonBone : global::System.IDisposable {
     } 
   }
 
+  ///  Matrix that transforms from bone space to mesh space in bind pose.
+  /// This matrix describes the position of the mesh
+  /// in the local space of this bone when the skeleton was bound.
+  /// Thus it can be used directly to determine a desired vertex position,
+  /// given the world-space transform of the bone when animated,
+  /// and the position of the vertex in mesh space.
+  /// It is sometimes called an inverse-bind matrix,
+  /// or inverse bind pose matrix.
   public SWIGTYPE_p_aiMatrix4x4tT_float_t OffsetMatrix {
     set {
       AssimpPINVOKE.SkeletonBone_OffsetMatrix_set(swigCPtr, SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(value));
@@ -132,6 +158,7 @@ public class SkeletonBone : global::System.IDisposable {
     } 
   }
 
+  ///  Matrix that transforms the locale bone in bind pose.
   public SWIGTYPE_p_aiMatrix4x4tT_float_t LocalMatrix {
     set {
       AssimpPINVOKE.SkeletonBone_LocalMatrix_set(swigCPtr, SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(value));
@@ -143,9 +170,13 @@ public class SkeletonBone : global::System.IDisposable {
     } 
   }
 
+  ///
+  /// <summary>The class constructor.</summary>
   public SkeletonBone() : this(AssimpPINVOKE.new_SkeletonBone__SWIG_0(), true) {
   }
 
+  /// <summary>The class constructor with its parent</summary>
+  /// <param name="parent">      The parent node index.</param>
   public SkeletonBone(uint parent) : this(AssimpPINVOKE.new_SkeletonBone__SWIG_1(parent), true) {
   }
 

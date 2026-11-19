@@ -10,6 +10,7 @@
 
 namespace Assimp.Maui {
 
+///  Binds a anim-mesh to a specific point in time.
 public class MeshKey : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +58,7 @@ public class MeshKey : global::System.IDisposable {
     }
   }
 
+  ///  The time of this key
   public double Time {
     set {
       AssimpPINVOKE.MeshKey_Time_set(swigCPtr, value);
@@ -67,6 +69,10 @@ public class MeshKey : global::System.IDisposable {
     } 
   }
 
+  /// Index into the aiMesh::mAnimMeshes array of the
+  /// mesh corresponding to the #aiMeshAnim hosting this
+  /// key frame. The referenced anim mesh is evaluated
+  /// according to the rules defined in the docs for #aiAnimMesh.
   public uint Value {
     set {
       AssimpPINVOKE.MeshKey_Value_set(swigCPtr, value);
@@ -80,6 +86,7 @@ public class MeshKey : global::System.IDisposable {
   public MeshKey() : this(AssimpPINVOKE.new_MeshKey__SWIG_0(), true) {
   }
 
+  ///  Construction from a given time and key value
   public MeshKey(double time, uint value) : this(AssimpPINVOKE.new_MeshKey__SWIG_1(time, value), true) {
   }
 

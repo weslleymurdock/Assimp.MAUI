@@ -10,10 +10,17 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Standard return type for some library functions.</summary>
+/// Rarely used, and if, mostly in the C API.
 public enum Return {
+  ///  Indicates that a function was successful
   Return_SUCCESS = 0,
+  ///  Indicates that a function failed
   Return_FAILURE = -1,
+  ///  Indicates that not enough memory was available
+  /// to perform the requested operation
   Return_OUTOFMEMORY = -3,
+  ///  Force 32-bit size enum
   _AI_ENFORCE_ENUM_SIZE = 2147483647
 }
 

@@ -10,10 +10,20 @@
 
 namespace Assimp.Maui {
 
+/// Defines how an animation channel behaves outside the defined time
+/// range. This corresponds to aiNodeAnim::mPreState and
+/// aiNodeAnim::mPostState.
 public enum AnimBehaviour {
+  ///  The value from the default node transformation is taken
   AnimBehaviour_DEFAULT = 0,
+  ///  The nearest key value is used without interpolation
   AnimBehaviour_CONSTANT = 1,
+  /// The value of the nearest two keys is linearly
+  /// extrapolated for the current time value.
   AnimBehaviour_LINEAR = 2,
+  /// The animation is repeated.
+  /// If the animation key go from n to m and the current
+  /// time is t, use the value at (t-n) % (|m-n|).
   AnimBehaviour_REPEAT = 3
 }
 

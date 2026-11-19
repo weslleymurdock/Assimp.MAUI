@@ -10,6 +10,16 @@
 
 namespace Assimp.Maui {
 
+/// Helper structure to describe a light source.
+/// Assimp supports multiple sorts of light sources, including
+/// directional, point and spot lights. All of them are defined with just
+/// a single structure and distinguished by their parameters.
+/// Note - some file formats (such as 3DS, ASE) export a "target point" -
+/// the point a spot light is looking at (it can even be animated). Assimp
+/// writes the target point as a sub-node of a spot-lights's main node,
+/// called "&lt;spotName&gt;.Target". However, this is just additional information
+/// then, the transformation tracks of the main node make the
+/// spot light already point in the right direction.
 public class Light : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,6 +67,10 @@ public class Light : global::System.IDisposable {
     }
   }
 
+  /// The name of the light source.
+  /// There must be a node in the scene-graph with the same name.
+  /// This node specifies the position of the light in the scene
+  /// hierarchy and can be animated.
   public String Name {
     set {
       AssimpPINVOKE.Light_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +82,8 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  ///  The type of the light source.
+  /// aiLightSource_UNDEFINED is not a valid value for this member.
   public LightSourceType Type {
     set {
       AssimpPINVOKE.Light_Type_set(swigCPtr, (int)value);
@@ -78,6 +94,9 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  /// Position of the light source in space. Relative to the
+  /// transformation of the node corresponding to the light.
+  /// The position is undefined for directional lights.
   public SWIGTYPE_p_aiVector3tT_float_t Position {
     set {
       AssimpPINVOKE.Light_Position_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -89,6 +108,10 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  /// Direction of the light source in space. Relative to the
+  /// transformation of the node corresponding to the light.
+  /// The direction is undefined for point lights. The vector
+  /// may be normalized, but it needn't.
   public SWIGTYPE_p_aiVector3tT_float_t Direction {
     set {
       AssimpPINVOKE.Light_Direction_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -100,6 +123,10 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  /// Up direction of the light source in space. Relative to the
+  /// transformation of the node corresponding to the light.
+  /// The direction is undefined for point lights. The vector
+  /// may be normalized, but it needn't.
   public SWIGTYPE_p_aiVector3tT_float_t Up {
     set {
       AssimpPINVOKE.Light_Up_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -111,6 +138,13 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  ///  Constant light attenuation factor.
+  ///  The intensity of the light source at a given distance 'd' from
+  ///  the light's position is
+  /// &lt;code&gt;      Atten = 1/( att0 + att1 * d + att2 * d*d)&lt;/code&gt;
+  ///
+  ///  This member corresponds to the att0 variable in the equation.
+  ///  Naturally undefined for directional lights.
   public float AttenuationConstant {
     set {
       AssimpPINVOKE.Light_AttenuationConstant_set(swigCPtr, value);
@@ -121,6 +155,13 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  ///  Linear light attenuation factor.
+  ///  The intensity of the light source at a given distance 'd' from
+  ///  the light's position is
+  /// &lt;code&gt;      Atten = 1/( att0 + att1 * d + att2 * d*d)&lt;/code&gt;
+  ///
+  ///  This member corresponds to the att1 variable in the equation.
+  ///  Naturally undefined for directional lights.
   public float AttenuationLinear {
     set {
       AssimpPINVOKE.Light_AttenuationLinear_set(swigCPtr, value);
@@ -131,6 +172,13 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  ///  Quadratic light attenuation factor.
+  ///  The intensity of the light source at a given distance 'd' from
+  ///  the light's position is
+  /// &lt;code&gt;      Atten = 1/( att0 + att1 * d + att2 * d*d)&lt;/code&gt;
+  ///
+  ///  This member corresponds to the att2 variable in the equation.
+  ///  Naturally undefined for directional lights.
   public float AttenuationQuadratic {
     set {
       AssimpPINVOKE.Light_AttenuationQuadratic_set(swigCPtr, value);
@@ -141,6 +189,10 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  /// Diffuse color of the light source
+  /// The diffuse light color is multiplied with the diffuse
+  /// material color to obtain the final color that contributes
+  /// to the diffuse shading term.
   public Color3D ColorDiffuse {
     set {
       AssimpPINVOKE.Light_ColorDiffuse_set(swigCPtr, Color3D.getCPtr(value));
@@ -152,6 +204,10 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  /// Specular color of the light source
+  /// The specular light color is multiplied with the specular
+  /// material color to obtain the final color that contributes
+  /// to the specular shading term.
   public Color3D ColorSpecular {
     set {
       AssimpPINVOKE.Light_ColorSpecular_set(swigCPtr, Color3D.getCPtr(value));
@@ -163,6 +219,12 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  /// Ambient color of the light source
+  /// The ambient light color is multiplied with the ambient
+  /// material color to obtain the final color that contributes
+  /// to the ambient shading term. Most renderers will ignore
+  /// this value it, is just a remaining of the fixed-function pipeline
+  /// that is still supported by quite many file formats.
   public Color3D ColorAmbient {
     set {
       AssimpPINVOKE.Light_ColorAmbient_set(swigCPtr, Color3D.getCPtr(value));
@@ -174,6 +236,10 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  /// Inner angle of a spot light's light cone.
+  /// The spot light has maximum influence on objects inside this
+  /// angle. The angle is given in radians. It is 2PI for point
+  /// lights and undefined for directional lights.
   public float AngleInnerCone {
     set {
       AssimpPINVOKE.Light_AngleInnerCone_set(swigCPtr, value);
@@ -184,6 +250,14 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  /// Outer angle of a spot light's light cone.
+  /// The spot light does not affect objects outside this angle.
+  /// The angle is given in radians. It is 2PI for point lights and
+  /// undefined for directional lights. The outer angle must be
+  /// greater than or equal to the inner angle.
+  /// It is assumed that the application uses a smooth
+  /// interpolation between the inner and the outer cone of the
+  /// spot light.
   public float AngleOuterCone {
     set {
       AssimpPINVOKE.Light_AngleOuterCone_set(swigCPtr, value);
@@ -194,6 +268,7 @@ public class Light : global::System.IDisposable {
     } 
   }
 
+  ///  Size of area light source.
   public SWIGTYPE_p_aiVector2tT_float_t Size {
     set {
       AssimpPINVOKE.Light_Size_set(swigCPtr, SWIGTYPE_p_aiVector2tT_float_t.getCPtr(value));

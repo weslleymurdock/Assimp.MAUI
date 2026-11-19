@@ -9,6 +9,26 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>A single face in a mesh, referring to multiple vertices.</summary>
+/// If mNumIndices is 3, we call the face 'triangle', for mNumIndices &gt; 3
+/// it's called 'polygon' (hey, that's just a definition!).
+///
+///
+/// aiMesh::mPrimitiveTypes can be queried to quickly examine which types of
+/// primitive are actually present in a mesh. The #aiProcess_SortByPType flag
+/// executes a special post-processing algorithm which splits meshes with
+/// *different* primitive types mixed up (e.g. lines and triangles) in several
+/// 'clean' sub-meshes. Furthermore there is a configuration option (
+/// #AI_CONFIG_PP_SBP_REMOVE) to force #aiProcess_SortByPType to remove
+/// specific kinds of primitives from the imported scene, completely and forever.
+/// In many cases you'll probably want to set this setting to
+/// &lt;code&gt;    aiPrimitiveType_LINE|aiPrimitiveType_POINT&lt;/code&gt;
+///
+/// Together with the #aiProcess_Triangulate flag you can then be sure that
+/// #aiFace::mNumIndices is always 3.
+/// Take a look at the data Data Structures page
+///  for
+/// more information on the layout and winding order of a face.
 
 public class Face : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +77,7 @@ public class Face : global::System.IDisposable {
     }
   }
 
+  ///  Number of indices defining this face. The maximum value for this member is #AI_MAX_FACE_INDICES.
   public uint NumIndices {
     set {
       AssimpPINVOKE.Face_NumIndices_set(swigCPtr, value);
@@ -67,6 +88,7 @@ public class Face : global::System.IDisposable {
     } 
   }
 
+  ///  Pointer to the indices array. Size of the array is given in numIndices.
   public SWIGTYPE_p_unsigned_int Indices {
     set {
       AssimpPINVOKE.Face_Indices_set(swigCPtr, SWIGTYPE_p_unsigned_int.getCPtr(value));
@@ -78,9 +100,11 @@ public class Face : global::System.IDisposable {
     } 
   }
 
+  /// <summary>Default constructor.</summary>
   public Face() : this(AssimpPINVOKE.new_Face__SWIG_0(), true) {
   }
 
+  /// <summary>Copy constructor. Copy the index array</summary>
   public Face(Face o) : this(AssimpPINVOKE.new_Face__SWIG_1(Face.getCPtr(o)), true) {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }

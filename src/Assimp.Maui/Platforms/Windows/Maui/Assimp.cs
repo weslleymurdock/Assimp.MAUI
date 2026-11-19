@@ -25,56 +25,151 @@ public class Assimp {
     } 
   }
 
+  /// <summary>Get a string for a given aiTextureType</summary>
+  /// <param name="in">  The texture type</param> 
+  /// <returns>The description string for the texture type.</returns>
   public static string TextureTypeToString(TextureType in_) {
     string ret = AssimpPINVOKE.TextureTypeToString((int)in_);
     return ret;
   }
 
+  /// <summary>Retrieve a material property with a specific key from the material</summary>
+  /// <param name="pMat"> Pointer to the input material. May not be NULL</param> 
+  /// <param name="pKey"> Key to search for. One of the AI_MATKEY_XXX constants.</param> 
+  /// <param name="type"> Specifies the type of the texture to be retrieved (
+  ///        e.g. diffuse, specular, height map ...)</param> 
+  /// <param name="index"> Index of the texture to be retrieved.</param> 
+  /// <param name="pPropOut"> Pointer to receive a pointer to a valid aiMaterialProperty
+  ///            structure or NULL if the key has not been found.</param>
   public static Return GetMaterialProperty(Material pMat, string pKey, uint type, uint index, SWIGTYPE_p_p_aiMaterialProperty pPropOut) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialProperty(Material.getCPtr(pMat), pKey, type, index, SWIGTYPE_p_p_aiMaterialProperty.getCPtr(pPropOut));
     return ret;
   }
 
+  /// <summary>Retrieve an array of float values with a specific key from the material</summary>
+  /// Pass one of the AI_MATKEY_XXX constants for the last three parameters (the
+  /// example reads the #AI_MATKEY_UVTRANSFORM property of the first diffuse texture)
+  /// &lt;code&gt;    aiUVTransform trafo;
+  ///     unsigned int max = sizeof(aiUVTransform);
+  ///     if (AI_SUCCESS != aiGetMaterialFloatArray(mat, AI_MATKEY_UVTRANSFORM(aiTextureType_DIFFUSE,0),
+  ///        (float*)&amp;amp;trafo, &amp;amp;max) || sizeof(aiUVTransform) != max)
+  ///     {
+  ///       // error handling
+  ///     }&lt;/code&gt;
+  ///
+  ///
+  /// <param name="pMat"> Pointer to the input material. May not be NULL</param> 
+  /// <param name="pKey"> Key to search for. One of the AI_MATKEY_XXX constants.</param> 
+  /// <param name="pOut"> Pointer to a buffer to receive the result.</param> 
+  /// <param name="pMax"> Specifies the size of the given buffer, in float's.
+  ///            Receives the number of values (not bytes!) read.</param> 
+  /// <param name="type"> (see the code sample above)</param> 
+  /// <param name="index"> (see the code sample above)</param> 
+  /// <returns>Specifies whether the key has been found. If not, the output
+  ///       arrays remains unmodified and pMax is set to 0.</returns>
   public static Return GetMaterialFloatArray(Material pMat, string pKey, uint type, uint index, SWIGTYPE_p_float pOut, SWIGTYPE_p_unsigned_int pMax) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialFloatArray(Material.getCPtr(pMat), pKey, type, index, SWIGTYPE_p_float.getCPtr(pOut), SWIGTYPE_p_unsigned_int.getCPtr(pMax));
     return ret;
   }
 
+  /// <summary>Retrieve a single float property with a specific key from the material.</summary>
+  /// Pass one of the AI_MATKEY_XXX constants for the last three parameters (the
+  /// example reads the #AI_MATKEY_SHININESS_STRENGTH property of the first diffuse texture)
+  /// &lt;code&gt;    float specStrength = 1.f; // default value, remains unmodified if we fail.
+  ///     aiGetMaterialFloat(mat, AI_MATKEY_SHININESS_STRENGTH,
+  ///        (float*)&amp;amp;specStrength);&lt;/code&gt;
+  ///
+  ///
+  /// <param name="pMat"> Pointer to the input material. May not be NULL</param> 
+  /// <param name="pKey"> Key to search for. One of the AI_MATKEY_XXX constants.</param> 
+  /// <param name="pOut"> Receives the output float.</param> 
+  /// <param name="type"> (see the code sample above)</param> 
+  /// <param name="index"> (see the code sample above)</param> 
+  /// <returns>Specifies whether the key has been found. If not, the output
+  ///       float remains unmodified.</returns>
   public static Return GetMaterialFloat(Material pMat, string pKey, uint type, uint index, SWIGTYPE_p_float pOut) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialFloat(Material.getCPtr(pMat), pKey, type, index, SWIGTYPE_p_float.getCPtr(pOut));
     return ret;
   }
 
+  /// <summary>Retrieve an array of integer values with a specific key from a material</summary>
+  /// See the sample for aiGetMaterialFloatArray for more information.
   public static Return GetMaterialIntegerArray(Material pMat, string pKey, uint type, uint index, SWIGTYPE_p_int pOut, SWIGTYPE_p_unsigned_int pMax) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialIntegerArray(Material.getCPtr(pMat), pKey, type, index, SWIGTYPE_p_int.getCPtr(pOut), SWIGTYPE_p_unsigned_int.getCPtr(pMax));
     return ret;
   }
 
+  /// <summary>Retrieve an integer property with a specific key from a material</summary>
+  /// See the sample for aiGetMaterialFloat for more information.
   public static Return GetMaterialInteger(Material pMat, string pKey, uint type, uint index, SWIGTYPE_p_int pOut) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialInteger(Material.getCPtr(pMat), pKey, type, index, SWIGTYPE_p_int.getCPtr(pOut));
     return ret;
   }
 
+  /// <summary>Retrieve a color value from the material property table</summary>
+  /// See the sample for aiGetMaterialFloat for more information
   public static Return GetMaterialColor(Material pMat, string pKey, uint type, uint index, SWIGTYPE_p_aiColor4tT_float_t pOut) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialColor(Material.getCPtr(pMat), pKey, type, index, SWIGTYPE_p_aiColor4tT_float_t.getCPtr(pOut));
     return ret;
   }
 
+  /// <summary>Retrieve a aiUVTransform value from the material property table</summary>
+  /// See the sample for aiGetMaterialFloat for more information
   public static Return GetMaterialUVTransform(Material pMat, string pKey, uint type, uint index, UVTransform pOut) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialUVTransform(Material.getCPtr(pMat), pKey, type, index, UVTransform.getCPtr(pOut));
     return ret;
   }
 
+  /// <summary>Retrieve a string from the material property table</summary>
+  /// See the sample for aiGetMaterialFloat for more information.
   public static Return GetMaterialString(Material pMat, string pKey, uint type, uint index, String pOut) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialString(Material.getCPtr(pMat), pKey, type, index, String.getCPtr(pOut));
     return ret;
   }
 
+  ///  Get the number of textures for a particular texture type.
+  /// <param name="pMat"> Pointer to the input material. May not be NULL</param> 
+  /// <param name="type"> Texture type to check for</param> 
+  /// <returns>Number of textures for this type.</returns> 
+  /// A texture can be easily queried using #aiGetMaterialTexture()
   public static uint GetMaterialTextureCount(Material pMat, TextureType type) {
     uint ret = AssimpPINVOKE.GetMaterialTextureCount(Material.getCPtr(pMat), (int)type);
     return ret;
   }
 
+  /// <summary>Helper function to get all values pertaining to a particular texture slot from a material structure.</summary>
+  ///  This function is provided just for convenience. You could also read the
+  ///  texture by parsing all of its properties manually. This function bundles
+  ///  all of them in a huge function monster.
+  ///
+  /// <param name="mat"> Pointer to the input material. May not be NULL</param> 
+  /// <param name="type"> Specifies the texture stack to read from (e.g. diffuse,
+  ///         specular, height map ...).</param> 
+  /// <param name="index"> Index of the texture. The function fails if the
+  ///         requested index is not available for this texture type.
+  ///         #aiGetMaterialTextureCount() can be used to determine the number of
+  ///         textures in a particular texture stack.</param> 
+  /// <param name="path"> Receives the output path
+  ///         If the texture is embedded, receives a '*' followed by the id of
+  ///         the texture (for the textures stored in the corresponding scene) which
+  ///         can be converted to an int using a function like atoi.
+  ///         This parameter must be non-null.</param> 
+  /// <param name="mapping"> The texture mapping mode to be used.
+  ///          Pass NULL if you're not interested in this information.</param> 
+  /// <param name="uvindex"> For UV-mapped textures: receives the index of the UV
+  ///          source channel. Unmodified otherwise.
+  ///          Pass NULL if you're not interested in this information.</param> 
+  /// <param name="blend"> Receives the blend factor for the texture
+  ///          Pass NULL if you're not interested in this information.</param> 
+  /// <param name="op"> Receives the texture blend operation to be perform between
+  ///          this texture and the previous texture.
+  ///          Pass NULL if you're not interested in this information.</param> 
+  /// <param name="mapmode"> Receives the mapping modes to be used for the texture.
+  ///          Pass NULL if you're not interested in this information. Otherwise,
+  ///          pass a pointer to an array of two aiTextureMapMode's (one for each
+  ///          axis, UV order).</param> 
+  /// <param name="flags"> Receives the the texture flags.</param> 
+  /// <returns>AI_SUCCESS on success, otherwise something else. Have fun.</returns>
   public static Return GetMaterialTexture(Material mat, TextureType type, uint index, String path, SWIGTYPE_p_aiTextureMapping mapping, SWIGTYPE_p_unsigned_int uvindex, SWIGTYPE_p_float blend, SWIGTYPE_p_aiTextureOp op, SWIGTYPE_p_aiTextureMapMode mapmode, SWIGTYPE_p_unsigned_int flags) {
     Return ret = (Return)AssimpPINVOKE.GetMaterialTexture(Material.getCPtr(mat), (int)type, index, String.getCPtr(path), SWIGTYPE_p_aiTextureMapping.getCPtr(mapping), SWIGTYPE_p_unsigned_int.getCPtr(uvindex), SWIGTYPE_p_float.getCPtr(blend), SWIGTYPE_p_aiTextureOp.getCPtr(op), SWIGTYPE_p_aiTextureMapMode.getCPtr(mapmode), SWIGTYPE_p_unsigned_int.getCPtr(flags));
     return ret;
@@ -92,457 +187,955 @@ public class Assimp {
     return ret;
   }
 
+  ///  Reads the given file and returns its content.
+  /// If the call succeeds, the imported data is returned in an aiScene structure.
+  /// The data is intended to be read-only, it stays property of the ASSIMP
+  /// library and will be stable until aiReleaseImport() is called. After you're
+  /// done with it, call aiReleaseImport() to free the resources associated with
+  /// this file. If the import fails, NULL is returned instead. Call
+  /// aiGetErrorString() to retrieve a human-readable error text.
+  /// <param name="pFile"> Path and filename of the file to be imported,
+  ///       expected to be a null-terminated c-string. NULL is not a valid value.</param> 
+  /// <param name="pFlags"> Optional post processing steps to be executed after
+  ///       a successful import. Provide a bitwise combination of the
+  ///       #aiPostProcessSteps flags.</param> 
+  /// <returns>Pointer to the imported data or NULL if the import failed.</returns>
   public static Scene ImportFile(string pFile, uint pFlags) {
     global::System.IntPtr cPtr = AssimpPINVOKE.ImportFile(pFile, pFlags);
     Scene ret = (cPtr == global::System.IntPtr.Zero) ? null : new Scene(cPtr, false);
     return ret;
   }
 
+  ///  Reads the given file using user-defined I/O functions and returns
+  ///   its content.
+  /// If the call succeeds, the imported data is returned in an aiScene structure.
+  /// The data is intended to be read-only, it stays property of the ASSIMP
+  /// library and will be stable until aiReleaseImport() is called. After you're
+  /// done with it, call aiReleaseImport() to free the resources associated with
+  /// this file. If the import fails, NULL is returned instead. Call
+  /// aiGetErrorString() to retrieve a human-readable error text.
+  /// <param name="pFile"> Path and filename of the file to be imported,
+  ///       expected to be a null-terminated c-string. NULL is not a valid value.</param> 
+  /// <param name="pFlags"> Optional post processing steps to be executed after
+  ///       a successful import. Provide a bitwise combination of the
+  ///       #aiPostProcessSteps flags.</param> 
+  /// <param name="pFS"> aiFileIO structure. Will be used to open the model file itself
+  ///       and any other files the loader needs to open.  Pass NULL to use the default
+  ///       implementation.</param> 
+  /// <returns>Pointer to the imported data or NULL if the import failed.</returns> 
+  /// Include &lt;aiFileIO.h&gt; for the definition of #aiFileIO.
   public static Scene ImportFileEx(string pFile, uint pFlags, FileIO pFS) {
     global::System.IntPtr cPtr = AssimpPINVOKE.ImportFileEx(pFile, pFlags, FileIO.getCPtr(pFS));
     Scene ret = (cPtr == global::System.IntPtr.Zero) ? null : new Scene(cPtr, false);
     return ret;
   }
 
+  ///  Same as #aiImportFileEx, but adds an extra parameter containing importer settings.
+  /// <param name="pFile"> Path and filename of the file to be imported,
+  ///       expected to be a null-terminated c-string. NULL is not a valid value.</param> 
+  /// <param name="pFlags"> Optional post processing steps to be executed after
+  ///       a successful import. Provide a bitwise combination of the
+  ///       #aiPostProcessSteps flags.</param> 
+  /// <param name="pFS"> aiFileIO structure. Will be used to open the model file itself
+  ///       and any other files the loader needs to open.  Pass NULL to use the default
+  ///       implementation.</param> 
+  /// <param name="pProps"> #aiPropertyStore instance containing import settings.</param> 
+  /// <returns>Pointer to the imported data or NULL if the import failed.</returns> 
+  /// Include &lt;aiFileIO.h&gt; for the definition of #aiFileIO.
+  /// <seealso cref="aiImportFileEx"/>
   public static Scene ImportFileExWithProperties(string pFile, uint pFlags, FileIO pFS, PropertyStore pProps) {
     global::System.IntPtr cPtr = AssimpPINVOKE.ImportFileExWithProperties(pFile, pFlags, FileIO.getCPtr(pFS), PropertyStore.getCPtr(pProps));
     Scene ret = (cPtr == global::System.IntPtr.Zero) ? null : new Scene(cPtr, false);
     return ret;
   }
 
+  ///  Reads the given file from a given memory buffer,
+  /// If the call succeeds, the imported data is returned in an aiScene structure.
+  /// The data is intended to be read-only, it stays property of the ASSIMP
+  /// library and will be stable until aiReleaseImport() is called. After you're
+  /// done with it, call aiReleaseImport() to free the resources associated with
+  /// this file. If the import fails, NULL is returned.
+  /// A human-readable error description can be retrieved by calling aiGetErrorString().
+  /// <param name="pBuffer"> Pointer to the file data</param> 
+  /// <param name="pLength"> Length of pBuffer, in bytes</param> 
+  /// <param name="pFlags"> Optional post processing steps to be executed after
+  ///       a successful import. Provide a bitwise combination of the
+  ///       #aiPostProcessSteps flags. If you wish to inspect the imported
+  ///       scene first in order to fine-tune your post-processing setup,
+  ///       consider to use #aiApplyPostProcessing().</param> 
+  /// <param name="pHint"> An additional hint to the library. If this is a non empty string,
+  ///       the library looks for a loader to support the file extension specified by pHint
+  ///       and passes the file to the first matching loader. If this loader is unable to
+  ///       completely the request, the library continues and tries to determine the file
+  ///       format on its own, a task that may or may not be successful.
+  ///       Check the return value, and you'll know ...</param> 
+  /// <returns>A pointer to the imported data, NULL if the import failed.</returns> 
+  /// This is a straightforward way to decode models from memory
+  /// buffers, but it doesn't handle model formats that spread their
+  /// data across multiple files or even directories. Examples include
+  /// OBJ or MD3, which outsource parts of their material info into
+  /// external scripts. If you need full functionality, provide
+  /// a custom IOSystem to make Assimp find these files and use
+  /// the regular aiImportFileEx()/aiImportFileExWithProperties() API.
   public static Scene ImportFileFromMemory(string pBuffer, uint pLength, uint pFlags, string pHint) {
     global::System.IntPtr cPtr = AssimpPINVOKE.ImportFileFromMemory(pBuffer, pLength, pFlags, pHint);
     Scene ret = (cPtr == global::System.IntPtr.Zero) ? null : new Scene(cPtr, false);
     return ret;
   }
 
+  ///  Same as #aiImportFileFromMemory, but adds an extra parameter containing importer settings.
+  /// <param name="pBuffer"> Pointer to the file data</param> 
+  /// <param name="pLength"> Length of pBuffer, in bytes</param> 
+  /// <param name="pFlags"> Optional post processing steps to be executed after
+  ///       a successful import. Provide a bitwise combination of the
+  ///       #aiPostProcessSteps flags. If you wish to inspect the imported
+  ///       scene first in order to fine-tune your post-processing setup,
+  ///       consider to use #aiApplyPostProcessing().</param> 
+  /// <param name="pHint"> An additional hint to the library. If this is a non empty string,
+  ///       the library looks for a loader to support the file extension specified by pHint
+  ///       and passes the file to the first matching loader. If this loader is unable to
+  ///       completely the request, the library continues and tries to determine the file
+  ///       format on its own, a task that may or may not be successful.
+  ///       Check the return value, and you'll know ...</param> 
+  /// <param name="pProps"> #aiPropertyStore instance containing import settings.</param> 
+  /// <returns>A pointer to the imported data, NULL if the import failed.</returns> 
+  /// This is a straightforward way to decode models from memory
+  /// buffers, but it doesn't handle model formats that spread their
+  /// data across multiple files or even directories. Examples include
+  /// OBJ or MD3, which outsource parts of their material info into
+  /// external scripts. If you need full functionality, provide
+  /// a custom IOSystem to make Assimp find these files and use
+  /// the regular aiImportFileEx()/aiImportFileExWithProperties() API.
+  /// <seealso cref="aiImportFileFromMemory"/>
   public static Scene ImportFileFromMemoryWithProperties(string pBuffer, uint pLength, uint pFlags, string pHint, PropertyStore pProps) {
     global::System.IntPtr cPtr = AssimpPINVOKE.ImportFileFromMemoryWithProperties(pBuffer, pLength, pFlags, pHint, PropertyStore.getCPtr(pProps));
     Scene ret = (cPtr == global::System.IntPtr.Zero) ? null : new Scene(cPtr, false);
     return ret;
   }
 
+  ///  Apply post-processing to an already-imported scene.
+  /// This is strictly equivalent to calling #aiImportFile()/#aiImportFileEx with the
+  /// same flags. However, you can use this separate function to inspect the imported
+  /// scene first to fine-tune your post-processing setup.
+  /// <param name="pScene"> Scene to work on.</param> 
+  /// <param name="pFlags"> Provide a bitwise combination of the #aiPostProcessSteps flags.</param> 
+  /// <returns>A pointer to the post-processed data. Post processing is done in-place,
+  ///       meaning this is still the same #aiScene which you passed for pScene. However,
+  ///       _if_ post-processing failed, the scene could now be NULL. That's quite a rare
+  ///       case, post processing steps are not really designed to 'fail'. To be exact,
+  ///       the #aiProcess_ValidateDataStructure flag is currently the only post processing step
+  ///       which can actually cause the scene to be reset to NULL.</returns>
   public static Scene ApplyPostProcessing(Scene pScene, uint pFlags) {
     global::System.IntPtr cPtr = AssimpPINVOKE.ApplyPostProcessing(Scene.getCPtr(pScene), pFlags);
     Scene ret = (cPtr == global::System.IntPtr.Zero) ? null : new Scene(cPtr, false);
     return ret;
   }
 
+  ///  Get one of the predefine log streams. This is the quick'n'easy solution to
+  ///  access Assimp's log system. Attaching a log stream can slightly reduce Assimp's
+  ///  overall import performance.
+  ///  Usage is rather simple (this will stream the log to a file, named log.txt, and
+  ///  the stdout stream of the process:
+  /// &lt;code&gt;        struct aiLogStream c;
+  ///        c = aiGetPredefinedLogStream(aiDefaultLogStream_FILE,"log.txt");
+  ///        aiAttachLogStream(&amp;amp;c);
+  ///        c = aiGetPredefinedLogStream(aiDefaultLogStream_STDOUT,NULL);
+  ///        aiAttachLogStream(&amp;amp;c);&lt;/code&gt;
+  ///
+  ///
+  ///
+  /// <param name="pStreams"> One of the #aiDefaultLogStream enumerated values.</param> 
+  /// <param name="file"> Solely for the #aiDefaultLogStream_FILE flag: specifies the file to write to.
+  ///        Pass NULL for all other flags.</param> 
+  /// <returns>The log stream. callback is set to NULL if something went wrong.</returns>
   public static SWIGTYPE_p_aiLogStream GetPredefinedLogStream(DefaultLogStream pStreams, string file) {
     SWIGTYPE_p_aiLogStream ret = new SWIGTYPE_p_aiLogStream(AssimpPINVOKE.GetPredefinedLogStream((int)pStreams, file), true);
     return ret;
   }
 
+  ///  Attach a custom log stream to the libraries' logging system.
+  ///  Attaching a log stream can slightly reduce Assimp's overall import
+  ///  performance. Multiple log-streams can be attached.
+  /// <param name="stream"> Describes the new log stream.</param> 
+  /// To ensure proper destruction of the logging system, you need to manually
+  ///    call aiDetachLogStream() on every single log stream you attach.
+  ///    Alternatively (for the lazy folks) #aiDetachAllLogStreams is provided.
   public static void AttachLogStream(SWIGTYPE_p_aiLogStream stream) {
     AssimpPINVOKE.AttachLogStream(SWIGTYPE_p_aiLogStream.getCPtr(stream));
   }
 
+  ///  Enable verbose logging. Verbose logging includes debug-related stuff and
+  ///  detailed import statistics. This can have severe impact on import performance
+  ///  and memory consumption. However, it might be useful to find out why a file
+  ///  didn't read correctly.
+  /// <param name="d"> AI_TRUE or AI_FALSE, your decision.</param>
   public static void EnableVerboseLogging(int d) {
     AssimpPINVOKE.EnableVerboseLogging(d);
   }
 
+  ///  Detach a custom log stream from the libraries' logging system.
+  ///  This is the counterpart of #aiAttachLogStream. If you attached a stream,
+  ///  don't forget to detach it again.
+  /// <param name="stream"> The log stream to be detached.</param> 
+  /// <returns>AI_SUCCESS if the log stream has been detached successfully.</returns> 
+  /// <seealso cref="aiDetachAllLogStreams"/>
   public static Return DetachLogStream(SWIGTYPE_p_aiLogStream stream) {
     Return ret = (Return)AssimpPINVOKE.DetachLogStream(SWIGTYPE_p_aiLogStream.getCPtr(stream));
     return ret;
   }
 
+  ///  Detach all active log streams from the libraries' logging system.
+  ///  This ensures that the logging system is terminated properly and all
+  ///  resources allocated by it are actually freed. If you attached a stream,
+  ///  don't forget to detach it again.
+  /// <seealso cref="aiAttachLogStream"/>
+  /// <seealso cref="aiDetachLogStream"/>
   public static void DetachAllLogStreams() {
     AssimpPINVOKE.DetachAllLogStreams();
   }
 
+  ///  Releases all resources associated with the given import process.
+  /// Call this function after you're done with the imported data.
+  /// <param name="pScene"> The imported data to release. NULL is a valid value.</param>
   public static void ReleaseImport(Scene pScene) {
     AssimpPINVOKE.ReleaseImport(Scene.getCPtr(pScene));
   }
 
+  ///  Returns the error text of the last failed import process.
+  /// <returns>A textual description of the error that occurred at the last
+  ///     import process. NULL if there was no error. There can't be an error if you
+  ///     got a non-NULL #aiScene from #aiImportFile/#aiImportFileEx/#aiApplyPostProcessing.</returns>
   public static string GetErrorString() {
     string ret = AssimpPINVOKE.GetErrorString();
     return ret;
   }
 
+  ///  Returns whether a given file extension is supported by ASSIMP
+  /// <param name="szExtension"> Extension for which the function queries support for.
+  ///     Must include a leading dot '.'. Example: ".3ds", ".md3"</param> 
+  /// <returns>AI_TRUE if the file extension is supported.</returns>
   public static int IsExtensionSupported(string szExtension) {
     int ret = AssimpPINVOKE.IsExtensionSupported(szExtension);
     return ret;
   }
 
+  ///  Get a list of all file extensions supported by ASSIMP.
+  /// If a file extension is contained in the list this does, of course, not
+  /// mean that ASSIMP is able to load all files with this extension.
+  /// <param name="szOut"> String to receive the extension list.
+  ///     Format of the list: "*.3ds;*.obj;*.dae". NULL is not a valid parameter.</param>
   public static void GetExtensionList(String szOut) {
     AssimpPINVOKE.GetExtensionList(String.getCPtr(szOut));
   }
 
+  ///  Get the approximated storage required by an imported asset
+  /// <param name="pIn"> Input asset.</param> 
+  /// <param name="in"> Data structure to be filled.</param>
   public static void GetMemoryRequirements(Scene pIn, MemoryInfo in_) {
     AssimpPINVOKE.GetMemoryRequirements(Scene.getCPtr(pIn), MemoryInfo.getCPtr(in_));
   }
 
+  ///  Returns an embedded texture, or nullptr.
+  /// <param name="pIn"> Input asset.</param> 
+  /// <param name="filename"> Texture path extracted from aiGetMaterialString.</param>
   public static Texture GetEmbeddedTexture(Scene pIn, string filename) {
     global::System.IntPtr cPtr = AssimpPINVOKE.GetEmbeddedTexture(Scene.getCPtr(pIn), filename);
     Texture ret = (cPtr == global::System.IntPtr.Zero) ? null : new Texture(cPtr, false);
     return ret;
   }
 
+  ///  Create an empty property store. Property stores are used to collect import
+  ///  settings.
+  /// <returns>New property store. Property stores need to be manually destroyed using
+  ///       the #aiReleasePropertyStore API function.</returns>
   public static PropertyStore CreatePropertyStore() {
     global::System.IntPtr cPtr = AssimpPINVOKE.CreatePropertyStore();
     PropertyStore ret = (cPtr == global::System.IntPtr.Zero) ? null : new PropertyStore(cPtr, false);
     return ret;
   }
 
+  ///  Delete a property store.
+  /// <param name="p"> Property store to be deleted.</param>
   public static void ReleasePropertyStore(PropertyStore p) {
     AssimpPINVOKE.ReleasePropertyStore(PropertyStore.getCPtr(p));
   }
 
+  ///  Set an integer property.
+  ///  This is the C-version of #Assimp::Importer::SetPropertyInteger(). In the C
+  ///  interface, properties are always shared by all imports. It is not possible to
+  ///  specify them per import.
+  /// <param name="store"> Store to modify. Use #aiCreatePropertyStore to obtain a store.</param> 
+  /// <param name="szName"> Name of the configuration property to be set. All supported
+  ///       public properties are defined in the config.h header file (AI_CONFIG_XXX).</param> 
+  /// <param name="value"> New value for the property</param>
   public static void SetImportPropertyInteger(PropertyStore store, string szName, int value) {
     AssimpPINVOKE.SetImportPropertyInteger(PropertyStore.getCPtr(store), szName, value);
   }
 
+  ///  Set a floating-point property.
+  ///  This is the C-version of #Assimp::Importer::SetPropertyFloat(). In the C
+  ///  interface, properties are always shared by all imports. It is not possible to
+  ///  specify them per import.
+  /// <param name="store"> Store to modify. Use #aiCreatePropertyStore to obtain a store.</param> 
+  /// <param name="szName"> Name of the configuration property to be set. All supported
+  ///       public properties are defined in the config.h header file (AI_CONFIG_XXX).</param> 
+  /// <param name="value"> New value for the property</param>
   public static void SetImportPropertyFloat(PropertyStore store, string szName, float value) {
     AssimpPINVOKE.SetImportPropertyFloat(PropertyStore.getCPtr(store), szName, value);
   }
 
+  ///  Set a string property.
+  ///  This is the C-version of #Assimp::Importer::SetPropertyString(). In the C
+  ///  interface, properties are always shared by all imports. It is not possible to
+  ///  specify them per import.
+  /// <param name="store"> Store to modify. Use #aiCreatePropertyStore to obtain a store.</param> 
+  /// <param name="szName"> Name of the configuration property to be set. All supported
+  ///       public properties are defined in the config.h header file (AI_CONFIG_XXX).</param> 
+  /// <param name="st"> New value for the property</param>
   public static void SetImportPropertyString(PropertyStore store, string szName, String st) {
     AssimpPINVOKE.SetImportPropertyString(PropertyStore.getCPtr(store), szName, String.getCPtr(st));
   }
 
+  ///  Set a matrix property.
+  ///  This is the C-version of #Assimp::Importer::SetPropertyMatrix(). In the C
+  ///  interface, properties are always shared by all imports. It is not possible to
+  ///  specify them per import.
+  /// <param name="store"> Store to modify. Use #aiCreatePropertyStore to obtain a store.</param> 
+  /// <param name="szName"> Name of the configuration property to be set. All supported
+  ///       public properties are defined in the config.h header file (AI_CONFIG_XXX).</param> 
+  /// <param name="mat"> New value for the property</param>
   public static void SetImportPropertyMatrix(PropertyStore store, string szName, SWIGTYPE_p_aiMatrix4x4tT_float_t mat) {
     AssimpPINVOKE.SetImportPropertyMatrix(PropertyStore.getCPtr(store), szName, SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat));
   }
 
+  ///  Construct a quaternion from a 3x3 rotation matrix.
+  /// <param name="quat"> Receives the output quaternion.</param> 
+  /// <param name="mat"> Matrix to 'quaternionize'.</param> 
+  /// <seealso cref="aiQuaternion"/>
   public static void CreateQuaternionFromMatrix(SWIGTYPE_p_aiQuaterniontT_float_t quat, SWIGTYPE_p_aiMatrix3x3tT_float_t mat) {
     AssimpPINVOKE.CreateQuaternionFromMatrix(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(quat), SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat));
   }
 
+  ///  Decompose a transformation matrix into its rotational, translational and
+  ///  scaling components.
+  /// <param name="mat"> Matrix to decompose</param> 
+  /// <param name="scaling"> Receives the scaling component</param> 
+  /// <param name="rotation"> Receives the rotational component</param> 
+  /// <param name="position"> Receives the translational component.</param> 
+  /// <seealso cref="aiMatrix4x4.Decompose"/>
   public static void DecomposeMatrix(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t scaling, SWIGTYPE_p_aiQuaterniontT_float_t rotation, SWIGTYPE_p_aiVector3tT_float_t position) {
     AssimpPINVOKE.DecomposeMatrix(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(scaling), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(rotation), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(position));
   }
 
+  ///  Transpose a 4x4 matrix.
+  /// <param name="mat"> Pointer to the matrix to be transposed</param>
   public static void TransposeMatrix4(SWIGTYPE_p_aiMatrix4x4tT_float_t mat) {
     AssimpPINVOKE.TransposeMatrix4(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat));
   }
 
+  ///  Transpose a 3x3 matrix.
+  /// <param name="mat"> Pointer to the matrix to be transposed</param>
   public static void TransposeMatrix3(SWIGTYPE_p_aiMatrix3x3tT_float_t mat) {
     AssimpPINVOKE.TransposeMatrix3(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat));
   }
 
+  ///  Transform a vector by a 3x3 matrix
+  /// <param name="vec"> Vector to be transformed.</param> 
+  /// <param name="mat"> Matrix to transform the vector with.</param>
   public static void TransformVecByMatrix3(SWIGTYPE_p_aiVector3tT_float_t vec, SWIGTYPE_p_aiMatrix3x3tT_float_t mat) {
     AssimpPINVOKE.TransformVecByMatrix3(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(vec), SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat));
   }
 
+  ///  Transform a vector by a 4x4 matrix
+  /// <param name="vec"> Vector to be transformed.</param> 
+  /// <param name="mat"> Matrix to transform the vector with.</param>
   public static void TransformVecByMatrix4(SWIGTYPE_p_aiVector3tT_float_t vec, SWIGTYPE_p_aiMatrix4x4tT_float_t mat) {
     AssimpPINVOKE.TransformVecByMatrix4(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(vec), SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat));
   }
 
+  ///  Multiply two 4x4 matrices.
+  /// <param name="dst"> First factor, receives result.</param> 
+  /// <param name="src"> Matrix to be multiplied with 'dst'.</param>
   public static void MultiplyMatrix4(SWIGTYPE_p_aiMatrix4x4tT_float_t dst, SWIGTYPE_p_aiMatrix4x4tT_float_t src) {
     AssimpPINVOKE.MultiplyMatrix4(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(dst), SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(src));
   }
 
+  ///  Multiply two 3x3 matrices.
+  /// <param name="dst"> First factor, receives result.</param> 
+  /// <param name="src"> Matrix to be multiplied with 'dst'.</param>
   public static void MultiplyMatrix3(SWIGTYPE_p_aiMatrix3x3tT_float_t dst, SWIGTYPE_p_aiMatrix3x3tT_float_t src) {
     AssimpPINVOKE.MultiplyMatrix3(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(dst), SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(src));
   }
 
+  ///  Get a 3x3 identity matrix.
+  /// <param name="mat"> Matrix to receive its personal identity</param>
   public static void IdentityMatrix3(SWIGTYPE_p_aiMatrix3x3tT_float_t mat) {
     AssimpPINVOKE.IdentityMatrix3(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat));
   }
 
+  ///  Get a 4x4 identity matrix.
+  /// <param name="mat"> Matrix to receive its personal identity</param>
   public static void IdentityMatrix4(SWIGTYPE_p_aiMatrix4x4tT_float_t mat) {
     AssimpPINVOKE.IdentityMatrix4(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat));
   }
 
+  ///  Returns the number of import file formats available in the current Assimp build.
+  /// Use aiGetImportFormatDescription() to retrieve infos of a specific import format.
   public static uint GetImportFormatCount() {
     uint ret = AssimpPINVOKE.GetImportFormatCount();
     return ret;
   }
 
+  ///  Returns a description of the nth import file format. Use #aiGetImportFormatCount()
+  /// to learn how many import formats are supported.
+  /// <param name="pIndex"> Index of the import format to retrieve information for. Valid range is
+  ///        0 to #aiGetImportFormatCount()</param> 
+  /// <returns>A description of that specific import format. NULL if pIndex is out of range.</returns>
   public static SWIGTYPE_p_aiImporterDesc GetImportFormatDescription(uint pIndex) {
     global::System.IntPtr cPtr = AssimpPINVOKE.GetImportFormatDescription(pIndex);
     SWIGTYPE_p_aiImporterDesc ret = (cPtr == global::System.IntPtr.Zero) ? null : new SWIGTYPE_p_aiImporterDesc(cPtr, false);
     return ret;
   }
 
+  ///  Check if 2D vectors are equal.
+  /// <param name="a"> First vector to compare</param> 
+  /// <param name="b"> Second vector to compare</param> 
+  /// <returns>1 if the vectors are equal</returns> 
+  /// <returns>0 if the vectors are not equal</returns>
   public static int Vector2AreEqual(SWIGTYPE_p_aiVector2tT_float_t a, SWIGTYPE_p_aiVector2tT_float_t b) {
     int ret = AssimpPINVOKE.Vector2AreEqual(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(a), SWIGTYPE_p_aiVector2tT_float_t.getCPtr(b));
     return ret;
   }
 
+  ///  Check if 2D vectors are equal using epsilon.
+  /// <param name="a"> First vector to compare</param> 
+  /// <param name="b"> Second vector to compare</param> 
+  /// <param name="epsilon"> Epsilon</param> 
+  /// <returns>1 if the vectors are equal</returns> 
+  /// <returns>0 if the vectors are not equal</returns>
   public static int Vector2AreEqualEpsilon(SWIGTYPE_p_aiVector2tT_float_t a, SWIGTYPE_p_aiVector2tT_float_t b, float epsilon) {
     int ret = AssimpPINVOKE.Vector2AreEqualEpsilon(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(a), SWIGTYPE_p_aiVector2tT_float_t.getCPtr(b), epsilon);
     return ret;
   }
 
+  ///  Add 2D vectors.
+  /// <param name="dst"> First addend, receives result.</param> 
+  /// <param name="src"> Vector to be added to 'dst'.</param>
   public static void Vector2Add(SWIGTYPE_p_aiVector2tT_float_t dst, SWIGTYPE_p_aiVector2tT_float_t src) {
     AssimpPINVOKE.Vector2Add(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector2tT_float_t.getCPtr(src));
   }
 
+  ///  Subtract 2D vectors.
+  /// <param name="dst"> Minuend, receives result.</param> 
+  /// <param name="src"> Vector to be subtracted from 'dst'.</param>
   public static void Vector2Subtract(SWIGTYPE_p_aiVector2tT_float_t dst, SWIGTYPE_p_aiVector2tT_float_t src) {
     AssimpPINVOKE.Vector2Subtract(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector2tT_float_t.getCPtr(src));
   }
 
+  ///  Multiply a 2D vector by a scalar.
+  /// <param name="dst"> Vector to be scaled by ``s``</param> 
+  /// <param name="s"> Scale factor</param>
   public static void Vector2Scale(SWIGTYPE_p_aiVector2tT_float_t dst, float s) {
     AssimpPINVOKE.Vector2Scale(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(dst), s);
   }
 
+  ///  Multiply each component of a 2D vector with
+  ///  the components of another vector.
+  /// <param name="dst"> First vector, receives result</param> 
+  /// <param name="other"> Second vector</param>
   public static void Vector2SymMul(SWIGTYPE_p_aiVector2tT_float_t dst, SWIGTYPE_p_aiVector2tT_float_t other) {
     AssimpPINVOKE.Vector2SymMul(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector2tT_float_t.getCPtr(other));
   }
 
+  ///  Divide a 2D vector by a scalar.
+  /// <param name="dst"> Vector to be divided by ``s``</param> 
+  /// <param name="s"> Scalar divisor</param>
   public static void Vector2DivideByScalar(SWIGTYPE_p_aiVector2tT_float_t dst, float s) {
     AssimpPINVOKE.Vector2DivideByScalar(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(dst), s);
   }
 
+  ///  Divide each component of a 2D vector by
+  ///  the components of another vector.
+  /// <param name="dst"> Vector as the dividend</param> 
+  /// <param name="v"> Vector as the divisor</param>
   public static void Vector2DivideByVector(SWIGTYPE_p_aiVector2tT_float_t dst, SWIGTYPE_p_aiVector2tT_float_t v) {
     AssimpPINVOKE.Vector2DivideByVector(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector2tT_float_t.getCPtr(v));
   }
 
+  ///  Get the length of a 2D vector.
+  /// <returns>v Vector to evaluate</returns>
   public static float Vector2Length(SWIGTYPE_p_aiVector2tT_float_t v) {
     float ret = AssimpPINVOKE.Vector2Length(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(v));
     return ret;
   }
 
+  ///  Get the squared length of a 2D vector.
+  /// <returns>v Vector to evaluate</returns>
   public static float Vector2SquareLength(SWIGTYPE_p_aiVector2tT_float_t v) {
     float ret = AssimpPINVOKE.Vector2SquareLength(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(v));
     return ret;
   }
 
+  ///  Negate a 2D vector.
+  /// <param name="dst"> Vector to be negated</param>
   public static void Vector2Negate(SWIGTYPE_p_aiVector2tT_float_t dst) {
     AssimpPINVOKE.Vector2Negate(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(dst));
   }
 
+  ///  Get the dot product of 2D vectors.
+  /// <param name="a"> First vector</param> 
+  /// <param name="b"> Second vector</param> 
+  /// <returns>The dot product of vectors</returns>
   public static float Vector2DotProduct(SWIGTYPE_p_aiVector2tT_float_t a, SWIGTYPE_p_aiVector2tT_float_t b) {
     float ret = AssimpPINVOKE.Vector2DotProduct(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(a), SWIGTYPE_p_aiVector2tT_float_t.getCPtr(b));
     return ret;
   }
 
+  ///  Normalize a 2D vector.
+  /// <param name="v"> Vector to normalize</param>
   public static void Vector2Normalize(SWIGTYPE_p_aiVector2tT_float_t v) {
     AssimpPINVOKE.Vector2Normalize(SWIGTYPE_p_aiVector2tT_float_t.getCPtr(v));
   }
 
+  ///  Check if 3D vectors are equal.
+  /// <param name="a"> First vector to compare</param> 
+  /// <param name="b"> Second vector to compare</param> 
+  /// <returns>1 if the vectors are equal</returns> 
+  /// <returns>0 if the vectors are not equal</returns>
   public static int Vector3AreEqual(SWIGTYPE_p_aiVector3tT_float_t a, SWIGTYPE_p_aiVector3tT_float_t b) {
     int ret = AssimpPINVOKE.Vector3AreEqual(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(a), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(b));
     return ret;
   }
 
+  ///  Check if 3D vectors are equal using epsilon.
+  /// <param name="a"> First vector to compare</param> 
+  /// <param name="b"> Second vector to compare</param> 
+  /// <param name="epsilon"> Epsilon</param> 
+  /// <returns>1 if the vectors are equal</returns> 
+  /// <returns>0 if the vectors are not equal</returns>
   public static int Vector3AreEqualEpsilon(SWIGTYPE_p_aiVector3tT_float_t a, SWIGTYPE_p_aiVector3tT_float_t b, float epsilon) {
     int ret = AssimpPINVOKE.Vector3AreEqualEpsilon(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(a), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(b), epsilon);
     return ret;
   }
 
+  ///  Check if vector ``a`` is less than vector ``b``.
+  /// <param name="a"> First vector to compare</param> 
+  /// <param name="b"> Second vector to compare</param> 
+  /// <returns>1 if ``a`` is less than ``b``</returns> 
+  /// <returns>0 if ``a`` is equal or greater than ``b``</returns>
   public static int Vector3LessThan(SWIGTYPE_p_aiVector3tT_float_t a, SWIGTYPE_p_aiVector3tT_float_t b) {
     int ret = AssimpPINVOKE.Vector3LessThan(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(a), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(b));
     return ret;
   }
 
+  ///  Add 3D vectors.
+  /// <param name="dst"> First addend, receives result.</param> 
+  /// <param name="src"> Vector to be added to 'dst'.</param>
   public static void Vector3Add(SWIGTYPE_p_aiVector3tT_float_t dst, SWIGTYPE_p_aiVector3tT_float_t src) {
     AssimpPINVOKE.Vector3Add(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(src));
   }
 
+  ///  Subtract 3D vectors.
+  /// <param name="dst"> Minuend, receives result.</param> 
+  /// <param name="src"> Vector to be subtracted from 'dst'.</param>
   public static void Vector3Subtract(SWIGTYPE_p_aiVector3tT_float_t dst, SWIGTYPE_p_aiVector3tT_float_t src) {
     AssimpPINVOKE.Vector3Subtract(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(src));
   }
 
+  ///  Multiply a 3D vector by a scalar.
+  /// <param name="dst"> Vector to be scaled by ``s``</param> 
+  /// <param name="s"> Scale factor</param>
   public static void Vector3Scale(SWIGTYPE_p_aiVector3tT_float_t dst, float s) {
     AssimpPINVOKE.Vector3Scale(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(dst), s);
   }
 
+  ///  Multiply each component of a 3D vector with
+  ///  the components of another vector.
+  /// <param name="dst"> First vector, receives result</param> 
+  /// <param name="other"> Second vector</param>
   public static void Vector3SymMul(SWIGTYPE_p_aiVector3tT_float_t dst, SWIGTYPE_p_aiVector3tT_float_t other) {
     AssimpPINVOKE.Vector3SymMul(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(other));
   }
 
+  ///  Divide a 3D vector by a scalar.
+  /// <param name="dst"> Vector to be divided by ``s``</param> 
+  /// <param name="s"> Scalar divisor</param>
   public static void Vector3DivideByScalar(SWIGTYPE_p_aiVector3tT_float_t dst, float s) {
     AssimpPINVOKE.Vector3DivideByScalar(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(dst), s);
   }
 
+  ///  Divide each component of a 3D vector by
+  ///  the components of another vector.
+  /// <param name="dst"> Vector as the dividend</param> 
+  /// <param name="v"> Vector as the divisor</param>
   public static void Vector3DivideByVector(SWIGTYPE_p_aiVector3tT_float_t dst, SWIGTYPE_p_aiVector3tT_float_t v) {
     AssimpPINVOKE.Vector3DivideByVector(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(v));
   }
 
+  ///  Get the length of a 3D vector.
+  /// <returns>v Vector to evaluate</returns>
   public static float Vector3Length(SWIGTYPE_p_aiVector3tT_float_t v) {
     float ret = AssimpPINVOKE.Vector3Length(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(v));
     return ret;
   }
 
+  ///  Get the squared length of a 3D vector.
+  /// <returns>v Vector to evaluate</returns>
   public static float Vector3SquareLength(SWIGTYPE_p_aiVector3tT_float_t v) {
     float ret = AssimpPINVOKE.Vector3SquareLength(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(v));
     return ret;
   }
 
+  ///  Negate a 3D vector.
+  /// <param name="dst"> Vector to be negated</param>
   public static void Vector3Negate(SWIGTYPE_p_aiVector3tT_float_t dst) {
     AssimpPINVOKE.Vector3Negate(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(dst));
   }
 
+  ///  Get the dot product of 3D vectors.
+  /// <param name="a"> First vector</param> 
+  /// <param name="b"> Second vector</param> 
+  /// <returns>The dot product of vectors</returns>
   public static float Vector3DotProduct(SWIGTYPE_p_aiVector3tT_float_t a, SWIGTYPE_p_aiVector3tT_float_t b) {
     float ret = AssimpPINVOKE.Vector3DotProduct(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(a), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(b));
     return ret;
   }
 
+  ///  Get cross product of 3D vectors.
+  /// <param name="dst"> Vector to receive the result.</param> 
+  /// <param name="a"> First vector</param> 
+  /// <param name="b"> Second vector</param> 
+  /// <returns>The dot product of vectors</returns>
   public static void Vector3CrossProduct(SWIGTYPE_p_aiVector3tT_float_t dst, SWIGTYPE_p_aiVector3tT_float_t a, SWIGTYPE_p_aiVector3tT_float_t b) {
     AssimpPINVOKE.Vector3CrossProduct(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(dst), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(a), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(b));
   }
 
+  ///  Normalize a 3D vector.
+  /// <param name="v"> Vector to normalize</param>
   public static void Vector3Normalize(SWIGTYPE_p_aiVector3tT_float_t v) {
     AssimpPINVOKE.Vector3Normalize(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(v));
   }
 
+  ///  Check for division by zero and normalize a 3D vector.
+  /// <param name="v"> Vector to normalize</param>
   public static void Vector3NormalizeSafe(SWIGTYPE_p_aiVector3tT_float_t v) {
     AssimpPINVOKE.Vector3NormalizeSafe(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(v));
   }
 
+  ///  Rotate a 3D vector by a quaternion.
+  /// <param name="v"> The vector to rotate by ``q``</param> 
+  /// <param name="q"> Quaternion to use to rotate ``v``</param>
   public static void Vector3RotateByQuaternion(SWIGTYPE_p_aiVector3tT_float_t v, SWIGTYPE_p_aiQuaterniontT_float_t q) {
     AssimpPINVOKE.Vector3RotateByQuaternion(SWIGTYPE_p_aiVector3tT_float_t.getCPtr(v), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(q));
   }
 
+  ///  Construct a 3x3 matrix from a 4x4 matrix.
+  /// <param name="dst"> Receives the output matrix</param> 
+  /// <param name="mat"> The 4x4 matrix to use</param>
   public static void Matrix3FromMatrix4(SWIGTYPE_p_aiMatrix3x3tT_float_t dst, SWIGTYPE_p_aiMatrix4x4tT_float_t mat) {
     AssimpPINVOKE.Matrix3FromMatrix4(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(dst), SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat));
   }
 
+  ///  Construct a 3x3 matrix from a quaternion.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="q"> The quaternion matrix to use</param>
   public static void Matrix3FromQuaternion(SWIGTYPE_p_aiMatrix3x3tT_float_t mat, SWIGTYPE_p_aiQuaterniontT_float_t q) {
     AssimpPINVOKE.Matrix3FromQuaternion(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(q));
   }
 
+  ///  Check if 3x3 matrices are equal.
+  /// <param name="a"> First matrix to compare</param> 
+  /// <param name="b"> Second matrix to compare</param> 
+  /// <returns>1 if the matrices are equal</returns> 
+  /// <returns>0 if the matrices are not equal</returns>
   public static int Matrix3AreEqual(SWIGTYPE_p_aiMatrix3x3tT_float_t a, SWIGTYPE_p_aiMatrix3x3tT_float_t b) {
     int ret = AssimpPINVOKE.Matrix3AreEqual(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(a), SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(b));
     return ret;
   }
 
+  ///  Check if 3x3 matrices are equal.
+  /// <param name="a"> First matrix to compare</param> 
+  /// <param name="b"> Second matrix to compare</param> 
+  /// <param name="epsilon"> Epsilon</param> 
+  /// <returns>1 if the matrices are equal</returns> 
+  /// <returns>0 if the matrices are not equal</returns>
   public static int Matrix3AreEqualEpsilon(SWIGTYPE_p_aiMatrix3x3tT_float_t a, SWIGTYPE_p_aiMatrix3x3tT_float_t b, float epsilon) {
     int ret = AssimpPINVOKE.Matrix3AreEqualEpsilon(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(a), SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(b), epsilon);
     return ret;
   }
 
+  ///  Invert a 3x3 matrix.
+  /// <param name="mat"> Matrix to invert</param>
   public static void Matrix3Inverse(SWIGTYPE_p_aiMatrix3x3tT_float_t mat) {
     AssimpPINVOKE.Matrix3Inverse(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat));
   }
 
+  ///  Get the determinant of a 3x3 matrix.
+  /// <param name="mat"> Matrix to get the determinant from</param>
   public static float Matrix3Determinant(SWIGTYPE_p_aiMatrix3x3tT_float_t mat) {
     float ret = AssimpPINVOKE.Matrix3Determinant(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat));
     return ret;
   }
 
+  ///  Get a 3x3 rotation matrix around the Z axis.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="angle"> Rotation angle, in radians</param>
   public static void Matrix3RotationZ(SWIGTYPE_p_aiMatrix3x3tT_float_t mat, float angle) {
     AssimpPINVOKE.Matrix3RotationZ(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat), angle);
   }
 
+  ///  Returns a 3x3 rotation matrix for a rotation around an arbitrary axis.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="axis"> Rotation axis, should be a normalized vector</param> 
+  /// <param name="angle"> Rotation angle, in radians</param>
   public static void Matrix3FromRotationAroundAxis(SWIGTYPE_p_aiMatrix3x3tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t axis, float angle) {
     AssimpPINVOKE.Matrix3FromRotationAroundAxis(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(axis), angle);
   }
 
+  ///  Get a 3x3 translation matrix.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="translation"> The translation vector</param>
   public static void Matrix3Translation(SWIGTYPE_p_aiMatrix3x3tT_float_t mat, SWIGTYPE_p_aiVector2tT_float_t translation) {
     AssimpPINVOKE.Matrix3Translation(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector2tT_float_t.getCPtr(translation));
   }
 
+  ///  Create a 3x3 matrix that rotates one vector to another vector.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="from"> Vector to rotate from</param> 
+  /// <param name="to"> Vector to rotate to</param>
   public static void Matrix3FromTo(SWIGTYPE_p_aiMatrix3x3tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t from, SWIGTYPE_p_aiVector3tT_float_t to) {
     AssimpPINVOKE.Matrix3FromTo(SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(from), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(to));
   }
 
+  ///  Construct a 4x4 matrix from a 3x3 matrix.
+  /// <param name="dst"> Receives the output matrix</param> 
+  /// <param name="mat"> The 3x3 matrix to use</param>
   public static void Matrix4FromMatrix3(SWIGTYPE_p_aiMatrix4x4tT_float_t dst, SWIGTYPE_p_aiMatrix3x3tT_float_t mat) {
     AssimpPINVOKE.Matrix4FromMatrix3(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(dst), SWIGTYPE_p_aiMatrix3x3tT_float_t.getCPtr(mat));
   }
 
+  ///  Construct a 4x4 matrix from scaling, rotation and position.
+  /// <param name="mat"> Receives the output matrix.</param> 
+  /// <param name="scaling"> The scaling for the x,y,z axes</param> 
+  /// <param name="rotation"> The rotation as a hamilton quaternion</param> 
+  /// <param name="position"> The position for the x,y,z axes</param>
   public static void Matrix4FromScalingQuaternionPosition(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t scaling, SWIGTYPE_p_aiQuaterniontT_float_t rotation, SWIGTYPE_p_aiVector3tT_float_t position) {
     AssimpPINVOKE.Matrix4FromScalingQuaternionPosition(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(scaling), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(rotation), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(position));
   }
 
+  ///  Add 4x4 matrices.
+  /// <param name="dst"> First addend, receives result.</param> 
+  /// <param name="src"> Matrix to be added to 'dst'.</param>
   public static void Matrix4Add(SWIGTYPE_p_aiMatrix4x4tT_float_t dst, SWIGTYPE_p_aiMatrix4x4tT_float_t src) {
     AssimpPINVOKE.Matrix4Add(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(dst), SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(src));
   }
 
+  ///  Check if 4x4 matrices are equal.
+  /// <param name="a"> First matrix to compare</param> 
+  /// <param name="b"> Second matrix to compare</param> 
+  /// <returns>1 if the matrices are equal</returns> 
+  /// <returns>0 if the matrices are not equal</returns>
   public static int Matrix4AreEqual(SWIGTYPE_p_aiMatrix4x4tT_float_t a, SWIGTYPE_p_aiMatrix4x4tT_float_t b) {
     int ret = AssimpPINVOKE.Matrix4AreEqual(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(a), SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(b));
     return ret;
   }
 
+  ///  Check if 4x4 matrices are equal.
+  /// <param name="a"> First matrix to compare</param> 
+  /// <param name="b"> Second matrix to compare</param> 
+  /// <param name="epsilon"> Epsilon</param> 
+  /// <returns>1 if the matrices are equal</returns> 
+  /// <returns>0 if the matrices are not equal</returns>
   public static int Matrix4AreEqualEpsilon(SWIGTYPE_p_aiMatrix4x4tT_float_t a, SWIGTYPE_p_aiMatrix4x4tT_float_t b, float epsilon) {
     int ret = AssimpPINVOKE.Matrix4AreEqualEpsilon(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(a), SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(b), epsilon);
     return ret;
   }
 
+  ///  Invert a 4x4 matrix.
+  /// <param name="mat"> Matrix to invert</param>
   public static void Matrix4Inverse(SWIGTYPE_p_aiMatrix4x4tT_float_t mat) {
     AssimpPINVOKE.Matrix4Inverse(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat));
   }
 
+  ///  Get the determinant of a 4x4 matrix.
+  /// <param name="mat"> Matrix to get the determinant from</param> 
+  /// <returns>The determinant of the matrix</returns>
   public static float Matrix4Determinant(SWIGTYPE_p_aiMatrix4x4tT_float_t mat) {
     float ret = AssimpPINVOKE.Matrix4Determinant(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat));
     return ret;
   }
 
+  ///  Returns true of the matrix is the identity matrix.
+  /// <param name="mat"> Matrix to get the determinant from</param> 
+  /// <returns>1 if ``mat`` is an identity matrix.</returns> 
+  /// <returns>0 if ``mat`` is not an identity matrix.</returns>
   public static int Matrix4IsIdentity(SWIGTYPE_p_aiMatrix4x4tT_float_t mat) {
     int ret = AssimpPINVOKE.Matrix4IsIdentity(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat));
     return ret;
   }
 
+  ///  Decompose a transformation matrix into its scaling,
+  ///  rotational as euler angles, and translational components.
+  /// <param name="mat"> Matrix to decompose</param> 
+  /// <param name="scaling"> Receives the output scaling for the x,y,z axes</param> 
+  /// <param name="rotation"> Receives the output rotation as a Euler angles</param> 
+  /// <param name="position"> Receives the output position for the x,y,z axes</param>
   public static void Matrix4DecomposeIntoScalingEulerAnglesPosition(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t scaling, SWIGTYPE_p_aiVector3tT_float_t rotation, SWIGTYPE_p_aiVector3tT_float_t position) {
     AssimpPINVOKE.Matrix4DecomposeIntoScalingEulerAnglesPosition(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(scaling), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(rotation), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(position));
   }
 
+  ///  Decompose a transformation matrix into its scaling,
+  ///  rotational split into an axis and rotational angle,
+  ///  and it's translational components.
+  /// <param name="mat"> Matrix to decompose</param> 
+  /// <param name="scaling"> Receives the output scaling for the x,y,z axes</param> 
+  /// <param name="axis"> Receives the output rotation axis</param> 
+  /// <param name="angle"> Receives the output rotation angle</param> 
+  /// <param name="position"> Receives the output position for the x,y,z axes.</param>
   public static void Matrix4DecomposeIntoScalingAxisAnglePosition(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t scaling, SWIGTYPE_p_aiVector3tT_float_t axis, SWIGTYPE_p_float angle, SWIGTYPE_p_aiVector3tT_float_t position) {
     AssimpPINVOKE.Matrix4DecomposeIntoScalingAxisAnglePosition(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(scaling), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(axis), SWIGTYPE_p_float.getCPtr(angle), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(position));
   }
 
+  ///  Decompose a transformation matrix into its rotational and
+  ///  translational components.
+  /// <param name="mat"> Matrix to decompose</param> 
+  /// <param name="rotation"> Receives the rotational component</param> 
+  /// <param name="position"> Receives the translational component.</param>
   public static void Matrix4DecomposeNoScaling(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiQuaterniontT_float_t rotation, SWIGTYPE_p_aiVector3tT_float_t position) {
     AssimpPINVOKE.Matrix4DecomposeNoScaling(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(rotation), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(position));
   }
 
+  ///  Creates a 4x4 matrix from a set of euler angles.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="x"> Rotation angle for the x-axis, in radians</param> 
+  /// <param name="y"> Rotation angle for the y-axis, in radians</param> 
+  /// <param name="z"> Rotation angle for the z-axis, in radians</param>
   public static void Matrix4FromEulerAngles(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, float x, float y, float z) {
     AssimpPINVOKE.Matrix4FromEulerAngles(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), x, y, z);
   }
 
+  ///  Get a 4x4 rotation matrix around the X axis.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="angle"> Rotation angle, in radians</param>
   public static void Matrix4RotationX(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, float angle) {
     AssimpPINVOKE.Matrix4RotationX(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), angle);
   }
 
+  ///  Get a 4x4 rotation matrix around the Y axis.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="angle"> Rotation angle, in radians</param>
   public static void Matrix4RotationY(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, float angle) {
     AssimpPINVOKE.Matrix4RotationY(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), angle);
   }
 
+  ///  Get a 4x4 rotation matrix around the Z axis.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="angle"> Rotation angle, in radians</param>
   public static void Matrix4RotationZ(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, float angle) {
     AssimpPINVOKE.Matrix4RotationZ(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), angle);
   }
 
+  ///  Returns a 4x4 rotation matrix for a rotation around an arbitrary axis.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="axis"> Rotation axis, should be a normalized vector</param> 
+  /// <param name="angle"> Rotation angle, in radians</param>
   public static void Matrix4FromRotationAroundAxis(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t axis, float angle) {
     AssimpPINVOKE.Matrix4FromRotationAroundAxis(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(axis), angle);
   }
 
+  ///  Get a 4x4 translation matrix.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="translation"> The translation vector</param>
   public static void Matrix4Translation(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t translation) {
     AssimpPINVOKE.Matrix4Translation(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(translation));
   }
 
+  ///  Get a 4x4 scaling matrix.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="scaling"> The scaling vector</param>
   public static void Matrix4Scaling(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t scaling) {
     AssimpPINVOKE.Matrix4Scaling(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(scaling));
   }
 
+  ///  Create a 4x4 matrix that rotates one vector to another vector.
+  /// <param name="mat"> Receives the output matrix</param> 
+  /// <param name="from"> Vector to rotate from</param> 
+  /// <param name="to"> Vector to rotate to</param>
   public static void Matrix4FromTo(SWIGTYPE_p_aiMatrix4x4tT_float_t mat, SWIGTYPE_p_aiVector3tT_float_t from, SWIGTYPE_p_aiVector3tT_float_t to) {
     AssimpPINVOKE.Matrix4FromTo(SWIGTYPE_p_aiMatrix4x4tT_float_t.getCPtr(mat), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(from), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(to));
   }
 
+  ///  Create a Quaternion from euler angles.
+  /// <param name="q"> Receives the output quaternion</param> 
+  /// <param name="x"> Rotation angle for the x-axis, in radians</param> 
+  /// <param name="y"> Rotation angle for the y-axis, in radians</param> 
+  /// <param name="z"> Rotation angle for the z-axis, in radians</param>
   public static void QuaternionFromEulerAngles(SWIGTYPE_p_aiQuaterniontT_float_t q, float x, float y, float z) {
     AssimpPINVOKE.QuaternionFromEulerAngles(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(q), x, y, z);
   }
 
+  ///  Create a Quaternion from an axis angle pair.
+  /// <param name="q"> Receives the output quaternion</param> 
+  /// <param name="axis"> The orientation axis</param> 
+  /// <param name="angle"> The rotation angle, in radians</param>
   public static void QuaternionFromAxisAngle(SWIGTYPE_p_aiQuaterniontT_float_t q, SWIGTYPE_p_aiVector3tT_float_t axis, float angle) {
     AssimpPINVOKE.QuaternionFromAxisAngle(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(q), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(axis), angle);
   }
 
+  ///  Create a Quaternion from a normalized quaternion stored
+  ///  in a 3D vector.
+  /// <param name="q"> Receives the output quaternion</param> 
+  /// <param name="normalized"> The vector that stores the quaternion</param>
   public static void QuaternionFromNormalizedQuaternion(SWIGTYPE_p_aiQuaterniontT_float_t q, SWIGTYPE_p_aiVector3tT_float_t normalized) {
     AssimpPINVOKE.QuaternionFromNormalizedQuaternion(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(q), SWIGTYPE_p_aiVector3tT_float_t.getCPtr(normalized));
   }
 
+  ///  Check if quaternions are equal.
+  /// <param name="a"> First quaternion to compare</param> 
+  /// <param name="b"> Second quaternion to compare</param> 
+  /// <returns>1 if the quaternions are equal</returns> 
+  /// <returns>0 if the quaternions are not equal</returns>
   public static int QuaternionAreEqual(SWIGTYPE_p_aiQuaterniontT_float_t a, SWIGTYPE_p_aiQuaterniontT_float_t b) {
     int ret = AssimpPINVOKE.QuaternionAreEqual(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(a), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(b));
     return ret;
   }
 
+  ///  Check if quaternions are equal using epsilon.
+  /// <param name="a"> First quaternion to compare</param> 
+  /// <param name="b"> Second quaternion to compare</param> 
+  /// <param name="epsilon"> Epsilon</param> 
+  /// <returns>1 if the quaternions are equal</returns> 
+  /// <returns>0 if the quaternions are not equal</returns>
   public static int QuaternionAreEqualEpsilon(SWIGTYPE_p_aiQuaterniontT_float_t a, SWIGTYPE_p_aiQuaterniontT_float_t b, float epsilon) {
     int ret = AssimpPINVOKE.QuaternionAreEqualEpsilon(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(a), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(b), epsilon);
     return ret;
   }
 
+  ///  Normalize a quaternion.
+  /// <param name="q"> Quaternion to normalize</param>
   public static void QuaternionNormalize(SWIGTYPE_p_aiQuaterniontT_float_t q) {
     AssimpPINVOKE.QuaternionNormalize(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(q));
   }
 
+  ///  Compute quaternion conjugate.
+  /// <param name="q"> Quaternion to compute conjugate,
+  ///               receives the output quaternion</param>
   public static void QuaternionConjugate(SWIGTYPE_p_aiQuaterniontT_float_t q) {
     AssimpPINVOKE.QuaternionConjugate(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(q));
   }
 
+  ///  Multiply quaternions.
+  /// <param name="dst"> First quaternion, receives the output quaternion</param> 
+  /// <param name="q"> Second quaternion</param>
   public static void QuaternionMultiply(SWIGTYPE_p_aiQuaterniontT_float_t dst, SWIGTYPE_p_aiQuaterniontT_float_t q) {
     AssimpPINVOKE.QuaternionMultiply(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(dst), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(q));
   }
 
+  ///  Performs a spherical interpolation between two quaternions.
+  /// <param name="dst"> Receives the quaternion resulting from the interpolation.</param> 
+  /// <param name="start"> Quaternion when factor == 0</param> 
+  /// <param name="end"> Quaternion when factor == 1</param> 
+  /// <param name="factor"> Interpolation factor between 0 and 1</param>
   public static void QuaternionInterpolate(SWIGTYPE_p_aiQuaterniontT_float_t dst, SWIGTYPE_p_aiQuaterniontT_float_t start, SWIGTYPE_p_aiQuaterniontT_float_t end, float factor) {
     AssimpPINVOKE.QuaternionInterpolate(SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(dst), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(start), SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(end), factor);
   }
@@ -563,6 +1156,7 @@ public class Assimp {
   public static readonly int AI_MAX_NUMBER_OF_COLOR_SETS = AssimpPINVOKE.AI_MAX_NUMBER_OF_COLOR_SETS_get();
   public static readonly int AI_MAX_NUMBER_OF_TEXTURECOORDS = AssimpPINVOKE.AI_MAX_NUMBER_OF_TEXTURECOORDS_get();
   public static readonly string AI_DEFAULT_MATERIAL_NAME = AssimpPINVOKE.AI_DEFAULT_MATERIAL_NAME_get();
+  /// 
   public static readonly string _AI_MATKEY_TEXTURE_BASE = AssimpPINVOKE._AI_MATKEY_TEXTURE_BASE_get();
   public static readonly string _AI_MATKEY_UVWSRC_BASE = AssimpPINVOKE._AI_MATKEY_UVWSRC_BASE_get();
   public static readonly string _AI_MATKEY_TEXOP_BASE = AssimpPINVOKE._AI_MATKEY_TEXOP_BASE_get();
@@ -573,11 +1167,41 @@ public class Assimp {
   public static readonly string _AI_MATKEY_TEXMAP_AXIS_BASE = AssimpPINVOKE._AI_MATKEY_TEXMAP_AXIS_BASE_get();
   public static readonly string _AI_MATKEY_UVTRANSFORM_BASE = AssimpPINVOKE._AI_MATKEY_UVTRANSFORM_BASE_get();
   public static readonly string _AI_MATKEY_TEXFLAGS_BASE = AssimpPINVOKE._AI_MATKEY_TEXFLAGS_BASE_get();
+  /// Specifies that the scene data structure that was imported is not complete.
+  /// This flag bypasses some internal validations and allows the import
+  /// of animation skeletons, material libraries or camera animation paths
+  /// using Assimp. Most applications won't support such data.
   public static readonly int AI_SCENE_FLAGS_INCOMPLETE = AssimpPINVOKE.AI_SCENE_FLAGS_INCOMPLETE_get();
+  /// This flag is set by the validation postprocess-step (aiPostProcess_ValidateDS)
+  /// if the validation is successful. In a validated scene you can be sure that
+  /// any cross references in the data structure (e.g. vertex indices) are valid.
   public static readonly int AI_SCENE_FLAGS_VALIDATED = AssimpPINVOKE.AI_SCENE_FLAGS_VALIDATED_get();
+  /// This flag is set by the validation postprocess-step (aiPostProcess_ValidateDS)
+  /// if the validation is successful but some issues have been found.
+  /// This can for example mean that a texture that does not exist is referenced
+  /// by a material or that the bone weights for a vertex don't sum to 1.0 ... .
+  /// In most cases you should still be able to use the import. This flag could
+  /// be useful for applications which don't capture Assimp's log output.
   public static readonly int AI_SCENE_FLAGS_VALIDATION_WARNING = AssimpPINVOKE.AI_SCENE_FLAGS_VALIDATION_WARNING_get();
+  /// This flag is currently only set by the aiProcess_JoinIdenticalVertices step.
+  /// It indicates that the vertices of the output meshes aren't in the internal
+  /// verbose format anymore. In the verbose format all vertices are unique,
+  /// no vertex is ever referenced by more than one face.
   public static readonly int AI_SCENE_FLAGS_NON_VERBOSE_FORMAT = AssimpPINVOKE.AI_SCENE_FLAGS_NON_VERBOSE_FORMAT_get();
+  /// Denotes pure height-map terrain data. Pure terrains usually consist of quads,
+  /// sometimes triangles, in a regular grid. The x,y coordinates of all vertex
+  /// positions refer to the x,y coordinates on the terrain height map, the z-axis
+  /// stores the elevation at a specific point.
+  /// TER (Terragen) and HMP (3D Game Studio) are height map formats.
+  /// Assimp is probably not the best choice for loading *huge* terrains -
+  /// fully triangulated data takes extremely much free store and should be avoided
+  /// as long as possible (typically you'll do the triangulation when you actually
+  /// need to render it).
   public static readonly int AI_SCENE_FLAGS_TERRAIN = AssimpPINVOKE.AI_SCENE_FLAGS_TERRAIN_get();
+  /// Specifies that the scene data can be shared between structures. For example:
+  /// one vertex in few faces. \ref AI_SCENE_FLAGS_NON_VERBOSE_FORMAT can not be
+  /// used for this because \ref AI_SCENE_FLAGS_NON_VERBOSE_FORMAT has internal
+  /// meaning about postprocessing steps.
   public static readonly int AI_SCENE_FLAGS_ALLOW_SHARED = AssimpPINVOKE.AI_SCENE_FLAGS_ALLOW_SHARED_get();
   public static readonly int AI_FALSE = AssimpPINVOKE.AI_FALSE_get();
   public static readonly int AI_TRUE = AssimpPINVOKE.AI_TRUE_get();

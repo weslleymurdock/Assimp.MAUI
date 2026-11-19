@@ -10,6 +10,7 @@
 
 namespace Assimp.Maui {
 
+/// Enum used to distinguish data types
 public enum MetadataType {
   AI_BOOL = 0,
   AI_INT32 = 1,

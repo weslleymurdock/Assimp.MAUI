@@ -9,6 +9,9 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>Stores the memory requirements for different components (e.g. meshes, materials, animations) of an import. All sizes are in bytes.</summary>
+///
+/// <seealso cref="Importer.GetMemoryRequirements"/>
 
 public class MemoryInfo : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,9 +60,11 @@ public class MemoryInfo : global::System.IDisposable {
     }
   }
 
+  ///  Default constructor
   public MemoryInfo() : this(AssimpPINVOKE.new_MemoryInfo(), true) {
   }
 
+  ///  Storage allocated for texture data
   public uint textures {
     set {
       AssimpPINVOKE.MemoryInfo_textures_set(swigCPtr, value);
@@ -70,6 +75,7 @@ public class MemoryInfo : global::System.IDisposable {
     } 
   }
 
+  ///  Storage allocated for material data
   public uint materials {
     set {
       AssimpPINVOKE.MemoryInfo_materials_set(swigCPtr, value);
@@ -80,6 +86,7 @@ public class MemoryInfo : global::System.IDisposable {
     } 
   }
 
+  ///  Storage allocated for mesh data
   public uint meshes {
     set {
       AssimpPINVOKE.MemoryInfo_meshes_set(swigCPtr, value);
@@ -90,6 +97,7 @@ public class MemoryInfo : global::System.IDisposable {
     } 
   }
 
+  ///  Storage allocated for node data
   public uint nodes {
     set {
       AssimpPINVOKE.MemoryInfo_nodes_set(swigCPtr, value);
@@ -100,6 +108,7 @@ public class MemoryInfo : global::System.IDisposable {
     } 
   }
 
+  ///  Storage allocated for animation data
   public uint animations {
     set {
       AssimpPINVOKE.MemoryInfo_animations_set(swigCPtr, value);
@@ -110,6 +119,7 @@ public class MemoryInfo : global::System.IDisposable {
     } 
   }
 
+  ///  Storage allocated for camera data
   public uint cameras {
     set {
       AssimpPINVOKE.MemoryInfo_cameras_set(swigCPtr, value);
@@ -120,6 +130,7 @@ public class MemoryInfo : global::System.IDisposable {
     } 
   }
 
+  ///  Storage allocated for light data
   public uint lights {
     set {
       AssimpPINVOKE.MemoryInfo_lights_set(swigCPtr, value);
@@ -130,6 +141,7 @@ public class MemoryInfo : global::System.IDisposable {
     } 
   }
 
+  ///  Total storage allocated for the full import.
   public uint total {
     set {
       AssimpPINVOKE.MemoryInfo_total_set(swigCPtr, value);

@@ -36,6 +36,8 @@ jobs:
               - '.github/workflows/package.yml'
               - 'external/assimp'
               - 'external/assimp/**'
+              - 'swig/**'
+              - 'src/Assimp.Maui/Assimp.Maui.csproj'
 
   android:
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || needs.changes.outputs.native == 'true'
@@ -88,12 +90,14 @@ jobs:
           ndk-version: r26b
           link-to-sdk: true
 
-      - name: Configure CMake for Android (${{ matrix.abi }})
+      - name: Build Android native library and C# bindings
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          cmake -S external/assimp -B build/android-${{ matrix.abi }} \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
-            -DANDROID_ABI=${{ matrix.abi }} \
+          set -euo pipefail
+          BUILD_DIR="build/android-${{ matrix.abi }}"
+          cmake -S external/assimp -B "$BUILD_DIR" \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI="${{ matrix.abi }}" \
             -DANDROID_PLATFORM=android-24 \
             -DANDROID_STL=c++_shared \
             -DCMAKE_BUILD_TYPE=Release \
@@ -107,59 +111,68 @@ jobs:
             -DASSIMP_BUILD_ZLIB=ON \
             -DASSIMP_INSTALL_PDB=OFF \
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
+          cmake --build "$BUILD_DIR" --config Release -j "$(nproc)"
 
-      - name: Build Assimp Shared Library
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          cmake --build build/android-${{ matrix.abi }} --config Release -j $(nproc)
-
-      - name: Generate SWIG C# Bindings for Android
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p swig_output/android
-          swig -c++ -csharp \
-            -doxygen \
+          SWIG_PARSE_ROOT="$(mktemp -d)"
+          trap 'rm -rf "$SWIG_PARSE_ROOT"' EXIT
+          mkdir -p "$SWIG_PARSE_ROOT/assimp"
+          cp -R external/assimp/include/assimp/. "$SWIG_PARSE_ROOT/assimp/"
+          sed 's#external/assimp/include/assimp/#assimp/#g' swig/assimp.i > "$SWIG_PARSE_ROOT/assimp.i"
+          while IFS= read -r -d '' header; do
+            awk '
+              function force32(v) { return v ~ /^[[:space:]]*_[A-Za-z0-9]+_Force32Bit[[:space:]]*=[[:space:]]*INT_MAX/ || v ~ /^[[:space:]]*FORCE_32BIT[[:space:]]*=[[:space:]]*INT_MAX/ }
+              BEGIN { in_doc=0; pending=0; doc="" }
+              {
+                line=$0
+                if (in_doc) { doc=doc line ORS; if (line ~ /\*\//) { in_doc=0; pending=1 }; next }
+                if (pending) {
+                  if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
+                    if ((getline sentinel) <= 0) { printf "%s",doc; print line; next }
+                    if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; doc=""; pending=0; next }
+                    printf "%s",doc; print line; print sentinel; doc=""; pending=0; next
+                  }
+                  printf "%s",doc; doc=""; pending=0
+                }
+                if (line ~ /^[[:space:]]*\/\*\*/) { doc=line ORS; if (line !~ /\*\//) in_doc=1; else pending=1; next }
+                if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
+                  if ((getline sentinel) <= 0) { print line; next }
+                  if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; next }
+                  print line; print sentinel; next
+                }
+                print line
+              }
+              END { if (in_doc || pending) printf "%s",doc }
+            ' "$header" > "$header.tmp"
+            sed -E 's/^([[:space:]]*};)[[:space:]]*\/\/!+ enum.*$/\1/' "$header.tmp" > "$header"
+            rm -f "$header.tmp"
+          done < <(find "$SWIG_PARSE_ROOT/assimp" -type f -name '*.h' -print0)
+          mkdir -p src/Assimp.Maui/Platforms/Android/Maui
+          swig -c++ -csharp -doxygen \
             -namespace Assimp.Maui \
             -dllimport assimpmaui \
-            -outdir swig_output/android \
-            -o swig_output/android/assimpmaui.cxx \
-            swig/assimp.i
+            -I"$SWIG_PARSE_ROOT" \
+            -outdir src/Assimp.Maui/Platforms/Android/Maui \
+            -o src/Assimp.Maui/Platforms/Android/Maui/assimpmaui.cxx \
+            "$SWIG_PARSE_ROOT/assimp.i"
 
-      - name: Build Native SWIG Wrapper (.so)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
           case "${{ matrix.abi }}" in
-            "armeabi-v7a")
-              HOST_TRIPLET="armv7a-linux-androideabi24"
-              ;;
-            "arm64-v8a")
-              HOST_TRIPLET="aarch64-linux-android24"
-              ;;
-            "x86")
-              HOST_TRIPLET="i686-linux-android24"
-              ;;
-            "x86_64")
-              HOST_TRIPLET="x86_64-linux-android24"
-              ;;
+            armeabi-v7a) HOST_TRIPLET=armv7a-linux-androideabi24; NDK_LIBCXX_ABI=arm-linux-androideabi ;;
+            arm64-v8a) HOST_TRIPLET=aarch64-linux-android24; NDK_LIBCXX_ABI=aarch64-linux-android ;;
+            x86) HOST_TRIPLET=i686-linux-android24; NDK_LIBCXX_ABI=i686-linux-android ;;
+            x86_64) HOST_TRIPLET=x86_64-linux-android24; NDK_LIBCXX_ABI=x86_64-linux-android ;;
           esac
-
           NDK_CLANG="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/${HOST_TRIPLET}-clang++"
-
-          $NDK_CLANG -shared -fPIC -O3 \
-            -Wl,-z,max-page-size=16384 \
-            swig_output/android/assimpmaui.cxx \
-            -Iexternal/assimp/include \
-            -Ibuild/android-${{ matrix.abi }}/include \
-            -Lbuild/android-${{ matrix.abi }}/bin \
-            -Lbuild/android-${{ matrix.abi }}/lib \
-            -lassimp \
-            -o build/android-${{ matrix.abi }}/bin/libassimpmaui.so
+          "$NDK_CLANG" -shared -fPIC -O3 -Wl,-z,max-page-size=16384 \
+            src/Assimp.Maui/Platforms/Android/Maui/assimpmaui.cxx \
+            -Iexternal/assimp/include -I"$BUILD_DIR/include" \
+            -L"$BUILD_DIR/bin" -L"$BUILD_DIR/lib" -lassimp \
+            -o "$BUILD_DIR/bin/libassimpmaui.so"
 
       - name: Compress Generated C# Classes
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          cd swig_output/android
-          zip -r ../../assimp-csharp-android-${{ matrix.abi }}-bindings.zip . -x "assimpmaui.cxx"
+          cd src/Assimp.Maui/Platforms/Android/Maui
+          zip -r "$GITHUB_WORKSPACE/assimp-csharp-android-${{ matrix.abi }}-bindings.zip" . -x "assimpmaui.cxx"
 
       - name: Prepare Android Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
@@ -237,16 +250,23 @@ jobs:
         run: |
           brew install swig cmake
 
-      - name: Configure CMake for iOS (${{ matrix.sdk }} - ${{ matrix.arch }})
+      - name: Build iOS native library and C# bindings
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p build/ios-${{ matrix.sdk }}-${{ matrix.arch }}
-          cmake -S external/assimp -B build/ios-${{ matrix.sdk }}-${{ matrix.arch }} \
+          if [ "${{ matrix.sdk }}" = "iphoneos" ]; then
+            BUILD_DIR=build/ios-arm64
+            SDK_FLAG="-miphoneos-version-min=${{ matrix.min_version }}"
+          else
+            BUILD_DIR=build/ios-simulator-arm64
+            SDK_FLAG="-mios-simulator-version-min=${{ matrix.min_version }}"
+          fi
+          set -euo pipefail
+          cmake -S external/assimp -B "$BUILD_DIR" \
             -G "Unix Makefiles" \
             -DCMAKE_SYSTEM_NAME=iOS \
-            -DCMAKE_OSX_SYSROOT=${{ matrix.sdk }} \
-            -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min_version }} \
+            -DCMAKE_OSX_SYSROOT="${{ matrix.sdk }}" \
+            -DCMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET="${{ matrix.min_version }}" \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=OFF \
             -DASSIMP_BUILD_TESTS=OFF \
@@ -254,58 +274,76 @@ jobs:
             -DASSIMP_BUILD_ZLIB=OFF \
             -DASSIMP_INSTALL_PDB=OFF \
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
+          cmake --build "$BUILD_DIR" --config Release -j "$(sysctl -n hw.ncpu)"
 
-      - name: Build Assimp Static Library
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          cmake --build build/ios-${{ matrix.sdk }}-${{ matrix.arch }} --config Release -j $(sysctl -n hw.ncpu)
-
-      - name: Generate SWIG C# Bindings for iOS
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p swig_output/ios
-          swig -c++ -csharp \
-            -doxygen \
+          SWIG_PARSE_ROOT="$(mktemp -d)"
+          trap 'rm -rf "$SWIG_PARSE_ROOT"' EXIT
+          mkdir -p "$SWIG_PARSE_ROOT/assimp"
+          cp -R external/assimp/include/assimp/. "$SWIG_PARSE_ROOT/assimp/"
+          sed 's#external/assimp/include/assimp/#assimp/#g' swig/assimp.i > "$SWIG_PARSE_ROOT/assimp.i"
+          while IFS= read -r -d '' header; do
+            awk '
+              function force32(v) { return v ~ /^[[:space:]]*_[A-Za-z0-9]+_Force32Bit[[:space:]]*=[[:space:]]*INT_MAX/ || v ~ /^[[:space:]]*FORCE_32BIT[[:space:]]*=[[:space:]]*INT_MAX/ }
+              BEGIN { in_doc=0; pending=0; doc="" }
+              {
+                line=$0
+                if (in_doc) { doc=doc line ORS; if (line ~ /\*\//) { in_doc=0; pending=1 }; next }
+                if (pending) {
+                  if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
+                    if ((getline sentinel) <= 0) { printf "%s",doc; print line; next }
+                    if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; doc=""; pending=0; next }
+                    printf "%s",doc; print line; print sentinel; doc=""; pending=0; next
+                  }
+                  printf "%s",doc; doc=""; pending=0
+                }
+                if (line ~ /^[[:space:]]*\/\*\*/) { doc=line ORS; if (line !~ /\*\//) in_doc=1; else pending=1; next }
+                if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
+                  if ((getline sentinel) <= 0) { print line; next }
+                  if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; next }
+                  print line; print sentinel; next
+                }
+                print line
+              }
+              END { if (in_doc || pending) printf "%s",doc }
+            ' "$header" > "$header.tmp"
+            sed -E 's/^([[:space:]]*};)[[:space:]]*\/\/!+ enum.*$/\1/' "$header.tmp" > "$header"
+            rm -f "$header.tmp"
+          done < <(find "$SWIG_PARSE_ROOT/assimp" -type f -name '*.h' -print0)
+          mkdir -p src/Assimp.Maui/Platforms/iOS/Maui "$BUILD_DIR/lib"
+          swig -c++ -csharp -doxygen \
             -namespace Assimp.Maui \
             -dllimport __Internal \
-            -outdir swig_output/ios \
-            -o swig_output/ios/assimpmaui.cxx \
-            swig/assimp.i
-
-      - name: Build Native SWIG Static Wrapper (.a)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          if [ "${{ matrix.sdk }}" = "iphoneos" ]; then
-            SDK_FLAG="-miphoneos-version-min=${{ matrix.min_version }}"
-          else
-            SDK_FLAG="-mios-simulator-version-min=${{ matrix.min_version }}"
-          fi
-
-          xcrun -sdk ${{ matrix.sdk }} clang++ -c -O3 \
-            -arch ${{ matrix.arch }} \
-            $SDK_FLAG \
-            swig_output/ios/assimpmaui.cxx \
-            -Iexternal/assimp/include \
-            -Ibuild/ios-${{ matrix.sdk }}-${{ matrix.arch }}/include \
-            -o build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/assimpmaui.o
-          
-          ar rcs build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a \
-            build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/assimpmaui.o
+            -I"$SWIG_PARSE_ROOT" \
+            -outdir src/Assimp.Maui/Platforms/iOS/Maui \
+            -o src/Assimp.Maui/Platforms/iOS/Maui/assimpmaui.cxx \
+            "$SWIG_PARSE_ROOT/assimp.i"
+          xcrun -sdk "${{ matrix.sdk }}" clang++ -c -O3 -arch "${{ matrix.arch }}" $SDK_FLAG \
+            src/Assimp.Maui/Platforms/iOS/Maui/assimpmaui.cxx \
+            -Iexternal/assimp/include -I"$BUILD_DIR/include" \
+            -o "$BUILD_DIR/lib/assimpmaui.o"
+          ar rcs "$BUILD_DIR/lib/libassimpmaui.a" "$BUILD_DIR/lib/assimpmaui.o"
 
       - name: Compress Generated C# Classes
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          cd swig_output/ios
-          zip -r ../../assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip . -x "assimpmaui.cxx" "assimpmaui.o"
+          cd src/Assimp.Maui/Platforms/iOS/Maui
+          zip -r "$GITHUB_WORKSPACE/assimp-csharp-ios-${{ matrix.sdk }}-${{ matrix.arch }}-bindings.zip" . -x "assimpmaui.cxx" "assimpmaui.o"
 
       - name: Prepare iOS Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
-          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
-          cp build/ios-${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib
-          libtool -static -o artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimp.a artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/libassimpmaui.a
-          rm -rf artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/lib/
+          mkdir -p artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}
+          if [ "${{ matrix.sdk }}" = "iphoneos" ]; then
+            BUILD_NAME="ios-arm64"
+          else
+            BUILD_NAME="ios-simulator-arm64"
+          fi
+          cp "build/$BUILD_NAME/lib/libassimp.a" artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
+          cp "build/$BUILD_NAME/lib/libassimpmaui.a" artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/
+          libtool -static -o artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/libassimp.a \
+            artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/libassimp.a \
+            artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/libassimpmaui.a
+          rm -f artifacts/ios/${{ matrix.sdk }}-${{ matrix.arch }}/libassimpmaui.a
 
       - name: Upload Native Binaries (.a)
         uses: actions/upload-artifact@v4
@@ -353,15 +391,16 @@ jobs:
         run: |
           brew install swig cmake
 
-      - name: Configure CMake for Mac Catalyst (${{ matrix.arch }})
+      - name: Build Mac Catalyst native library and C# bindings
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p build/maccatalyst-${{ matrix.arch }}
-          cmake -S external/assimp -B build/maccatalyst-${{ matrix.arch }} \
+          set -euo pipefail
+          BUILD_DIR=build/maccatalyst-${{ matrix.arch }}
+          cmake -S external/assimp -B "$BUILD_DIR" \
             -G "Unix Makefiles" \
             -DCMAKE_SYSTEM_NAME=Darwin \
             -DCMAKE_OSX_SYSROOT=macosx \
-            -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+            -DCMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}" \
             -DCMAKE_C_FLAGS="-target ${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi" \
             -DCMAKE_CXX_FLAGS="-target ${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi" \
             -DCMAKE_BUILD_TYPE=Release \
@@ -371,51 +410,71 @@ jobs:
             -DASSIMP_BUILD_ZLIB=OFF \
             -DASSIMP_INSTALL_PDB=OFF \
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
+          cmake --build "$BUILD_DIR" --config Release -j "$(sysctl -n hw.ncpu)"
 
-      - name: Build Assimp Static Library (.a)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          cmake --build build/maccatalyst-${{ matrix.arch }} --config Release -j $(sysctl -n hw.ncpu)
-
-      - name: Generate SWIG C# Bindings for Mac Catalyst
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p swig_output/maccatalyst
-          swig -c++ -csharp \
-            -doxygen \
+          SWIG_PARSE_ROOT="$(mktemp -d)"
+          trap 'rm -rf "$SWIG_PARSE_ROOT"' EXIT
+          mkdir -p "$SWIG_PARSE_ROOT/assimp"
+          cp -R external/assimp/include/assimp/. "$SWIG_PARSE_ROOT/assimp/"
+          sed 's#external/assimp/include/assimp/#assimp/#g' swig/assimp.i > "$SWIG_PARSE_ROOT/assimp.i"
+          while IFS= read -r -d '' header; do
+            awk '
+              function force32(v) { return v ~ /^[[:space:]]*_[A-Za-z0-9]+_Force32Bit[[:space:]]*=[[:space:]]*INT_MAX/ || v ~ /^[[:space:]]*FORCE_32BIT[[:space:]]*=[[:space:]]*INT_MAX/ }
+              BEGIN { in_doc=0; pending=0; doc="" }
+              {
+                line=$0
+                if (in_doc) { doc=doc line ORS; if (line ~ /\*\//) { in_doc=0; pending=1 }; next }
+                if (pending) {
+                  if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
+                    if ((getline sentinel) <= 0) { printf "%s",doc; print line; next }
+                    if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; doc=""; pending=0; next }
+                    printf "%s",doc; print line; print sentinel; doc=""; pending=0; next
+                  }
+                  printf "%s",doc; doc=""; pending=0
+                }
+                if (line ~ /^[[:space:]]*\/\*\*/) { doc=line ORS; if (line !~ /\*\//) in_doc=1; else pending=1; next }
+                if (line ~ /^[[:space:]]*#ifndef SWIG[[:space:]]*$/) {
+                  if ((getline sentinel) <= 0) { print line; next }
+                  if (force32(sentinel) && (getline ending) > 0 && ending ~ /^[[:space:]]*#endif/) { print "    /* SWIG parser: omitted 32-bit enum sentinel. */"; next }
+                  print line; print sentinel; next
+                }
+                print line
+              }
+              END { if (in_doc || pending) printf "%s",doc }
+            ' "$header" > "$header.tmp"
+            sed -E 's/^([[:space:]]*};)[[:space:]]*\/\/!+ enum.*$/\1/' "$header.tmp" > "$header"
+            rm -f "$header.tmp"
+          done < <(find "$SWIG_PARSE_ROOT/assimp" -type f -name '*.h' -print0)
+          mkdir -p src/Assimp.Maui/Platforms/MacCatalyst/Maui "$BUILD_DIR/lib"
+          swig -c++ -csharp -doxygen \
             -namespace Assimp.Maui \
             -dllimport __Internal \
-            -outdir swig_output/maccatalyst \
-            -o swig_output/maccatalyst/assimpmaui.cxx \
-            swig/assimp.i
-
-      - name: Build Native SWIG Static Wrapper (.a)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          xcrun -sdk macosx clang++ -c -O3 \
-            -target ${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi \
-            swig_output/maccatalyst/assimpmaui.cxx \
-            -Iexternal/assimp/include \
-            -Ibuild/maccatalyst-${{ matrix.arch }}/include \
-            -o build/maccatalyst-${{ matrix.arch }}/lib/assimpmaui.o
-          
-          ar rcs build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a \
-            build/maccatalyst-${{ matrix.arch }}/lib/assimpmaui.o
+            -I"$SWIG_PARSE_ROOT" \
+            -outdir src/Assimp.Maui/Platforms/MacCatalyst/Maui \
+            -o src/Assimp.Maui/Platforms/MacCatalyst/Maui/assimpmaui.cxx \
+            "$SWIG_PARSE_ROOT/assimp.i"
+          xcrun -sdk macosx clang++ -target "${{ matrix.arch }}-apple-ios${{ matrix.min_version }}-macabi" -c -O3 \
+            src/Assimp.Maui/Platforms/MacCatalyst/Maui/assimpmaui.cxx \
+            -Iexternal/assimp/include -I"$BUILD_DIR/include" \
+            -o "$BUILD_DIR/lib/assimpmaui.o"
+          ar rcs "$BUILD_DIR/lib/libassimpmaui.a" "$BUILD_DIR/lib/assimpmaui.o"
 
       - name: Compress Generated C# Classes
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          cd swig_output/maccatalyst
-          zip -r ../../assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings.zip . -x "assimpmaui.cxx" "assimpmaui.o"
+          cd src/Assimp.Maui/Platforms/MacCatalyst/Maui
+          zip -r "$GITHUB_WORKSPACE/assimp-csharp-maccatalyst-${{ matrix.arch }}-bindings.zip" . -x "assimpmaui.cxx" "assimpmaui.o"
 
       - name: Prepare Mac Catalyst Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          mkdir -p artifacts/maccatalyst/${{ matrix.arch }}/lib
-          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib
-          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/maccatalyst/${{ matrix.arch }}/lib
-          libtool -static -o artifacts/maccatalyst/${{ matrix.arch }}/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/lib/libassimpmaui.a
-          rm -rf artifacts/maccatalyst/${{ matrix.arch }}/lib
+          mkdir -p artifacts/maccatalyst/${{ matrix.arch }}
+          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimp.a artifacts/maccatalyst/${{ matrix.arch }}/
+          cp build/maccatalyst-${{ matrix.arch }}/lib/libassimpmaui.a artifacts/maccatalyst/${{ matrix.arch }}/
+          libtool -static -o artifacts/maccatalyst/${{ matrix.arch }}/libassimp.a \
+            artifacts/maccatalyst/${{ matrix.arch }}/libassimp.a \
+            artifacts/maccatalyst/${{ matrix.arch }}/libassimpmaui.a
+          rm -f artifacts/maccatalyst/${{ matrix.arch }}/libassimpmaui.a
           
       - name: Upload Native Binaries (.a)
         uses: actions/upload-artifact@v4
@@ -461,16 +520,19 @@ jobs:
           fetch-depth: 0
 
       - name: Install SWIG via Chocolatey
-        if: steps.cache.outputs.cache-hit != 'true'      
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           choco install swig -y
 
-      - name: Configure CMake for Windows (${{ matrix.arch }})
+      - name: Build Windows native library and C# bindings
         if: steps.cache.outputs.cache-hit != 'true'
+        shell: pwsh
         run: |
-          cmake -S external/assimp -B build/windows-${{ matrix.arch }} `
-            -G "Visual Studio 17 2022" `
-            -A ${{ matrix.generator_arch }} `
+          $ErrorActionPreference = 'Stop'
+          $buildDir = "build/windows-${{ matrix.arch }}"
+          cmake -S external/assimp -B $buildDir `
+            -G 'Visual Studio 17 2022' `
+            -A '${{ matrix.generator_arch }}' `
             -DCMAKE_BUILD_TYPE=Release `
             -DBUILD_SHARED_LIBS=ON `
             -DASSIMP_BUILD_TESTS=OFF `
@@ -478,45 +540,69 @@ jobs:
             -DASSIMP_BUILD_ZLIB=ON `
             -DASSIMP_INSTALL_PDB=OFF `
             -DASSIMP_INJECT_DEBUG_POSTFIX=OFF
+          cmake --build $buildDir --config Release -j $env:NUMBER_OF_PROCESSORS
 
-      - name: Build Assimp DLL
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          cmake --build build/windows-${{ matrix.arch }} --config Release -j $env:NUMBER_OF_PROCESSORS
+          $swigParseRoot = Join-Path $env:RUNNER_TEMP ("assimp-swig-headers-" + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Force -Path (Join-Path $swigParseRoot 'assimp') | Out-Null
+          Copy-Item -Recurse -Force 'external/assimp/include/assimp/*' (Join-Path $swigParseRoot 'assimp')
+          $swigInterface = Join-Path $swigParseRoot 'assimp.i'
+          [IO.File]::WriteAllText($swigInterface, [IO.File]::ReadAllText('swig/assimp.i').Replace('external/assimp/include/assimp/', 'assimp/'))
+          $force32Pattern = '^[ \t]*_[A-Za-z0-9]+_Force32Bit[ \t]*=[ \t]*INT_MAX'
+          $force32MetadataPattern = '^[ \t]*FORCE_32BIT[ \t]*=[ \t]*INT_MAX'
+          $enumTailPattern = '^[ \t]*};[ \t]*//!+ enum.*$'
+          foreach ($header in Get-ChildItem -LiteralPath (Join-Path $swigParseRoot 'assimp') -Filter '*.h' -Recurse -File) {
+            $lines = [IO.File]::ReadAllText($header.FullName) -split "`r?`n"
+            $output = New-Object 'System.Collections.Generic.List[string]'
+            for ($index = 0; $index -lt $lines.Length; $index++) {
+              if ($lines[$index] -match '^\s*/\*\*') {
+                $docLines = New-Object 'System.Collections.Generic.List[string]'
+                do {
+                  $docLines.Add($lines[$index])
+                  $closed = $lines[$index] -match '\*/'
+                  $index++
+                  if ($index -ge $lines.Length) { break }
+                } while (-not $closed)
+                if (($index + 2) -lt $lines.Length -and $lines[$index] -match '^\s*#ifndef SWIG\s*$' -and ($lines[$index + 1] -match $force32Pattern -or $lines[$index + 1] -match $force32MetadataPattern) -and $lines[$index + 2] -match '^\s*#endif') {
+                  $output.Add('    /* SWIG parser: omitted 32-bit enum sentinel. */')
+                  $index += 2
+                  continue
+                }
+                foreach ($docLine in $docLines) { $output.Add($docLine) }
+                $index--
+                continue
+              }
+              if ($lines[$index] -match '^\s*#ifndef SWIG\s*$' -and ($index + 2) -lt $lines.Length -and ($lines[$index + 1] -match $force32Pattern -or $lines[$index + 1] -match $force32MetadataPattern) -and $lines[$index + 2] -match '^\s*#endif') {
+                $output.Add('    /* SWIG parser: omitted 32-bit enum sentinel. */')
+                $index += 2
+                continue
+              }
+              if ($lines[$index] -match $enumTailPattern) { $output.Add('};') } else { $output.Add($lines[$index]) }
+            }
+            [IO.File]::WriteAllText($header.FullName, ($output -join [Environment]::NewLine))
+          }
+          New-Item -ItemType Directory -Force -Path 'src/Assimp.Maui/Platforms/Windows/Maui' | Out-Null
+          & swig -c++ -csharp -doxygen -namespace Assimp.Maui -dllimport assimpmaui ("-I" + $swigParseRoot) `
+            -outdir 'src/Assimp.Maui/Platforms/Windows/Maui' `
+            -o 'src/Assimp.Maui/Platforms/Windows/Maui/assimpmaui.cxx' $swigInterface
+          if ($LASTEXITCODE -ne 0) { throw 'SWIG C# binding generation failed.' }
 
-      - name: Generate SWIG C# Bindings for Windows
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          New-Item -ItemType Directory -Force -Path swig_output/windows
-          swig -c++ -csharp `
-            -doxygen `
-            -namespace Assimp.Maui `
-            -dllimport assimpmaui `
-            -outdir swig_output/windows `
-            -o swig_output/windows/assimpmaui.cxx `
-            swig/assimp.i
-
-      - name: Build Native SWIG Wrapper DLL
-        if: steps.cache.outputs.cache-hit != 'true'
-        shell: cmd
-        run: |
-          :: Define a arquitetura do toolchain cruzado (x64_arm64 para buildar ARM64 a partir do runner x64)
-          if "${{ matrix.arch }}" == "arm64" ( set VCVARS_ARCH=x64_arm64 ) else ( set VCVARS_ARCH=x64 )
-          
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" %VCVARS_ARCH%
-          
-          :: A flag /std:c++17 resolve o erro C7525 do defs.h do Assimp
-          cl /LD /EHsc /O2 /std:c++17 ^
-            swig_output\windows\assimpmaui.cxx ^
-            /Iexternal\assimp\include ^
-            /Ibuild\windows-${{ matrix.arch }}\include ^
-            /link /LIBPATH:build\windows-${{ matrix.arch }}\lib\Release assimp-vc143-mt.lib ^
-            /OUT:build\windows-${{ matrix.arch }}\bin\Release\assimpmaui.dll
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $vcvars = Join-Path $vsPath 'VC/Auxiliary/Build/vcvarsall.bat'
+          $vcvarsArch = if ('${{ matrix.arch }}' -eq 'arm64') { 'x64_arm64' } else { 'x64' }
+          $cmdScript = @"
+          call "$vcvars" $vcvarsArch
+          cl /LD /EHsc /O2 /std:c++17 src\Assimp.Maui\Platforms\Windows\Maui\assimpmaui.cxx /Iexternal\assimp\include /I$buildDir\include /link /LIBPATH:$buildDir\lib\Release assimp-vc143-mt.lib /OUT:$buildDir\bin\Release\assimpmaui.dll
+          "@
+          $cmdFile = Join-Path $env:RUNNER_TEMP 'build-assimpmaui.bat'
+          Set-Content -Path $cmdFile -Value $cmdScript -Encoding ASCII
+          cmd.exe /c $cmdFile
+          if ($LASTEXITCODE -ne 0) { throw 'Native SWIG wrapper build failed.' }
 
       - name: Compress Generated C# Classes
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          Compress-Archive -Path swig_output/windows/*.cs -DestinationPath assimp-csharp-windows-${{ matrix.arch }}-bindings.zip
+          Compress-Archive -Path src/Assimp.Maui/Platforms/Windows/Maui/*.cs -DestinationPath assimp-csharp-windows-${{ matrix.arch }}-bindings.zip
 
       - name: Prepare Windows Artifacts
         if: steps.cache.outputs.cache-hit != 'true'
@@ -905,4 +991,3 @@ jobs:
       #       --skip-duplicate
       #   env: 
       #     VERSION: ${{ env.VERSION }}
- 

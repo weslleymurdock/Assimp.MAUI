@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>Type to store a in-memory data buffer.</summary>
 
 public class Buffer : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +58,7 @@ public class Buffer : global::System.IDisposable {
     }
   }
 
+  ///  Begin poiner
   public string data {
     set {
       AssimpPINVOKE.Buffer_data_set(swigCPtr, value);
@@ -67,6 +69,7 @@ public class Buffer : global::System.IDisposable {
     } 
   }
 
+  ///  End pointer
   public string end {
     set {
       AssimpPINVOKE.Buffer_end_set(swigCPtr, value);
@@ -77,6 +80,7 @@ public class Buffer : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The class constructor.</summary>
   public Buffer() : this(AssimpPINVOKE.new_Buffer(), true) {
   }
 

@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// A time-value pair specifying a rotation for the given time.
+/// Rotations are expressed with quaternions.
 
 public class QuatKey : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +59,7 @@ public class QuatKey : global::System.IDisposable {
     }
   }
 
+  ///  The time of this key
   public double Time {
     set {
       AssimpPINVOKE.QuatKey_Time_set(swigCPtr, value);
@@ -67,6 +70,7 @@ public class QuatKey : global::System.IDisposable {
     } 
   }
 
+  ///  The value of this key
   public SWIGTYPE_p_aiQuaterniontT_float_t Value {
     set {
       AssimpPINVOKE.QuatKey_Value_set(swigCPtr, SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(value));
@@ -78,6 +82,7 @@ public class QuatKey : global::System.IDisposable {
     } 
   }
 
+  ///  The interpolation setting of this key
   public AnimInterpolation Interpolation {
     set {
       AssimpPINVOKE.QuatKey_Interpolation_set(swigCPtr, (int)value);
@@ -91,6 +96,7 @@ public class QuatKey : global::System.IDisposable {
   public QuatKey() : this(AssimpPINVOKE.new_QuatKey__SWIG_0(), true) {
   }
 
+  ///  Construction from a given time and key value
   public QuatKey(double time, SWIGTYPE_p_aiQuaterniontT_float_t value) : this(AssimpPINVOKE.new_QuatKey__SWIG_1(time, SWIGTYPE_p_aiQuaterniontT_float_t.getCPtr(value)), true) {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }

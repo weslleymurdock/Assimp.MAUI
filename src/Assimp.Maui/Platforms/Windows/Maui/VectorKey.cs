@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+///  A time-value pair specifying a certain 3D vector for the given time.
 
 public class VectorKey : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +58,7 @@ public class VectorKey : global::System.IDisposable {
     }
   }
 
+  ///  The time of this key
   public double Time {
     set {
       AssimpPINVOKE.VectorKey_Time_set(swigCPtr, value);
@@ -67,6 +69,7 @@ public class VectorKey : global::System.IDisposable {
     } 
   }
 
+  ///  The value of this key
   public SWIGTYPE_p_aiVector3tT_float_t Value {
     set {
       AssimpPINVOKE.VectorKey_Value_set(swigCPtr, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value));
@@ -78,6 +81,7 @@ public class VectorKey : global::System.IDisposable {
     } 
   }
 
+  ///  The interpolation setting of this key
   public AnimInterpolation Interpolation {
     set {
       AssimpPINVOKE.VectorKey_Interpolation_set(swigCPtr, (int)value);
@@ -88,9 +92,11 @@ public class VectorKey : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The default constructor.</summary>
   public VectorKey() : this(AssimpPINVOKE.new_VectorKey__SWIG_0(), true) {
   }
 
+  /// <summary>Construction from a given time and key value.</summary>
   public VectorKey(double time, SWIGTYPE_p_aiVector3tT_float_t value) : this(AssimpPINVOKE.new_VectorKey__SWIG_1(time, SWIGTYPE_p_aiVector3tT_float_t.getCPtr(value)), true) {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }

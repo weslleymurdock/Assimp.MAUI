@@ -9,6 +9,17 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>A skeleton represents the bone hierarchy of an animation.</summary>
+/// Skeleton animations can be described as a tree of bones:
+///                  root
+///                    |
+///                  node1
+///                  /
+///               node3  node4
+/// If you want to calculate the transformation of node three you need to compute the
+/// transformation hierarchy for the transformation chain of node3:
+/// root-&gt;node1-&gt;node3
+/// Each node is represented as a skeleton instance.
 
 public class Skeleton : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +68,7 @@ public class Skeleton : global::System.IDisposable {
     }
   }
 
+  /// <summary>The name of the skeleton instance.</summary>
   public String Name {
     set {
       AssimpPINVOKE.Skeleton_Name_set(swigCPtr, String.getCPtr(value));
@@ -68,6 +80,7 @@ public class Skeleton : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The number of bones in the skeleton.</summary>
   public uint NumBones {
     set {
       AssimpPINVOKE.Skeleton_NumBones_set(swigCPtr, value);
@@ -78,6 +91,7 @@ public class Skeleton : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The bone instance in the skeleton.</summary>
   public SWIGTYPE_p_p_aiSkeletonBone Bones {
     set {
       AssimpPINVOKE.Skeleton_Bones_set(swigCPtr, SWIGTYPE_p_p_aiSkeletonBone.getCPtr(value));
@@ -89,6 +103,7 @@ public class Skeleton : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The class constructor.</summary>
   public Skeleton() : this(AssimpPINVOKE.new_Skeleton(), true) {
   }
 

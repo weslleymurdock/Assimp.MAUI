@@ -10,18 +10,57 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Defines all shading models supported by the library</summary>
+///  Property: #AI_MATKEY_SHADING_MODEL
+///  The list of shading modes has been taken from Blender.
+///  See Blender documentation for more information. The API does
+///  not distinguish between "specular" and "diffuse" shaders (thus the
+///  specular term for diffuse shading models like Oren-Nayar remains
+///  undefined). 
+///
+///  Again, this value is just a hint. Assimp tries to select the shader whose
+///  most common implementation matches the original rendering results of the
+///  3D modeler which wrote a particular model as closely as possible.
 public enum ShadingMode {
+  /// Flat shading. Shading is done on per-face base,
+  /// diffuse only. Also known as 'faceted shading'.
   ShadingMode_Flat = 1,
+  ///  Simple Gouraud shading.
   ShadingMode_Gouraud = 2,
+  ///  Phong-Shading -
   ShadingMode_Phong = 3,
+  ///  Phong-Blinn-Shading
   ShadingMode_Blinn = 4,
+  /// Toon-Shading per pixel
+  /// Also known as 'comic' shader.
   ShadingMode_Toon = 5,
+  /// OrenNayar-Shading per pixel
+  /// Extension to standard Lambertian shading, taking the
+  /// roughness of the material into account
   ShadingMode_OrenNayar = 6,
+  /// Minnaert-Shading per pixel
+  /// Extension to standard Lambertian shading, taking the
+  /// "darkness" of the material into account
   ShadingMode_Minnaert = 7,
+  /// CookTorrance-Shading per pixel
+  /// Special shader for metallic surfaces.
   ShadingMode_CookTorrance = 8,
+  ///  No shading at all. Constant light influence of 1.0.
+  /// Also known as "Unlit"
   ShadingMode_NoShading = 9,
   ShadingMode_Unlit = ShadingMode_NoShading,
+  ///  Fresnel shading
   ShadingMode_Fresnel = 10,
+  ///  Physically-Based Rendering (PBR) shading using
+  /// Bidirectional scattering/reflectance distribution function (BSDF/BRDF)
+  /// There are multiple methods under this banner, and model files may provide
+  /// data for more than one PBR-BRDF method.
+  /// Applications should use the set of provided properties to determine which
+  /// of their preferred PBR rendering methods are likely to be available
+  /// eg:
+  /// - If AI_MATKEY_METALLIC_FACTOR is set, then a Metallic/Roughness is available
+  /// - If AI_MATKEY_GLOSSINESS_FACTOR is set, then a Specular/Glossiness is available
+  /// Note that some PBR methods allow layering of techniques
   ShadingMode_PBR_BRDF = 11
 }
 

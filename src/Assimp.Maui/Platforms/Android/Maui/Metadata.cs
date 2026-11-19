@@ -9,6 +9,8 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// Container for holding metadata.
+/// Metadata is a key-value store using string keys and values.
 
 public class Metadata : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +59,7 @@ public class Metadata : global::System.IDisposable {
     }
   }
 
+  ///  Length of the mKeys and mValues arrays, respectively
   public uint NumProperties {
     set {
       AssimpPINVOKE.Metadata_NumProperties_set(swigCPtr, value);
@@ -67,6 +70,7 @@ public class Metadata : global::System.IDisposable {
     } 
   }
 
+  ///  Arrays of keys, may not be NULL. Entries in this array may not be NULL as well.
   public String Keys {
     set {
       AssimpPINVOKE.Metadata_Keys_set(swigCPtr, String.getCPtr(value));
@@ -78,6 +82,8 @@ public class Metadata : global::System.IDisposable {
     } 
   }
 
+  ///  Arrays of values, may not be NULL. Entries in this array may be NULL if the
+  /// corresponding property key has no assigned value.
   public MetadataEntry Values {
     set {
       AssimpPINVOKE.Metadata_Values_set(swigCPtr, MetadataEntry.getCPtr(value));
@@ -89,6 +95,7 @@ public class Metadata : global::System.IDisposable {
     } 
   }
 
+  /// <summary>The default constructor, set all members to zero by default.</summary>
   public Metadata() : this(AssimpPINVOKE.new_Metadata__SWIG_0(), true) {
   }
 
@@ -96,22 +103,28 @@ public class Metadata : global::System.IDisposable {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  /// <summary>Allocates property fields + keys.</summary>
+  /// <param name="numProperties">   Number of requested properties.</param>
   public static Metadata Alloc(uint numProperties) {
     global::System.IntPtr cPtr = AssimpPINVOKE.Metadata_Alloc(numProperties);
     Metadata ret = (cPtr == global::System.IntPtr.Zero) ? null : new Metadata(cPtr, false);
     return ret;
   }
 
+  /// <summary>Deallocates property fields + keys.</summary>
   public static void Dealloc(Metadata metadata) {
     AssimpPINVOKE.Metadata_Dealloc(Metadata.getCPtr(metadata));
   }
 
+  ///  Return metadata entry for analyzing it by user.
+  /// <returns>false - if index is out of range, else - true.</returns>
   public bool Get(uint index, SWIGTYPE_p_p_aiString key, SWIGTYPE_p_p_aiMetadataEntry entry) {
     bool ret = AssimpPINVOKE.Metadata_Get(swigCPtr, index, SWIGTYPE_p_p_aiString.getCPtr(key), SWIGTYPE_p_p_aiMetadataEntry.getCPtr(entry));
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
+  ///  Check whether there is a metadata entry for the given key.
   public bool HasKey(string key) {
     bool ret = AssimpPINVOKE.Metadata_HasKey(swigCPtr, key);
     return ret;

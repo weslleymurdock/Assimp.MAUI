@@ -19,7 +19,7 @@ if ($Arch.Count -gt 1) {
 }
 
 $ErrorActionPreference = "Stop"
-$ASSIMP_TAG = "v6.0.5"
+$ASSIMP_TAG = if ($env:ASSIMP_TAG) { $env:ASSIMP_TAG } else { "v6.0.6" }
 $BUILD_DIR = "$PSScriptRoot/../build/windows-$Arch"
 $SWIG_OUT = "$PSScriptRoot/../src/Assimp.Maui/Platforms/Windows/Maui"
 $RUNTIME_RID = if ($Arch -eq "arm64") { "win-arm64" } else { "win-x64" }
@@ -154,13 +154,71 @@ cmake --build $BUILD_DIR --config Release -j $env:NUMBER_OF_PROCESSORS
 Write-Host "=== 4. Generating SWIG C# Bindings for Windows ===" -ForegroundColor Cyan
 New-Item -ItemType Directory -Force -Path $SWIG_OUT | Out-Null
 
-swig -c++ -csharp `
+$swigParseRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("assimp-swig-headers-" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Force -Path (Join-Path $swigParseRoot "assimp") | Out-Null
+Copy-Item -Recurse -Force "external/assimp/include/assimp/*" (Join-Path $swigParseRoot "assimp")
+$swigInterface = Join-Path $swigParseRoot "assimp.i"
+$interfaceText = [System.IO.File]::ReadAllText("swig/assimp.i").Replace("external/assimp/include/assimp/", "assimp/")
+[System.IO.File]::WriteAllText($swigInterface, $interfaceText)
+
+$force32Pattern = '^[ \t]*_[A-Za-z0-9]+_Force32Bit[ \t]*=[ \t]*INT_MAX'
+$force32MetadataPattern = '^[ \t]*FORCE_32BIT[ \t]*=[ \t]*INT_MAX'
+$enumTailPattern = '^[ \t]*};[ \t]*//!+ enum.*$'
+
+foreach ($header in (Get-ChildItem -LiteralPath (Join-Path $swigParseRoot "assimp") -Filter "*.h" -Recurse -File)) {
+    $lines = [System.IO.File]::ReadAllText($header.FullName) -split "`r?`n"
+    $output = New-Object 'System.Collections.Generic.List[string]'
+    for ($index = 0; $index -lt $lines.Length; $index++) {
+        if ($lines[$index] -match '^\s*/\*\*') {
+            $docLines = New-Object 'System.Collections.Generic.List[string]'
+            do {
+                $docLines.Add($lines[$index])
+                $docClosed = $lines[$index] -match '\*/'
+                $index++
+                if ($index -ge $lines.Length) { break }
+            } while (-not $docClosed)
+
+            if (($index + 2) -lt $lines.Length -and
+                $lines[$index] -match '^\s*#ifndef SWIG\s*$' -and
+                ($lines[$index + 1] -match $force32Pattern -or $lines[$index + 1] -match $force32MetadataPattern) -and
+                $lines[$index + 2] -match '^\s*#endif') {
+                $output.Add('    /* SWIG parser: omitted 32-bit enum sentinel. */')
+                $index += 2
+                continue
+            }
+
+            foreach ($docLine in $docLines) { $output.Add($docLine) }
+            $index--
+            continue
+        }
+
+        if ($lines[$index] -match '^\s*#ifndef SWIG\s*$' -and ($index + 2) -lt $lines.Length -and ($lines[$index + 1] -match $force32Pattern -or $lines[$index + 1] -match $force32MetadataPattern) -and $lines[$index + 2] -match '^\s*#endif') {
+            $output.Add('    /* SWIG parser: omitted 32-bit enum sentinel. */')
+            $index += 2
+            continue
+        }
+
+        # Keep the workaround line-scoped: equivalent to sed on `}; //! enum ...`.
+        if ($lines[$index] -match $enumTailPattern) {
+            $output.Add("};")
+        } else {
+            $output.Add($lines[$index])
+        }
+    }
+    [System.IO.File]::WriteAllText($header.FullName, ($output -join [Environment]::NewLine))
+}
+
+Write-Host "Using $((& swig -version 2>&1 | Select-String 'SWIG Version' | ForEach-Object { $_.ToString().Trim() })) with Doxygen-enabled C# generation." -ForegroundColor Cyan
+& swig -c++ -csharp `
     -doxygen `
     -namespace Assimp.Maui `
     -dllimport "assimpmaui" `
+    ("-I" + $swigParseRoot) `
     -outdir $SWIG_OUT `
     -o "$SWIG_OUT/assimpmaui.cxx" `
-    swig/assimp.i
+    $swigInterface
+if ($LASTEXITCODE -ne 0) { throw "SWIG C# binding generation failed with Doxygen-enabled temporary headers." }
+Remove-Item -Recurse -Force $swigParseRoot
 
 Write-Host "=== 5. Building Native SWIG Wrapper DLL for Windows ($Arch) ===" -ForegroundColor Cyan
 $VcvarsArch = if ($Arch -eq "arm64") { "x64_arm64" } else { "x64" }

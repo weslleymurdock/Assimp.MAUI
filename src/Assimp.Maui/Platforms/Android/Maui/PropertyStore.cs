@@ -9,6 +9,14 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+///  C-API: Represents an opaque set of settings to be used during importing.
+/// <seealso cref="aiCreatePropertyStore"/>
+/// <seealso cref="aiReleasePropertyStore"/>
+/// <seealso cref="aiImportFileExWithProperties"/>
+/// <seealso cref="aiSetPropertyInteger"/>
+/// <seealso cref="aiSetPropertyFloat"/>
+/// <seealso cref="aiSetPropertyString"/>
+/// <seealso cref="aiSetPropertyMatrix"/>
 
 public class PropertyStore : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;

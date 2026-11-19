@@ -9,6 +9,21 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>Represents an UTF-8 string, zero byte terminated.</summary>
+///  The character set of an aiString is explicitly defined to be UTF-8. This Unicode
+///  transformation was chosen in the belief that most strings in 3d files are limited
+///  to ASCII, thus the character set needed to be strictly ASCII compatible.
+///  Most text file loaders provide proper Unicode input file handling, special unicode
+///  characters are correctly transcoded to UTF8 and are kept throughout the libraries'
+///  import pipeline.
+///  For most applications, it will be absolutely sufficient to interpret the
+///  aiString as ASCII data and work with it as one would work with a plain char*.
+///  Windows users in need of proper support for i.e asian characters can use the
+///  MultiByteToWideChar(), WideCharToMultiByte() WinAPI functionality to convert the
+///  UTF-8 strings to their working character set (i.e. MBCS, WideChar).
+///  We use this representation instead of std::string to be C-compatible. The
+///  (binary) length of such a string is limited to AI_MAXLEN characters (including the
+///  the terminating zero).
 
 public class String : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,36 +72,47 @@ public class String : global::System.IDisposable {
     }
   }
 
+  ///  Default constructor, the string is set to have zero length
   public String() : this(AssimpPINVOKE.new_String__SWIG_0(), true) {
   }
 
+  ///  Copy constructor
   public String(String rOther) : this(AssimpPINVOKE.new_String__SWIG_1(String.getCPtr(rOther)), true) {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  ///  Constructor from std::string
   public String(SWIGTYPE_p_std__string pString) : this(AssimpPINVOKE.new_String__SWIG_2(SWIGTYPE_p_std__string.getCPtr(pString)), true) {
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  ///  Copy a std::string to the aiString
   public void Set(SWIGTYPE_p_std__string pString) {
     AssimpPINVOKE.String_Set__SWIG_0(swigCPtr, SWIGTYPE_p_std__string.getCPtr(pString));
     if (AssimpPINVOKE.SWIGPendingException.Pending) throw AssimpPINVOKE.SWIGPendingException.Retrieve();
   }
 
+  ///  Copy a const char* to the aiString
   public void Set(string sz, uint maxlen) {
     AssimpPINVOKE.String_Set__SWIG_1(swigCPtr, sz, maxlen);
   }
 
+  ///  Returns a pointer to the underlying zero-terminated array of characters
   public string C_Str() {
     string ret = AssimpPINVOKE.String_C_Str(swigCPtr);
     return ret;
   }
 
+  /// <summary>Will return true, if the string is empty.</summary>
+  /// <returns>true if the string is empty, false if not</returns>
   public bool Empty() {
     bool ret = AssimpPINVOKE.String_Empty(swigCPtr);
     return ret;
   }
 
+  /// Binary length of the string excluding the terminal 0. This is NOT the
+  /// logical length of strings containing UTF-8 multi-byte sequences! It's
+  /// the number of bytes from the beginning of the string to its end.
   public uint length {
     set {
       AssimpPINVOKE.String_length_set(swigCPtr, value);
@@ -97,6 +123,7 @@ public class String : global::System.IDisposable {
     } 
   }
 
+  ///  String buffer. Size limit is AI_MAXLEN
   public string data {
     set {
       AssimpPINVOKE.String_data_set(swigCPtr, value);

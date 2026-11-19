@@ -10,12 +10,18 @@
 
 namespace Assimp.Maui {
 
+///  Enumerates all supported types of light sources.
 public enum LightSourceType {
   LightSource_UNDEFINED = 0,
+  ///  A directional light source has a well-defined direction but is infinitely far away. That's quite a good approximation for sun light.
   LightSource_DIRECTIONAL = 1,
+  ///  A point light source has a well-defined position in space but no direction - it emits light in all directions. A normal bulb is a point light.
   LightSource_POINT = 2,
+  ///  A spot light source emits light in a specific angle. It has a position and a direction it is pointing to. A good example for a spot light is a light spot in sport arenas.
   LightSource_SPOT = 3,
+  ///  The generic light level of the world, including the bounces of all other light sources. Typically, there's at most one ambient light in a scene. This light type doesn't have a valid position, direction, or other properties, just a color.
   LightSource_AMBIENT = 4,
+  ///  An area light is a rectangle with predefined size that uniformly emits light from one of its sides. The position is center of the rectangle and direction is its normal vector.
   LightSource_AREA = 5
 }
 

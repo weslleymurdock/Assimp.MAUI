@@ -9,6 +9,12 @@
 //------------------------------------------------------------------------------
 
 namespace Assimp.Maui {
+/// <summary>Defines how an UV channel is transformed.</summary>
+///  This is just a helper structure for the #AI_MATKEY_UVTRANSFORM key.
+///  See its documentation for more details.
+///  Typically you'll want to build a matrix of this information. However,
+///  we keep separate scaling/translation/rotation values to make it
+///  easier to process and optimize UV transformations internally.
 
 public class UVTransform : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
@@ -57,6 +63,8 @@ public class UVTransform : global::System.IDisposable {
     }
   }
 
+  /// Translation on the u and v axes.
+  /// The default value is (0|0).
   public SWIGTYPE_p_aiVector2tT_float_t Translation {
     set {
       AssimpPINVOKE.UVTransform_Translation_set(swigCPtr, SWIGTYPE_p_aiVector2tT_float_t.getCPtr(value));
@@ -68,6 +76,8 @@ public class UVTransform : global::System.IDisposable {
     } 
   }
 
+  /// Scaling on the u and v axes.
+  /// The default value is (1|1).
   public SWIGTYPE_p_aiVector2tT_float_t Scaling {
     set {
       AssimpPINVOKE.UVTransform_Scaling_set(swigCPtr, SWIGTYPE_p_aiVector2tT_float_t.getCPtr(value));
@@ -79,6 +89,10 @@ public class UVTransform : global::System.IDisposable {
     } 
   }
 
+  /// Rotation - in counter-clockwise direction.
+  /// The rotation angle is specified in radians. The
+  /// rotation center is 0.5f|0.5f. The default value
+  /// 0.f.
   public float Rotation {
     set {
       AssimpPINVOKE.UVTransform_Rotation_set(swigCPtr, value);

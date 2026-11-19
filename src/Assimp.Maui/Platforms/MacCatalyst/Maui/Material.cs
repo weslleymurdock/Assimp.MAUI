@@ -10,6 +10,12 @@
 
 namespace Assimp.Maui {
 
+/// <summary>Data structure for a material</summary>
+///  Material data is stored using a key-value structure. A single key-value
+///  pair is called a 'material property'. C++ users should use the provided
+///  member functions of aiMaterial to process material properties, C users
+///  have to stick with the aiGetMaterialXXX family of unbound functions.
+///  The library defines a set of standard keys (AI_MATKEY_XXX).
 public class Material : global::System.IDisposable {
   private global::System.Runtime.InteropServices.HandleRef swigCPtr;
   protected bool swigCMemOwn;
@@ -57,19 +63,27 @@ public class Material : global::System.IDisposable {
     }
   }
 
+  /// <summary>The class constructor.</summary>
   public Material() : this(AssimpPINVOKE.new_Material(), true) {
   }
 
+  /// <summary>Returns the name of the material.</summary>
+  /// <returns>The name of the material.</returns>
   public String GetName() {
     String ret = new String(AssimpPINVOKE.Material_GetName(swigCPtr), true);
     return ret;
   }
 
+  ///  Get the number of textures for a particular texture type.
+  /// <param name="type"> Texture type to check for</param> 
+  /// <returns>Number of textures for this type.</returns> 
+  /// A texture can be easily queried using #GetTexture()
   public uint GetTextureCount(TextureType type) {
     uint ret = AssimpPINVOKE.Material_GetTextureCount(swigCPtr, (int)type);
     return ret;
   }
 
+  ///  List of all material properties loaded.
   public SWIGTYPE_p_p_aiMaterialProperty Properties {
     set {
       AssimpPINVOKE.Material_Properties_set(swigCPtr, SWIGTYPE_p_p_aiMaterialProperty.getCPtr(value));
@@ -81,6 +95,7 @@ public class Material : global::System.IDisposable {
     } 
   }
 
+  ///  Number of properties in the data base
   public uint NumProperties {
     set {
       AssimpPINVOKE.Material_NumProperties_set(swigCPtr, value);
@@ -91,6 +106,7 @@ public class Material : global::System.IDisposable {
     } 
   }
 
+  ///  Storage allocated
   public uint NumAllocated {
     set {
       AssimpPINVOKE.Material_NumAllocated_set(swigCPtr, value);
