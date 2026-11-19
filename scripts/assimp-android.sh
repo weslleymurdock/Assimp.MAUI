@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-ASSIMP_TAG="v6.0.5"
+ASSIMP_TAG="${ASSIMP_TAG:-v6.0.6}"
 NDK_VERSION="26.1.10909125" # NDK r26b
 MIN_SDK_VERSION="24"
 TARGET_SDK_VERSION="37"
@@ -218,6 +218,8 @@ for ABI in "${ABIS[@]}"; do
     -DBUILD_SHARED_LIBS=ON \
     -DCMAKE_C_FLAGS="$CMAKE_C_FLAGS" \
     -DCMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
+    -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
+    -DCMAKE_MODULE_LINKER_FLAGS="-Wl,-z,max-page-size=16384" \
     -DASSIMP_BUILD_TESTS=OFF \
     -DASSIMP_BUILD_ASSIMP_TOOLS=OFF \
     -DASSIMP_BUILD_ZLIB=ON \
@@ -261,6 +263,7 @@ for ABI in "${ABIS[@]}"; do
 
   # Compila o wrapper como uma Shared Library apontando para a libassimp gerada
   "$CLANG" -shared -O3 \
+    -Wl,-z,max-page-size=16384 \
     --target="${TOOLCHAIN_ARCH}${MIN_SDK_VERSION}" \
     src/Assimp.Maui/Platforms/Android/Maui/assimpmaui.cxx \
     -Iexternal/assimp/include \

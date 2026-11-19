@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-ASSIMP_TAG="v6.0.5"
+ASSIMP_TAG="${ASSIMP_TAG:-v6.0.6}"
 IOS_DEPLOYMENT_TARGET="15.0"
 PUBLISH_LOCAL=true
 SSH_HOST=""

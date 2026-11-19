@@ -19,7 +19,7 @@ if ($Arch.Count -gt 1) {
 }
 
 $ErrorActionPreference = "Stop"
-$ASSIMP_TAG = "v6.0.5"
+$ASSIMP_TAG = if ($env:ASSIMP_TAG) { $env:ASSIMP_TAG } else { "v6.0.6" }
 $BUILD_DIR = "$PSScriptRoot/../build/windows-$Arch"
 $SWIG_OUT = "$PSScriptRoot/../src/Assimp.Maui/Platforms/Windows/Maui"
 $RUNTIME_RID = if ($Arch -eq "arm64") { "win-arm64" } else { "win-x64" }
